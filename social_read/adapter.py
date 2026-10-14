@@ -8,6 +8,7 @@ import tempfile
 import time
 import uuid
 import secrets
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
@@ -80,9 +81,26 @@ class Runner:
     def call(self, site, command, args, cancel=None):
         if command not in READ_COMMANDS.get(site, set()):
             raise ReadError("forbidden_action", "首版只允许已登记的读取操作。")
-        code, out, err = self.run([site, command] + args + ["-f", "json"], cancel)
-        if code:
-            raise classify_error(out + "\n" + err, code)
+        # Reuse only the explicitly selected profile's platform container.
+        cli_args = [site, command] + args + ["--site-session", "persistent", "-f", "json"]
+        for attempt in (1, 2):
+            code, out, err = self.run(cli_args, cancel)
+            error = classify_error(out + "\n" + err, code) if code else None
+            record = {"at": datetime.now(timezone.utc).isoformat(), "platform": site, "command": command, "attempt": attempt, "session": "persistent", "status": error.code if error else "success"}
+            fd = os.open(str(self.workdir / "adapter-attempts.jsonl"), os.O_CREAT | os.O_WRONLY | os.O_APPEND, 0o600)
+            try:
+                os.write(fd, (json.dumps(record) + "\n").encode())
+            finally:
+                os.close(fd)
+            if not error:
+                break
+            if error.code != "navigation_rejected" or attempt == 2:
+                raise error
+            if cancel:
+                if cancel.wait(2):
+                    raise ReadError("cancelled", "任务已取消。")
+            else:
+                time.sleep(2)
         data = parse_json(out)
         if isinstance(data, dict) and (data.get("error") or data.get("ok") is False):
             raise classify_error(json.dumps(data, ensure_ascii=False))
@@ -177,6 +195,14 @@ class OpenCLIAdapter:
                     raise
         data = self.runner.call(site, "search", [query, "--limit", str(limit)], cancel)
         return [search_item(site, r, query, self.name) for r in rows(data)]
+
+    def read_with_context(self, site, target, cancel, context):
+        if site == "weixin" and urlsplit(target).hostname == "weixin.sogou.com" and context.get("query"):
+            from .weixin_browser import read_search_article
+            item = read_search_article(self.runner, context["query"], context.get("title"), cancel)
+            item["search_source_url"] = target
+            return item
+        return self.read(site, target, cancel)
 
     def read(self, site, target, cancel):
         target = validate_url(site, target)

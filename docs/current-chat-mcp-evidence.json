@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-10-15",
+  "client": "current Codex conversation",
+  "method": "native social-read MCP get_task",
+  "scope": "retrieval of completed live research jobs; no new platform reads",
+  "jobs": [
+    {
+      "task_id": "task_8278c2d10e004123a79a591d3e166e9d",
+      "status": "success",
+      "mode": "live",
+      "platform": "weixin",
+      "body_chars": 1181,
+      "media_count": 10,
+      "original_read_cache_used": false
+    },
+    {
+      "task_id": "task_93454fb372774bd58f9ea345dd8fa051",
+      "status": "success",
+      "mode": "live",
+      "platform": "weibo",
+      "body_chars": 308,
+      "media_count": 0,
+      "original_read_cache_used": false
+    }
+  ]
+}

@@ -23,7 +23,11 @@ function originalButton(item,text){
  };
  return button;
 }
-function stamp(s){if(!s)return '日期未提供';return String(s);}
+function stamp(s){
+ if(!s)return '日期未提供';
+ if(/^\d{4}-\d{2}-\d{2}T/.test(String(s))){const d=new Date(s);if(!Number.isNaN(d.getTime()))return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d)+'（北京时间）';}
+ return String(s);
+}
 async function api(path,body){
  if(filePreview)return previewApi(path,body);
  const response=await fetch(path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-Social-Read-Token':token},body:body?JSON.stringify(body):undefined});
@@ -66,6 +70,7 @@ function renderResults(items){
 function renderContent(content){
  currentRef=content.content_ref;$('refresh').hidden=!currentRef;
  const box=$('content');box.replaceChildren(node('span',labels[content.platform]||content.platform,'badge'),node('h3',content.title),node('p',(content.author||'作者未提供')+' · '+stamp(content.published_at_raw),'meta'),node('div',content.notice||'请核对正文范围。','message'));
+ box.append(node('p','取得 '+(content.body_chars??Array.from(content.body||'').length)+' 个文字字符 · '+(content.media_count??content.media?.length??0)+' 个图片链接','meta'));
  if(content.cache?.used)box.append(node('p','使用本机缓存 · 获取于 '+stamp(content.fetched_at),'meta'));
  if(mode==='live')box.append(originalButton(content,'到原帖核对'));
  box.append(node('div',content.body||'未取得正文。','body'));
@@ -82,4 +87,4 @@ $('check').onclick=async()=>{const job=await run('connection',{});if(job?.result
 $('cancel').onclick=async()=>{if(active){try{await api('/api/tasks/'+active+'/cancel',{});message('正在停止当前任务。');}catch(e){message(e.message,true);}}};
 $('refresh').onclick=()=>currentRef&&read({content_ref:currentRef,refresh:true});
 $('history-refresh').onclick=history;
-(async()=>{try{const boot=await api('/api/bootstrap');token=boot.token;mode=boot.mode;$('mode').textContent=mode==='demo'?'离线演示 · 虚构样例':'本机读取 · 待真实验证';for(const p of boot.platforms){const label=node('label'),input=node('input');input.type='checkbox';input.value=p.id;input.checked=true;label.append(input,node('span',p.label));$('platforms').append(label);}if(mode==='demo')message(filePreview?'这是界面预览，未运行读取服务；所有样例均为虚构。':'这是离线演示，所有内容均为虚构；不代表平台读取成功。');await history();}catch(e){$('mode').textContent='本机服务未连接';message('请从本机启动器运行 Social Read，再打开此页面。',true);}})();
+(async()=>{try{const boot=await api('/api/bootstrap');token=boot.token;mode=boot.mode;$('mode').textContent=mode==='demo'?'离线演示 · 虚构样例':'本机读取 · 试用版';for(const p of boot.platforms){const label=node('label'),input=node('input');input.type='checkbox';input.value=p.id;input.checked=true;label.append(input,node('span',p.label));$('platforms').append(label);}if(mode==='demo')message(filePreview?'这是界面预览，未运行读取服务；所有样例均为虚构。':'这是离线演示，所有内容均为虚构；不代表平台读取成功。');await history();}catch(e){$('mode').textContent='本机服务未连接';message('请从本机启动器运行 Social Read，再打开此页面。',true);}})();

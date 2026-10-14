@@ -1,0 +1,23 @@
+[
+  {
+    "session": "ephemeral",
+    "window": "background",
+    "seconds": 9.17,
+    "status": "success",
+    "rows": 2
+  },
+  {
+    "session": "persistent",
+    "window": "background",
+    "seconds": 3.1,
+    "status": "success",
+    "rows": 2
+  },
+  {
+    "session": "persistent",
+    "window": "background",
+    "seconds": 2.02,
+    "status": "success",
+    "rows": 2
+  }
+]

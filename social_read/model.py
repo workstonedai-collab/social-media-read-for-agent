@@ -58,7 +58,10 @@ def validate_url(site, value, allow_index=True):
     if not isinstance(value, str) or len(value) > 6000 or any(ord(c) < 32 for c in value):
         raise ReadError("invalid_input", "请输入完整的平台内容链接。")
     try:
-        p = urlsplit(html.unescape(value.strip()))
+        # Decode only complete HTML entities. html.unescape on a plain URL
+        # corrupts &timestamp into the semicolon-less &times entity.
+        cleaned = re.sub(r"&(?:amp|quot|apos|lt|gt);|&#(?:[0-9]+|x[0-9a-fA-F]+);", lambda m: html.unescape(m.group()), value.strip())
+        p = urlsplit(cleaned)
         if p.scheme not in ("https", "http") or p.hostname not in HOSTS[site] or p.username or p.password or p.port not in (None, 80, 443):
             raise ValueError()
         if p.fragment:
@@ -96,7 +99,13 @@ def scrub(value):
     if isinstance(value, list):
         return [scrub(v) for v in value]
     if isinstance(value, str):
-        value = re.sub(r"https?://[^\s<>\"']+", lambda m: public_url(m.group()), value)
+        # Keep ordinary Markdown/Chinese prose exact; only rewrite URLs that
+        # actually carry a secret. Stop before Markdown closing delimiters.
+        def redact_link(match):
+            link = match.group()
+            keys = "|".join(re.escape(k) for k in SECRET_KEYS)
+            return public_url(link) if re.search(r"[?&](?:" + keys + r")=", link, re.I) else link
+        value = re.sub(r"https?://[^\s<>\"'\]\)]+", redact_link, value)
         value = re.sub(r"(?i)\b(cookie|authorization|access_token|refresh_token|api_key|password|xsec_token|signature)\s*[:=]\s*[^\s,;]+", r"\1=[已隐藏]", value)
     return value
 
@@ -156,7 +165,8 @@ def content_item(site, data, target, backend, markdown=None):
         raise ReadError("adapter_incompatible", "正文数据格式无法识别。")
     body = markdown if markdown is not None else d.get("content") or d.get("text") or ""
     body = strip_markup(body) if markdown is None else body
-    if not str(body).strip():
+    body = scrub(str(body))
+    if not body.strip():
         raise ReadError("content_unavailable", "没有取得可见正文。可能是图文、权限限制或页面变化；请到原帖核对。")
     return {
         "platform": site, "title": d.get("title") or d.get("question_title") or "内容详情",
@@ -164,7 +174,7 @@ def content_item(site, data, target, backend, markdown=None):
         "published_at_raw": d.get("created_at") or d.get("publish_time") or None,
         "source_url": public_url(d.get("url") or target), "source": PLATFORMS[site]["source"] if site != "weixin" else "微信文章页面",
         "fetched_at": now(), "backend": backend, "completeness": "unverified",
-        "body_sha256": digest(body), "media": [], "retweet": {"author": d.get("retweeted_from"), "body": d.get("retweeted_text")} if d.get("retweeted_from") else None,
+        "body_sha256": digest(body), "body_chars": len(body), "media": [], "retweet": {"author": d.get("retweeted_from"), "body": d.get("retweeted_text")} if d.get("retweeted_from") else None,
         "notice": "已取得文字正文；完整性需对照原帖。图片内文字、视频语音不包含在本次结果中。",
         "_target": target, "_raw": data,
     }

@@ -1,0 +1,70 @@
+[
+  {
+    "previous_failed_task": "task_97184ec4637d40a2bec1ce30f08cb5d6",
+    "task_id": "task_e13481d967a54255b53369f28e15c86f",
+    "status": "success",
+    "seconds": 7.2,
+    "title": "重磅：程序员的个人知识管理神器",
+    "content_ref": "content_8f2ea36498ba8fbb497cd069",
+    "body_chars": 1181,
+    "media_count": 10,
+    "backend": "opencli-sogou-click",
+    "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1791997524&ver=7026&new=1",
+    "published_at_raw": "2019年8月18日 21:30",
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  },
+  {
+    "previous_failed_task": "task_215721d7b146444c879630fe59fbbc72",
+    "task_id": "task_1fc1da1496a84c77a83a9c47beb1ff69",
+    "status": "success",
+    "seconds": 7.69,
+    "title": "编辑如何利用个人知识管理工具提高工作效率",
+    "content_ref": "content_13d398b70634edd6408f7bb8",
+    "body_chars": 5495,
+    "media_count": 4,
+    "backend": "opencli-sogou-click",
+    "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1791997533&ver=7026&new=1",
+    "published_at_raw": "2019年7月24日 10:17",
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  },
+  {
+    "previous_failed_task": "task_45ddca2f1fb84195825e32a67e3791b4",
+    "task_id": "task_f7ff8efdf4924957b137f59cf4cebee3",
+    "status": "success",
+    "seconds": 9.13,
+    "title": "如果你感觉obsidian自带的搜索不好用,这个插件是你不错的选择",
+    "content_ref": "content_4d967219454f7fc0e9b02573",
+    "body_chars": 1036,
+    "media_count": 9,
+    "backend": "opencli-sogou-click",
+    "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1791997541&ver=7026&new=1",
+    "published_at_raw": "2024年5月7日 08:00",
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  },
+  {
+    "previous_failed_task": "task_df2fbb9faade4810a3363d85c4598f28",
+    "task_id": "task_7221811322084e4899b6250e7469aaef",
+    "status": "success",
+    "seconds": 7.94,
+    "title": "创弹第十七弹：学习与知识管理软件分享",
+    "content_ref": "content_b7c9962afaae34052dd1cf39",
+    "body_chars": 5720,
+    "media_count": 4,
+    "backend": "opencli-sogou-click",
+    "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1791997550&ver=7026&new=1",
+    "published_at_raw": "2019年7月15日 21:27",
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  }
+]

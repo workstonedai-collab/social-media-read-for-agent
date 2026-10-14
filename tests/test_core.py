@@ -460,3 +460,108 @@ class WechatAccessFallbackTests(unittest.TestCase):
         with patch("social_read.weixin_public.read_public_article",side_effect=ReadError("verification_required","去验证")),self.assertRaises(ReadError) as exc:
             OpenCLIAdapter(runner).read("weixin","https://mp.weixin.qq.com/s/fixture",threading.Event())
         self.assertEqual(exc.exception.code,"verification_required")
+
+
+class NavigationRecoveryTests(unittest.TestCase):
+    def test_one_navigation_retry_uses_same_persistent_session_and_keeps_audit(self):
+        with tempfile.TemporaryDirectory() as td:
+            runner=Runner(td,executable="opencli",profile="dedicated")
+            with patch.object(runner,"run",side_effect=[(1,"Navigation rejected.",""),(0,'[{"text":"正文"}]',"")]) as run,patch("social_read.adapter.time.sleep"):
+                self.assertEqual(runner.call("weibo","post",["AbCd"])[0]["text"],"正文")
+            self.assertEqual(run.call_count,2)
+            self.assertEqual(run.call_args_list[0].args[0],run.call_args_list[1].args[0])
+            self.assertIn("persistent",run.call_args.args[0])
+            audit=[json.loads(x) for x in (Path(td)/"adapter-attempts.jsonl").read_text().splitlines()]
+            self.assertEqual([x["status"] for x in audit],["navigation_rejected","success"])
+
+    def test_challenge_and_exhausted_navigation_are_not_retried_forever(self):
+        with tempfile.TemporaryDirectory() as td:
+            runner=Runner(td,executable="opencli",profile="dedicated")
+            for error,attempts in [("verification required",1),("Navigation rejected.",2)]:
+                with patch.object(runner,"run",return_value=(1,error,"")) as run,patch("social_read.adapter.time.sleep"),self.assertRaises(ReadError):
+                    runner.call("weibo","post",["AbCd"])
+                self.assertEqual(run.call_count,attempts)
+
+class ArticleBudgetTests(unittest.TestCase):
+    def test_large_page_with_small_body_is_read_and_response_stays_bounded(self):
+        from social_read.weixin_public import read_public_article,ARTICLE_RESPONSE_LIMIT
+        from types import SimpleNamespace
+        class Response:
+            def __init__(self,raw):self.raw=raw
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def geturl(self):return "https://mp.weixin.qq.com/s/fixture"
+            def read(self,size):return self.raw[:size]
+        raw=('<h2 id="activity-name">标题</h2><div id="js_content">正文</div><script>'+('x'*2500000)+'</script>').encode()
+        with patch("social_read.weixin_public.build_opener",return_value=SimpleNamespace(open=lambda *a,**k:Response(raw))):
+            self.assertEqual(read_public_article("https://mp.weixin.qq.com/s/fixture")["content"],"正文")
+        with patch("social_read.weixin_public.build_opener",return_value=SimpleNamespace(open=lambda *a,**k:Response(b'x'*(ARTICLE_RESPONSE_LIMIT+1)))),self.assertRaises(ReadError):
+            read_public_article("https://mp.weixin.qq.com/s/fixture")
+
+class AgentPollingTests(unittest.TestCase):
+    def test_bounded_wait_and_output_body_hash(self):
+        with tempfile.TemporaryDirectory() as td:
+            engine=Engine(td,"demo")
+            try:
+                submitted=call(engine,"search",{"platforms":["weibo"],"query":"主题"})
+                self.assertEqual(call(engine,"get_task",{"task_id":submitted["task_id"],"wait_seconds":1})["status"],"success")
+                with self.assertRaises(ReadError):call(engine,"get_task",{"task_id":submitted["task_id"],"wait_seconds":31})
+            finally:engine.shutdown()
+        from social_read.model import digest
+        item=content_item("weixin",{"content":"正文 https://mp.weixin.qq.com/s?signature=PRIVATE&src=11"},"https://mp.weixin.qq.com/s/fixture","test")
+        self.assertNotIn("PRIVATE",item["body"])
+        self.assertEqual(item["body_sha256"],digest(item["body"]))
+
+
+class PlainURLQueryTests(unittest.TestCase):
+    def test_timestamp_and_partial_entity_names_stay_exact(self):
+        url="https://mp.weixin.qq.com/s?src=11&timestamp=1791993351&signature=PRIVATE&notin=1"
+        self.assertEqual(validate_url("weixin",url),url)
+        self.assertEqual(validate_url("weixin",url.replace("&","&amp;")),url)
+        self.assertIn("timestamp=1791993351",public_url(validate_url("weixin",url)))
+
+class WeixinContextTests(unittest.TestCase):
+    def runner(self, blocked=False, selected=True):
+        class Fake:
+            profile="dedicated"
+            def __init__(self):self.calls=[]
+            def run(self,args,cancel=None,timeout=None):
+                self.calls.append(args)
+                if args[2:4]==["tab","new"]:return 0,'{"page":"owned-page"}',""
+                if args[2]=="wait" and blocked:return 1,"timeout", ""
+                if args[2:4]==["get","text"]:return 0,'{"value":"安全验证 请输入验证码"}',""
+                if args[2]=="eval":return 0,json.dumps({"selected":selected} if "const wanted" in args[3] else {"url":"https://mp.weixin.qq.com/s/canonical"}),""
+                if args[2:4]==["get","url"]:return 0,"https://mp.weixin.qq.com/s?timestamp=100&signature=PRIVATE",""
+                if args[2:4]==["get","html"]:return 0,'<h2 id="activity-name">标题</h2><span id="publish_time">2019年8月18日</span><div id="js_content"><p>正文</p><img data-src="https://mmbiz.qpic.cn/a"></div>',""
+                return 0,"{}",""
+        return Fake()
+
+    def test_context_click_reads_scoped_body_and_only_closes_owned_page(self):
+        from social_read.weixin_browser import read_search_article
+        runner=self.runner();item=read_search_article(runner,"主题",'标题"; malicious()',threading.Event())
+        self.assertEqual(item["body"],"正文")
+        self.assertEqual(item["published_at_raw"],"2019年8月18日")
+        self.assertEqual(len(item["media"]),1)
+        self.assertEqual(item["source_url"],"https://mp.weixin.qq.com/s/canonical")
+        self.assertEqual(runner.calls[-1][2:],["tab","close","owned-page"])
+        self.assertTrue(all("--tab" not in x or x[x.index("--tab")+1]=="owned-page" for x in runner.calls))
+
+    def test_verification_or_ambiguous_title_stops_before_click(self):
+        from social_read.weixin_browser import read_search_article
+        for blocked,selected,expected in [(True,True,"verification_required"),(False,False,"source_context_changed")]:
+            r=self.runner(blocked,selected)
+            with self.assertRaises(ReadError) as exc:read_search_article(r,"主题","标题",threading.Event())
+            self.assertEqual(exc.exception.code,expected)
+            self.assertFalse(any(x[2]=="click" for x in r.calls))
+            self.assertEqual(r.calls[-1][2:],["tab","close","owned-page"])
+
+
+class BodyFidelityTests(unittest.TestCase):
+    def test_redaction_preserves_markdown_and_adjacent_chinese(self):
+        plain="[知识库](https://example.org/search?q=中文)，以及我们实际如何使用。"
+        self.assertEqual(scrub(plain),plain)
+        secret="[来源](https://mp.weixin.qq.com/s?timestamp=123&signature=PRIVATE)后面的中文。"
+        clean=scrub(secret)
+        self.assertNotIn("PRIVATE",clean)
+        self.assertIn(")后面的中文。",clean)
+        self.assertIn("timestamp=123",clean)

@@ -1,0 +1,563 @@
+[
+  {
+    "action": "search",
+    "request": {
+      "platforms": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "query": "个人知识管理工具",
+      "limit": 2
+    },
+    "task_id": "task_24423907c8c14f0bae963185ce03776c",
+    "status": "success",
+    "seconds": 36.26,
+    "errors": [],
+    "items": [
+      {
+        "platform": "xiaohongshu",
+        "title": "如何用AI搭一个「真的会用到」的个人知识库",
+        "published_at_raw": null,
+        "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+        "backend": "opencli",
+        "content_ref": "content_324874beddbc2a2b3354ab8b"
+      },
+      {
+        "platform": "xiaohongshu",
+        "title": "求网友们支招个人知识管理软件",
+        "published_at_raw": null,
+        "source_url": "https://www.xiaohongshu.com/search_result/6a256c78000000002201b9d3?xsec_source=",
+        "backend": "opencli",
+        "content_ref": "content_6653d723ec0cc6df36cdaec3"
+      },
+      {
+        "platform": "weibo",
+        "title": "这套极简的知识管理闭环，快速提升生产力！想要实现个人能力与工作效率的长效跃升，一套可落地、可流转的系统化知识管理体系至关重要。有道云笔记打造了一套零门槛知识管理方案，无需复杂学习成本，新手也能快速搭建…",
+        "published_at_raw": "07月28日 18:03",
+        "source_url": "https://weibo.com/2154137571/RaMYR608I?refer_flag=1001030103_",
+        "backend": "opencli",
+        "content_ref": "content_3a26e525f6a45f37ac12fe98"
+      },
+      {
+        "platform": "weibo",
+        "title": "【笔记软件的神话与现实：PKM真的让我们更聪明了吗？】近期关于Obsidian等个人知识管理（PKM）工具到底贡献了什么的讨论，戳破了大众长久以来的幻觉。怀疑者提出一个尖锐观察：这些工具流行多年，人类…",
+        "published_at_raw": "08月04日 08:57",
+        "source_url": "https://weibo.com/1402400261/RbNovDGuE?refer_flag=1001030103_",
+        "backend": "opencli",
+        "content_ref": "content_0f9c7481be65a6ab18999f36"
+      },
+      {
+        "platform": "zhihu",
+        "title": "如何打造个人知识管理系统（工具篇）",
+        "published_at_raw": null,
+        "source_url": "https://zhuanlan.zhihu.com/p/522716891",
+        "backend": "opencli",
+        "content_ref": "content_5931f95c3ab45c0bf98090d5"
+      },
+      {
+        "platform": "zhihu",
+        "title": "2026年了，你目前在使用什么软件做知识管理，为什么？",
+        "published_at_raw": null,
+        "source_url": "https://www.zhihu.com/question/2081145996143346168/answer/2087349626500396527",
+        "backend": "opencli",
+        "content_ref": "content_e5164bc34bd9c0a42744ec95"
+      },
+      {
+        "platform": "weixin",
+        "title": "重磅:程序员的个人知识管理神器",
+        "published_at_raw": "2019-08-18T21:30:02+08:00",
+        "source_url": "https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgS7_-9fN-vB2pNcdc2i55T8AMsjpqqapXAlqXa8Fplpd9IeWGxjaFtltjBUNHnlgfOlIRtWAE-Z2PKpvX2dTGYFkU3rzGyZ3F-9ZkbYjNou_M4mNrMUokrpyogQkhwksVCuZRAkodZW_MkYoWGxH6TYyB9_cEwaoBglCMOmvbTB9ypm3xXoSmvhewElLHW8ObQd2ed8JEpTJweD3iPqDcAD3wdVqCwyPdzA..&type=2&query=%E4%B8%AA%E4%BA%BA%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7&k=6&h=Q",
+        "backend": "public-http-sogou",
+        "content_ref": "content_c570e5de65b759e93cc528d0"
+      },
+      {
+        "platform": "weixin",
+        "title": "编辑如何利用个人知识管理工具提高工作效率",
+        "published_at_raw": "2019-07-24T10:17:52+08:00",
+        "source_url": "https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgS7_-9fN-vB2pNcdc2i55T8AMsjpqqapXAlqXa8Fplpd92H2AyYR-lzv0XczMCGErR3H8yMgRiotVJDyyq0Y42LnAysLACF3ZsnNTtVR0UpwX9dpub8iP1jLBE8aH7LDnRvj0mnVX8p6XwKCsCbMIOmmEXtUV8fD3bQebXdiV630eQFyBoU_nDDWuQVa7Fo36lOmPC6XQ8qBSWZnOP4Vi-B1hlgeRt7bSzA..&type=2&query=%E4%B8%AA%E4%BA%BA%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7&k=66&h=X",
+        "backend": "public-http-sogou",
+        "content_ref": "content_05b25bfea4bf2b68f4eadf03"
+      }
+    ]
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "refresh": true
+    },
+    "task_id": "task_3485dd771f06440d92d8a7546b9a7b9f",
+    "status": "success",
+    "seconds": 20.63,
+    "errors": [],
+    "title": "如何用AI搭一个「真的会用到」的个人知识库",
+    "platform": "xiaohongshu",
+    "content_ref": "content_324874beddbc2a2b3354ab8b",
+    "body_chars": 110,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_6653d723ec0cc6df36cdaec3",
+      "refresh": true
+    },
+    "task_id": "task_34304601c0f3495a8e372439a6a10734",
+    "status": "success",
+    "seconds": 21.64,
+    "errors": [],
+    "title": "求网友们支招个人知识管理软件",
+    "platform": "xiaohongshu",
+    "content_ref": "content_6653d723ec0cc6df36cdaec3",
+    "body_chars": 368,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "refresh": true
+    },
+    "task_id": "task_5ce0d9f44d5645c09b22564b702c66a7",
+    "status": "success",
+    "seconds": 4.29,
+    "errors": [],
+    "title": "内容详情",
+    "platform": "weibo",
+    "content_ref": "content_3a26e525f6a45f37ac12fe98",
+    "body_chars": 308,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_0f9c7481be65a6ab18999f36",
+      "refresh": true
+    },
+    "task_id": "task_019fff4254b5400a8d4fb309b4fc2a13",
+    "status": "success",
+    "seconds": 4.96,
+    "errors": [],
+    "title": "内容详情",
+    "platform": "weibo",
+    "content_ref": "content_0f9c7481be65a6ab18999f36",
+    "body_chars": 518,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_5931f95c3ab45c0bf98090d5",
+      "refresh": true
+    },
+    "task_id": "task_63eadd5c14764b799e8bacef852ad939",
+    "status": "success",
+    "seconds": 20.02,
+    "errors": [],
+    "title": "如何打造个人知识管理系统（工具篇）",
+    "platform": "zhihu",
+    "content_ref": "content_5931f95c3ab45c0bf98090d5",
+    "body_chars": 8115,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_e5164bc34bd9c0a42744ec95",
+      "refresh": true
+    },
+    "task_id": "task_10bbaf658dc44afdad6753b1a7dc4a2f",
+    "status": "success",
+    "seconds": 17.49,
+    "errors": [],
+    "title": "2026年了，你目前在使用什么软件做知识管理，为什么？",
+    "platform": "zhihu",
+    "content_ref": "content_e5164bc34bd9c0a42744ec95",
+    "body_chars": 1861,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_c570e5de65b759e93cc528d0",
+      "refresh": true
+    },
+    "task_id": "task_97184ec4637d40a2bec1ce30f08cb5d6",
+    "status": "failed",
+    "seconds": 11.49,
+    "errors": [
+      {
+        "status": "content_unavailable",
+        "message": "没有取得文章标题或正文。可能是访问受限、页面变化或组件不兼容；请到原文核对。",
+        "retryable": false
+      }
+    ],
+    "title": null,
+    "platform": null,
+    "content_ref": null,
+    "body_chars": 0,
+    "media_count": 0,
+    "backend": null,
+    "cache_used": null
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_05b25bfea4bf2b68f4eadf03",
+      "refresh": true
+    },
+    "task_id": "task_215721d7b146444c879630fe59fbbc72",
+    "status": "failed",
+    "seconds": 13.92,
+    "errors": [
+      {
+        "status": "content_unavailable",
+        "message": "没有取得文章标题或正文。可能是访问受限、页面变化或组件不兼容；请到原文核对。",
+        "retryable": false
+      }
+    ],
+    "title": null,
+    "platform": null,
+    "content_ref": null,
+    "body_chars": 0,
+    "media_count": 0,
+    "backend": null,
+    "cache_used": null
+  },
+  {
+    "action": "search",
+    "request": {
+      "platforms": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "query": "Obsidian 使用体验",
+      "limit": 2
+    },
+    "task_id": "task_d5060f7b35c44606a0617289be958e99",
+    "status": "success",
+    "seconds": 32.45,
+    "errors": [],
+    "items": [
+      {
+        "platform": "xiaohongshu",
+        "title": "Obsidian 改造成这样后，我真的不想切软件",
+        "published_at_raw": null,
+        "source_url": "https://www.xiaohongshu.com/search_result/6a8085ec0000000025004e32?xsec_source=",
+        "backend": "opencli",
+        "content_ref": "content_f1caad4a92e9095f9550859d"
+      },
+      {
+        "platform": "xiaohongshu",
+        "title": "「一个让你愿意每天打开的知识空间」",
+        "published_at_raw": null,
+        "source_url": "https://www.xiaohongshu.com/search_result/6acf7c170000000018018ca8?xsec_source=",
+        "backend": "opencli",
+        "content_ref": "content_10ad5f490ef04dff93f9ad6c"
+      },
+      {
+        "platform": "weibo",
+        "title": "信息差，刚开始学着用obsidian，对P人来说真的好难，可是界面好好看！ ​",
+        "published_at_raw": "08月20日 19:39",
+        "source_url": "https://weibo.com/6313282119/ReirayJeT?refer_flag=1001030103_",
+        "backend": "opencli",
+        "content_ref": "content_6315b4bfa01b992b69ac8932"
+      },
+      {
+        "platform": "weibo",
+        "title": "Obsidian 这个笔记软件诞生这么多年，我阶段性用过几次但往往很快又放弃了。不是因为它有什么功能上的缺失，反而是它的可自由定制化以及丰富的插件系统，这种过于灵活的使用体验让我无所适从，导致经常性地…",
+        "published_at_raw": "03月24日 11:51",
+        "source_url": "https://weibo.com/2166767661/Qxy9mbMyX?refer_flag=1001030103_",
+        "backend": "opencli",
+        "content_ref": "content_47b00bce024c1ec6697b3389"
+      },
+      {
+        "platform": "zhihu",
+        "title": "Obsidian真的很好用吗，国内有多少人在用obsidian？",
+        "published_at_raw": null,
+        "source_url": "https://www.zhihu.com/question/14641708559/answer/2052500056557762526",
+        "backend": "opencli",
+        "content_ref": "content_8bb3fa914ef7f94d2e0c0f32"
+      },
+      {
+        "platform": "zhihu",
+        "title": "深度使用Obsidian两年心得分享",
+        "published_at_raw": null,
+        "source_url": "https://zhuanlan.zhihu.com/p/1887488435918467457",
+        "backend": "opencli",
+        "content_ref": "content_d51d6948f7454724e352dd66"
+      },
+      {
+        "platform": "weixin",
+        "title": "如果你感觉obsidian自带的搜索不好用,这个插件是你不错的选择",
+        "published_at_raw": "2024-05-07T08:00:08+08:00",
+        "source_url": "https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgS7_-9fN-vB2ppyJkw_w_ho4MsjpqqapXAlqXa8Fplpd9JGbUnAAr1K6OZjqsbENK5ueSe470vCeICA661exDv1SQuvFIUa9PrLPbgIPRa20eyIqzzAr3g20z8HSnWmMSBC1eyyB7z8Ic5sd3HA4Z0_CXUpuE9Pw30cHfFYGM0OteA9F_sG-htKFfcR7-ewL33NS8uyAxc6vhR5tWcn-p228Cn9lOoZLP2Q..&type=2&query=Obsidian+%E4%BD%BF%E7%94%A8%E4%BD%93%E9%AA%8C&k=54&h=M",
+        "backend": "public-http-sogou",
+        "content_ref": "content_aa88d7f4ef9d726b2053ee2e"
+      },
+      {
+        "platform": "weixin",
+        "title": "Obsidian使用初体验",
+        "published_at_raw": "2022-03-31T20:16:53+08:00",
+        "source_url": "https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgS7_-9fN-vB2ppyJkw_w_ho4MsjpqqapXAlqXa8Fplpd9cIfEh1c-UyaBiQyGKuIJmofELjKE6Zv0hL9GA5ZKPtCwtlCBSlx7FZ_Y5BbMyPDmslRRx4eoyEvfQrKOM0oemSz-95h-wr_twmGcQgkXrJE-M2uNPzxdFlmmPciYC73YR3c0ayWb6pdmdKLSdaLn0j8Tdxq7GKw1kumRjPR2Rf8GX_iHL9MadA..&type=2&query=Obsidian+%E4%BD%BF%E7%94%A8%E4%BD%93%E9%AA%8C&k=35&h=9",
+        "backend": "public-http-sogou",
+        "content_ref": "content_cd0cbdf8801871c1ae3c6072"
+      }
+    ]
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_f1caad4a92e9095f9550859d",
+      "refresh": true
+    },
+    "task_id": "task_631ed1d7388844b49745cc39d5944e77",
+    "status": "success",
+    "seconds": 21.47,
+    "errors": [],
+    "title": "Obsidian 改造成这样后，我真的不想切软件",
+    "platform": "xiaohongshu",
+    "content_ref": "content_f1caad4a92e9095f9550859d",
+    "body_chars": 1228,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_6315b4bfa01b992b69ac8932",
+      "refresh": true
+    },
+    "task_id": "task_7e03f554e7f24af4b22eb9444f97bdc8",
+    "status": "success",
+    "seconds": 3.26,
+    "errors": [],
+    "title": "内容详情",
+    "platform": "weibo",
+    "content_ref": "content_6315b4bfa01b992b69ac8932",
+    "body_chars": 41,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_8bb3fa914ef7f94d2e0c0f32",
+      "refresh": true
+    },
+    "task_id": "task_08d5554773b54bce994c7deb1eb844e7",
+    "status": "success",
+    "seconds": 6.47,
+    "errors": [],
+    "title": "Obsidian真的很好用吗，国内有多少人在用obsidian？",
+    "platform": "zhihu",
+    "content_ref": "content_8bb3fa914ef7f94d2e0c0f32",
+    "body_chars": 455,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_aa88d7f4ef9d726b2053ee2e",
+      "refresh": true
+    },
+    "task_id": "task_45ddca2f1fb84195825e32a67e3791b4",
+    "status": "failed",
+    "seconds": 9.37,
+    "errors": [
+      {
+        "status": "content_unavailable",
+        "message": "没有取得文章标题或正文。可能是访问受限、页面变化或组件不兼容；请到原文核对。",
+        "retryable": false
+      }
+    ],
+    "title": null,
+    "platform": null,
+    "content_ref": null,
+    "body_chars": 0,
+    "media_count": 0,
+    "backend": null,
+    "cache_used": null
+  },
+  {
+    "action": "search",
+    "request": {
+      "platforms": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "query": "知识管理 软件 推荐",
+      "limit": 2
+    },
+    "task_id": "task_f7347c56712949238846746ff77f016c",
+    "status": "success",
+    "seconds": 30.72,
+    "errors": [],
+    "items": [
+      {
+        "platform": "xiaohongshu",
+        "title": "求网友们支招个人知识管理软件",
+        "published_at_raw": null,
+        "source_url": "https://www.xiaohongshu.com/search_result/6a256c78000000002201b9d3?xsec_source=",
+        "backend": "opencli",
+        "content_ref": "content_6653d723ec0cc6df36cdaec3"
+      },
+      {
+        "platform": "xiaohongshu",
+        "title": "2026必看！提升效率必備的30個神仙AI工具",
+        "published_at_raw": null,
+        "source_url": "https://www.xiaohongshu.com/search_result/6aa6b30800000000250349a7?xsec_source=",
+        "backend": "opencli",
+        "content_ref": "content_cfdcd55c7b7f847163b91453"
+      },
+      {
+        "platform": "weibo",
+        "title": "YouMind 的联合创始人 JaredL 做了个也许是全网最全（395个，持续更新中）、体验最好、语种最全的 Nano Banana Pro 提示词聚合网站，每个提示词都有配图！有的还有视频！我看了…",
+        "published_at_raw": "2025年11月25日 15:28",
+        "source_url": "https://weibo.com/5078115336/QftIFoCWj?refer_flag=1001030103_",
+        "backend": "opencli",
+        "content_ref": "content_94485a70339f2e102c0a4e04"
+      },
+      {
+        "platform": "weibo",
+        "title": "Google Antigravity 看到这个地狱笑话，我又忍不住来推荐 AI 好物。找亚马逊客服聊天让客服（背后主力模型是 Claude ）帮你打工，不如下个 Google Antigravity …",
+        "published_at_raw": "03月09日 19:11",
+        "source_url": "https://weibo.com/2041266127/QvjCG6YSv?refer_flag=1001030103_",
+        "backend": "opencli",
+        "content_ref": "content_d41ae983b671bf1933470499"
+      },
+      {
+        "platform": "zhihu",
+        "title": "测评了30个知识库软件，我选出了2025年最好用的知识库管理软件！",
+        "published_at_raw": null,
+        "source_url": "https://zhuanlan.zhihu.com/p/1935716343472189856",
+        "backend": "opencli",
+        "content_ref": "content_4990542b695730e553284bcf"
+      },
+      {
+        "platform": "zhihu",
+        "title": "2026各类型笔记软件推荐！助你高效管理知识~",
+        "published_at_raw": null,
+        "source_url": "https://zhuanlan.zhihu.com/p/2010827775414654590",
+        "backend": "opencli",
+        "content_ref": "content_485ff63a699083a8b44a5421"
+      },
+      {
+        "platform": "weixin",
+        "title": "创弹第十七弹:学习与知识管理软件分享",
+        "published_at_raw": "2019-07-16T09:21:08+08:00",
+        "source_url": "https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgS7_-9fN-vB2pP2PcH3bKzYQMsjpqqapXAlqXa8Fplpd9SepFdtNxdRSJjJfnDJsYcfJJffc0g8s01MCffGew3EAvLBvc6lZDjTN9Js2bqIR7EVuXVUy7v5ncxQe2k30Aqr57NFL6BKNomGEEw5jlEpQVm65IDWmHuEI5pXKeP6eDq7-TAm-qk7yKJPmf6rBZqZhh5sPV7n3JXuJBWyC-fJ70OK9DLfgmPA..&type=2&query=%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86+%E8%BD%AF%E4%BB%B6+%E6%8E%A8%E8%8D%90&k=13&h=J",
+        "backend": "public-http-sogou",
+        "content_ref": "content_8640f1f01eb8d663b589960e"
+      },
+      {
+        "platform": "weixin",
+        "title": "学习:知识管理有什么样好软件和工具推荐",
+        "published_at_raw": "2020-12-19T22:31:59+08:00",
+        "source_url": "https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgS7_-9fN-vB2pP2PcH3bKzYQMsjpqqapXAlqXa8Fplpd9JiQ-L_1-s0wwrac7nVGuJajwPYsS7FWeac14hShn1K9D-Synej5c2tYER-wtlTqG8cZgjGgFWJVA93tGeBpX_OeaOci0TW8OO64Gpi0iRgG6wI9L9XHfuqLNtXZQ9g4l99r2rCcX6AKULzU2xE1uttkUjk_Fa2LRnuu3lM-Qu3hOJBjQH7pCxQ..&type=2&query=%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86+%E8%BD%AF%E4%BB%B6+%E6%8E%A8%E8%8D%90&k=28&h=i",
+        "backend": "public-http-sogou",
+        "content_ref": "content_e4bd11cc408b51112fb512b6"
+      }
+    ]
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_6653d723ec0cc6df36cdaec3",
+      "refresh": true
+    },
+    "task_id": "task_7923ff04fbaa4d60b6f0ad728f1122be",
+    "status": "success",
+    "seconds": 19.01,
+    "errors": [],
+    "title": "求网友们支招个人知识管理软件",
+    "platform": "xiaohongshu",
+    "content_ref": "content_6653d723ec0cc6df36cdaec3",
+    "body_chars": 368,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_94485a70339f2e102c0a4e04",
+      "refresh": true
+    },
+    "task_id": "task_b6b1636dd68540b889ea9d11105234f1",
+    "status": "success",
+    "seconds": 4.1,
+    "errors": [],
+    "title": "内容详情",
+    "platform": "weibo",
+    "content_ref": "content_94485a70339f2e102c0a4e04",
+    "body_chars": 490,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_4990542b695730e553284bcf",
+      "refresh": true
+    },
+    "task_id": "task_b00271cff6e441d58d47f2c4633fd630",
+    "status": "success",
+    "seconds": 20.24,
+    "errors": [],
+    "title": "测评了30个知识库软件，我选出了2025年最好用的知识库管理软件！",
+    "platform": "zhihu",
+    "content_ref": "content_4990542b695730e553284bcf",
+    "body_chars": 8602,
+    "media_count": 0,
+    "backend": "opencli",
+    "cache_used": false
+  },
+  {
+    "action": "read",
+    "request": {
+      "content_ref": "content_8640f1f01eb8d663b589960e",
+      "refresh": true
+    },
+    "task_id": "task_df2fbb9faade4810a3363d85c4598f28",
+    "status": "failed",
+    "seconds": 12.91,
+    "errors": [
+      {
+        "status": "content_unavailable",
+        "message": "没有取得文章标题或正文。可能是访问受限、页面变化或组件不兼容；请到原文核对。",
+        "retryable": false
+      }
+    ],
+    "title": null,
+    "platform": null,
+    "content_ref": null,
+    "body_chars": 0,
+    "media_count": 0,
+    "backend": null,
+    "cache_used": null
+  }
+]

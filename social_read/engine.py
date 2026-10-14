@@ -90,6 +90,8 @@ class Engine:
             if event.is_set():
                 raise ReadError("cancelled", "任务已取消。")
         handle = None
+        started = False
+        stamp_path = self.store.root / (site + ".last-request")
         try:
             # Cross-process read serialization for CLI/MCP/dashboard sharing state.
             try:
@@ -107,14 +109,27 @@ class Engine:
                 pass
             if event.is_set():
                 raise ReadError("cancelled", "任务已取消。")
+            if self.mode == "live":
+                try:
+                    remaining = min(2.5, max(0, 2.5 - (time.time() - float(stamp_path.read_text()))))
+                except (OSError, ValueError):
+                    remaining = 0
+                if remaining and event.wait(remaining):
+                    raise ReadError("cancelled", "任务已取消。")
+            started = True
             result = fn()
             if event.is_set():
                 raise ReadError("cancelled", "任务已取消，完成记录已保留。")
             return result
         finally:
-            if handle:
-                handle.close()
-            lock.release()
+            try:
+                if started and self.mode == "live":
+                    stamp_path.write_text(str(time.time()))
+                    stamp_path.chmod(0o600)
+            finally:
+                if handle:
+                    handle.close()
+                lock.release()
 
     def _work(self, job_id, action, r, event):
         result = {"mode": self.mode, "items": [], "errors": [], "fetched_at": now()}
@@ -151,7 +166,11 @@ class Engine:
                 if age is not None and age < 1800 and not r["refresh"]:
                     result["content"] = {**cached["data"], "cache": {"used": True, "age_seconds": round(age)}}
                 else:
-                    item = self._execute(r["platform"], event, lambda: self.adapter.read(r["platform"], r["_target"], event))
+                    def fetch_content():
+                        if hasattr(self.adapter, "read_with_context"):
+                            return self.adapter.read_with_context(r["platform"], r["_target"], event, cached["data"] if cached else {})
+                        return self.adapter.read(r["platform"], r["_target"], event)
+                    item = self._execute(r["platform"], event, fetch_content)
                     result["content"] = self.store.save_item(r["platform"], item, raw=item.get("_raw"), read=True)
                     result["content"]["cache"] = {"used": False}
                 answer_errors = result.get("content", {}).get("answer_errors", [])
@@ -167,7 +186,7 @@ class Engine:
                     result["connection"] = {"status": "demo", "message": "离线演示，未检查浏览器或真实账号。"}
                 else:
                     result["connection"] = self.runner.diagnose(event)
-                    if result["connection"]["status"] == "connected":
+                    if result["connection"]["status"] == "connected" and self.profile:
                         result["platforms"] = []
                         for site in ("xiaohongshu", "weibo", "zhihu"):
                             try:

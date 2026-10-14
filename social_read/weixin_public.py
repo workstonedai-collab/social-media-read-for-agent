@@ -6,16 +6,19 @@ from urllib.request import Request, HTTPRedirectHandler, build_opener
 from urllib.error import HTTPError, URLError
 from .model import ReadError, validate_url
 
+ARTICLE_RESPONSE_LIMIT = 8 * 1024 * 1024
+
 VOID = {'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}
 
 class ArticleParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.stack=[];self.parts={'title':[],'author':[],'body':[]};self.text=[];self.media=[]
+        self.stack=[];self.parts={'title':[],'author':[],'body':[],'publish_time':[]};self.text=[];self.media=[]
     def handle_starttag(self, tag, attrs):
         a=dict(attrs);ident=a.get('id','');kind=None
         if ident in {'activity-name','js_text_title'}:kind='title'
         elif ident=='js_name':kind='author'
+        elif ident=='publish_time':kind='publish_time'
         elif ident=='js_content':kind='body'
         inherited=self.stack[-1][1] if self.stack else None
         kind=kind or inherited
@@ -51,7 +54,7 @@ class ArticleParser(HTMLParser):
             raise ReadError('source_resolution_required','微信没有接受此跳转地址。请从搜狗结果页面打开原文，或提供微信文章链接。')
         title=''.join(self.parts['title']).strip();body=re.sub(r'\n\s*\n+', '\n\n', ''.join(self.parts['body'])).strip()
         if not title or not body:raise ReadError('public_article_unavailable','公开文章响应未包含可识别的正文，需继续验证浏览器读取。')
-        return {'title':title,'author':''.join(self.parts['author']).strip() or None,'content':body,'media':self.media}
+        return {'title':title,'author':''.join(self.parts['author']).strip() or None,'content':body,'media':self.media,'publish_time':''.join(self.parts['publish_time']).strip() or None}
 
 class SafeRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -65,8 +68,8 @@ def read_public_article(target, cancel=None):
         opener=build_opener(SafeRedirect())
         with opener.open(Request(target,headers={'User-Agent':'Mozilla/5.0 (compatible; SocialRead/0.1; public article reader)'}),timeout=15) as response:
             final=validate_url('weixin',response.geturl(),allow_index=False)
-            raw=response.read(2*1024*1024+1)
-        if len(raw)>2*1024*1024:raise ReadError('content_unavailable','文章响应超过读取预算。')
+            raw=response.read(ARTICLE_RESPONSE_LIMIT+1)
+        if len(raw)>ARTICLE_RESPONSE_LIMIT:raise ReadError('content_unavailable','文章响应超过读取预算。')
         if cancel and cancel.is_set():raise ReadError('cancelled','任务已取消。')
         text=raw.decode('utf-8','replace');parser=ArticleParser();parser.feed(text)
         return {**parser.article(text),'url':final}

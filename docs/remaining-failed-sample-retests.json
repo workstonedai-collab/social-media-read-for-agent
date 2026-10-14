@@ -1,0 +1,38 @@
+[
+  {
+    "platform": "xiaohongshu",
+    "original_ref": "content_8b5a2ff780a6cf6bc3853183",
+    "task_id": "task_be06a2394f9e44d3ab06bd3f87a11d57",
+    "status": "success",
+    "title": "Obsidian入门教程 ①| 从0开始搭建知识库",
+    "body_chars": 268,
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  },
+  {
+    "platform": "xiaohongshu",
+    "original_ref": "content_84f4069c90b8d3345f512c0f",
+    "task_id": "task_f7319c194c02402fb4fa0756ae81c779",
+    "status": "success",
+    "title": "我的obsidian电子工位🌿",
+    "body_chars": 1025,
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  },
+  {
+    "platform": "zhihu",
+    "original_ref": "content_ac1ccc8efd4c8e211e217c70",
+    "task_id": "task_fe6dce1c9a3947a6829b75f594b20bda",
+    "status": "success",
+    "title": "有哪些高效构建和管理个人知识体系的工具和方法？",
+    "body_chars": 250,
+    "cache": {
+      "used": false
+    },
+    "errors": []
+  }
+]

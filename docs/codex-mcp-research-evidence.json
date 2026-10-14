@@ -1,0 +1,76 @@
+{
+  "client": "official MCP SDK driven by current Codex",
+  "query": "知识管理 软件 推荐",
+  "search_task_id": "task_4004bb3c2972423b9152818e188dd00e",
+  "search_status": "success",
+  "sources": [
+    {
+      "platform": "xiaohongshu",
+      "task_id": "task_b5082e5f39a3488a92ead1429bcdc3eb",
+      "status": "success",
+      "title": "求网友们支招个人知识管理软件",
+      "content_ref": "content_6653d723ec0cc6df36cdaec3",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a256c78000000002201b9d3?xsec_source=",
+      "body_chars": 368,
+      "media_count": 0,
+      "body_sha256": "afac7488c0e4640f35aaac9e40795ddc304e8ea0144fb19bbe02cab676ca6264",
+      "backend": "opencli",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": null,
+      "errors": []
+    },
+    {
+      "platform": "weibo",
+      "task_id": "task_75aa817300c747e2b60a5e2f026f2408",
+      "status": "success",
+      "title": "内容详情",
+      "content_ref": "content_94485a70339f2e102c0a4e04",
+      "source_url": "https://weibo.com/5078115336/QftIFoCWj",
+      "body_chars": 490,
+      "media_count": 0,
+      "body_sha256": "bdd49b017c029096c04f0076712b77dc68befcec2bd03c39796c9923d8b9574d",
+      "backend": "opencli",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "Tue Nov 25 15:28:50 +0800 2025",
+      "errors": []
+    },
+    {
+      "platform": "zhihu",
+      "task_id": "task_5e567b8d10be4a1cbc5113e57e8a1037",
+      "status": "success",
+      "title": "测评了30个知识库软件，我选出了2025年最好用的知识库管理软件！",
+      "content_ref": "content_4990542b695730e553284bcf",
+      "source_url": "https://zhuanlan.zhihu.com/p/1935716343472189856",
+      "body_chars": 8602,
+      "media_count": 0,
+      "body_sha256": "edff6ab2e1fdca8bf5cec128702a9dc6572479df66f0f83ef16fee8c15388f6c",
+      "backend": "opencli",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "发布于 2025-08-04 15:00・江苏",
+      "errors": []
+    },
+    {
+      "platform": "weixin",
+      "task_id": "task_6a1a725218dc408d9fa48fe70befde8c",
+      "status": "success",
+      "title": "创弹第十七弹：学习与知识管理软件分享",
+      "content_ref": "content_f28767b23c975656c074235c",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1791997673&ver=7026&new=1",
+      "body_chars": 5720,
+      "media_count": 4,
+      "body_sha256": "450d6acfd8f52299b6463f483b2ce69eba8b469a25dc6f90efcd204a3b167192",
+      "backend": "opencli-sogou-click",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "2019年7月15日 21:27",
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "task_id": "task_3bbdf64af2724f049060eae72c555afb",
+  "status": "success",
+  "body_chars": 6774,
+  "title": "测评了30个知识库软件，我选出了2025年最好用的知识库管理软件！",
+  "content_ref": "content_4990542b695730e553284bcf",
+  "body_sha256": "77e3eac7ee3122054c70abb86bc39b77fbbad67f8ec949083e2532433ff3732e",
+  "fix": "Ordinary Markdown links no longer normalize adjacent Chinese prose",
+  "errors": []
+}

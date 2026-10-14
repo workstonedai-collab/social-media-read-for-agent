@@ -1,0 +1,81 @@
+{
+  "client": "current desktop bundled Codex CLI",
+  "client_version": "0.162.0-alpha.17.2",
+  "default_model": "gpt-6.1-sol",
+  "default_model_changed": false,
+  "search_task_id": "task_dadfa43348d84f39a7a368678aa22919",
+  "native_tool_calls": 11,
+  "only_social_read_mcp_called": true,
+  "sources": [
+    {
+      "task_id": "task_0c2400b7c2ad486897199398dc173a71",
+      "status": "success",
+      "platform": "xiaohongshu",
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "author": "大槐树AI",
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "body_chars": 110,
+      "media_count": 0,
+      "body_sha256": "ecc48790f056c99b7e841c929e79c4783a182c0590006c8aadb54ed534a256f7",
+      "published_at_raw": null,
+      "backend": "opencli",
+      "cache": {
+        "used": false
+      }
+    },
+    {
+      "task_id": "task_a7f4d381b7f94a7b91c48f4270417dda",
+      "status": "success",
+      "platform": "zhihu",
+      "title": "打造个人终身知识体系，最佳的笔记软件是什么？",
+      "author": "ailx10",
+      "content_ref": "content_aaced30ffc3619329bcd4266",
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "body_chars": 234,
+      "media_count": 0,
+      "body_sha256": "2ac7f4970946e74bc3f02705966c30613bd5794bdaff2aae5178fc0c8fa0bca9",
+      "published_at_raw": "2026-04-25T01:12:28.000Z",
+      "backend": "opencli",
+      "cache": {
+        "used": false
+      }
+    },
+    {
+      "task_id": "task_0a8b985aff964d42be4e3fbda286d2ff",
+      "status": "success",
+      "platform": "weibo",
+      "title": "内容详情",
+      "author": "有道云笔记",
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "source_url": "https://weibo.com/2154137571/RaMYR608I",
+      "body_chars": 308,
+      "media_count": 0,
+      "body_sha256": "c412706c307efb1e50b662b8c2c99afb5ccfd071429171d12118afb7dbdc3c10",
+      "published_at_raw": "Tue Jul 28 18:03:41 +0800 2026",
+      "backend": "opencli",
+      "cache": {
+        "used": false
+      }
+    },
+    {
+      "task_id": "task_8278c2d10e004123a79a591d3e166e9d",
+      "status": "success",
+      "platform": "weixin",
+      "title": "重磅：程序员的个人知识管理神器",
+      "author": "非著名程序员",
+      "content_ref": "content_d37bad942354cd47d58b1a60",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1791998531&ver=7026&new=1",
+      "body_chars": 1181,
+      "media_count": 10,
+      "body_sha256": "248a8813c996543fc1e730d0f829b9aca1113d31d287798fc9847d82d9541e4c",
+      "published_at_raw": "2019年8月18日 21:30",
+      "backend": "opencli-sogou-click",
+      "cache": {
+        "used": false
+      }
+    }
+  ],
+  "earlier_global_cli_version": "0.149.0",
+  "earlier_global_cli_result": "model name rejected by account entry; not used for successful desktop acceptance"
+}

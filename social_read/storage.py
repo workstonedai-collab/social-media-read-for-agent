@@ -93,7 +93,12 @@ class Store:
             r = self.db.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
         if not r:
             raise ReadError("invalid_input", "没有找到此任务。")
-        return {"task_id": r["id"], "action": r["action"], "status": r["status"], "created_at": r["created_at"], "updated_at": r["updated_at"], "request": json.loads(r["request"]), "result": json.loads(r["result"])}
+        result = json.loads(r["result"])
+        content = result.get("content")
+        if isinstance(content, dict) and isinstance(content.get("body"), str):
+            content["body_chars"] = len(content["body"])
+            content["media_count"] = len(content.get("media", []))
+        return {"task_id": r["id"], "action": r["action"], "status": r["status"], "created_at": r["created_at"], "updated_at": r["updated_at"], "request": json.loads(r["request"]), "result": result}
 
     def history(self):
         with self.lock:
