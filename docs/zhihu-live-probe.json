@@ -1,0 +1,124 @@
+{
+  "mode": "live",
+  "platform": "zhihu",
+  "search_task_id": "task_fb5e29ef730542e6b0860f5c51c239c1",
+  "samples": [
+    {
+      "title": "如何打造个人知识管理系统（工具篇）",
+      "type": "article",
+      "content_ref": "content_5931f95c3ab45c0bf98090d5",
+      "source_url": "https://zhuanlan.zhihu.com/p/522716891",
+      "read_task_id": "task_44f261bec761439b994016d7e4a3cc4b",
+      "status": "failed",
+      "body_chars": 0,
+      "completeness": null,
+      "duration_seconds": 0.6,
+      "errors": [
+        {
+          "status": "bridge_unavailable",
+          "message": "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。",
+          "retryable": false
+        }
+      ]
+    },
+    {
+      "title": "知识管理工具推荐：解决\"知识只记不连\"的老问题",
+      "type": "article",
+      "content_ref": "content_ab500256da67ba0fded7271e",
+      "source_url": "https://zhuanlan.zhihu.com/p/2092322050270566215",
+      "read_task_id": "task_7f08a1b5a75c410f8450111069ea24b1",
+      "status": "success",
+      "body_chars": 5937,
+      "completeness": "unverified",
+      "duration_seconds": 20.8,
+      "errors": []
+    },
+    {
+      "title": "能推荐一下好用的个人知识管理软件？",
+      "type": "answer",
+      "content_ref": "content_bf48c2a4e0749855a5a6e76c",
+      "source_url": "https://www.zhihu.com/question/290659702/answer/2021543773180536204",
+      "read_task_id": "task_1eb8d3f43b924fe8abf0ac610e050428",
+      "status": "success",
+      "body_chars": 139,
+      "completeness": "unverified",
+      "duration_seconds": 27.2,
+      "errors": [],
+      "comments": {
+        "task_id": "task_deda5ea7a6ed40c89be4968616c05241",
+        "status": "failed",
+        "rows": 0,
+        "coverage": null,
+        "errors": [
+          {
+            "status": "bridge_unavailable",
+            "message": "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。",
+            "retryable": false
+          }
+        ]
+      }
+    },
+    {
+      "title": "最好的个人知识管理解决方案是什么？",
+      "type": "answer",
+      "content_ref": "content_e048b84ffed706a22b95db4b",
+      "source_url": "https://www.zhihu.com/question/27662233/answer/2016184338866284495",
+      "read_task_id": "task_f538193b14b9416e8e4ba2572e62a7f5",
+      "status": "success",
+      "body_chars": 10457,
+      "completeness": "unverified",
+      "duration_seconds": 28.1,
+      "errors": [],
+      "comments": {
+        "task_id": "task_fe758a1d571d4fdf9d7931123dc2aa7e",
+        "status": "failed",
+        "rows": 0,
+        "coverage": null,
+        "errors": [
+          {
+            "status": "empty",
+            "message": "本次搜索没有结果。",
+            "retryable": false
+          }
+        ]
+      }
+    },
+    {
+      "title": "有哪些高效构建和管理个人知识体系的工具和方法？",
+      "type": "answer",
+      "content_ref": "content_ac1ccc8efd4c8e211e217c70",
+      "source_url": "https://www.zhihu.com/question/2017923095055327693/answer/2018081844298561216",
+      "read_task_id": "task_40025a4165d945049f991c9c6f883277",
+      "status": "failed",
+      "body_chars": 0,
+      "completeness": null,
+      "duration_seconds": 0.6,
+      "errors": [
+        {
+          "status": "bridge_unavailable",
+          "message": "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。",
+          "retryable": false
+        }
+      ]
+    }
+  ],
+  "question_collection": {
+    "task_id": "task_3dfdc10c9e3b41a8b12b6bc9ff27ee4c",
+    "status": "success",
+    "body_chars": 1972,
+    "answer_kinds": [
+      "read_answer",
+      "excerpt_only",
+      "read_answer"
+    ],
+    "answer_errors": [
+      {
+        "url": "https://www.zhihu.com/question/290659702/answer/479009030",
+        "status": "bridge_unavailable",
+        "message": "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。",
+        "retryable": false
+      }
+    ],
+    "errors": []
+  }
+}

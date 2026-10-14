@@ -352,3 +352,111 @@ class URLNormalizationTests(unittest.TestCase):
         self.assertNotIn("知识",uri)
         self.assertIn("%E7%9F%A5%E8%AF%86",uri)
         self.assertIn("sn=a%2Fb",uri)
+
+
+class NavigationEvidenceTests(unittest.TestCase):
+    def test_navigation_failure_is_distinct_from_offline_bridge(self):
+        err = classify_error("Pre-navigation failed: Navigation rejected. Check browser extension is running.")
+        self.assertEqual(err.code, "navigation_rejected")
+    def test_weibo_search_uses_excerpt_not_long_body_as_title(self):
+        item = search_item("weibo", {"title":"文字"*200, "url":WB}, "主题", "opencli")
+        self.assertLessEqual(len(item["title"]), 101)
+        self.assertTrue(item["title_is_excerpt"])
+
+
+class PartialAnswerTests(unittest.TestCase):
+    def test_mixed_answer_collection_keeps_content_and_reports_partial(self):
+        class Mixed(DemoAdapter):
+            def read(self, site, target, cancel):
+                d=super().read(site,target,cancel)
+                d["answer_errors"]=[{"status":"navigation_rejected","message":"浏览器跳转失败"}]
+                return d
+        with tempfile.TemporaryDirectory() as td:
+            e=Engine(td,"demo",adapter=Mixed())
+            try:
+                j=e.wait(e.submit("read",{"platform":"zhihu","url":"https://www.zhihu.com/question/10"})["task_id"],3)
+                self.assertEqual(j["status"],"partial");self.assertTrue(j["result"]["content"]["body"])
+                cached=e.wait(e.submit("read",{"content_ref":j["result"]["content"]["content_ref"]})["task_id"],3)
+                self.assertEqual(cached["status"],"partial")
+            finally:e.shutdown()
+
+
+class SogouClickTests(unittest.TestCase):
+    def test_link_gets_observed_normal_click_parameters_once(self):
+        with tempfile.TemporaryDirectory() as td:
+            r=Runner(td,executable="opencli",profile="dedicated");calls=[]
+            target="https://weixin.sogou.com/link?url=" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"*20
+            def run(args,*a,**kw):
+                calls.append(args)
+                if args[2:4]==["tab","new"]:return 0,'{"page":"own"}',''
+                if args[2:4]==["get","url"]:return 0,'https://mp.weixin.qq.com/s/article',''
+                return 0,'{}',''
+            with patch("social_read.adapter.secrets.randbelow",return_value=9),patch.object(r,"run",side_effect=run):r.resolve_weixin(target)
+            expected=target[target.index("url=")+4+21+10]
+            self.assertEqual(calls[0][-1],target+"&k=10&h="+expected)
+    def test_parameter_error_is_not_an_empty_article(self):
+        from social_read.weixin_public import ArticleParser
+        raw='<body>参数错误</body>';p=ArticleParser();p.feed(raw)
+        with self.assertRaises(ReadError) as exc:p.article(raw)
+        self.assertEqual(exc.exception.code,"source_resolution_required")
+
+
+class SogouIndexTests(unittest.TestCase):
+    def test_scoped_cards_keep_titles_dates_and_ignore_scripts(self):
+        from social_read.weixin_public import SearchParser
+        raw="""<ul><li id="sogou_vr_11002601_box_0"><h3><a href="/link?url=PUBLIC">知识<em>管理</em></a></h3><p class="txt-info">摘要</p><span class="s2"><script>document.write(timeConvert('1566126978'))</script></span></li></ul>"""
+        p=SearchParser();p.feed(raw)
+        self.assertEqual(p.rows[0]["title"],"知识管理")
+        self.assertTrue(p.rows[0]["publish_time"].startswith("2019-08-18"))
+        self.assertEqual(p.rows[0]["summary"],"摘要")
+
+
+class SourceAccessTests(unittest.TestCase):
+    def test_wechat_signature_removed_from_all_public_shapes(self):
+        url = "https://mp.weixin.qq.com/s?src=11&signature=PRIVATE_WECHAT_SIGNATURE&new=1"
+        safe = scrub({"signature":"PRIVATE_WECHAT_SIGNATURE", "url":url, "text":"signature=PRIVATE_WECHAT_SIGNATURE"})
+        self.assertNotIn("PRIVATE_WECHAT_SIGNATURE", json.dumps(safe))
+        self.assertIn("src=11", safe["url"])
+
+    def test_local_source_keeps_access_parameters_and_rejects_extra_fields(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as td:
+            store = Store(td)
+            item = store.save_item("xiaohongshu", search_item("xiaohongshu", {"title":"标题", "url":XHS}, "主题", "test"))
+            cls = handler_for(SimpleNamespace(mode="live",store=store),8767,"known-token")
+            def post(data, token="known-token", origin="http://127.0.0.1:8767"):
+                h = object.__new__(cls);h.path="/api/source";h.headers=Message()
+                raw=json.dumps(data).encode()
+                for key,value in {"Host":"127.0.0.1:8767","Origin":origin,"X-Social-Read-Token":token,"Content-Type":"application/json","Content-Length":str(len(raw))}.items():h.headers[key]=value
+                h.rfile=io.BytesIO(raw);h.responses=[]
+                h.send_json=lambda data,status=200:h.responses.append((status,data))
+                h.do_POST();return h.responses[0]
+            self.assertEqual(post({"content_ref":item["content_ref"]}), (200,{"url":XHS}))
+            self.assertEqual(post({"content_ref":item["content_ref"]},token="")[0],403)
+            self.assertEqual(post({"content_ref":item["content_ref"]},origin="https://evil.org")[0],403)
+            self.assertEqual(post({"content_ref":item["content_ref"],"url":"https://evil.org"})[0],400)
+            self.assertEqual(post({"content_ref":{}})[0],400)
+            self.assertNotIn("PRIVATE_SIGNATURE",json.dumps(store.item(item["content_ref"])["data"]))
+            store.close()
+
+
+class WechatAccessFallbackTests(unittest.TestCase):
+    def test_public_parameter_error_can_use_authorized_browser_export(self):
+        class Fake:
+            def __init__(self, root):self.workdir=Path(root);self.calls=[]
+            def call(self, site, command, args, cancel):
+                self.calls.append((site,command))
+                output=Path(args[args.index("--output")+1]);(output/"article.md").write_text("浏览器可见正文")
+                return [{"title":"文章标题","status":"success"}]
+        with tempfile.TemporaryDirectory() as td:
+            runner=Fake(td)
+            with patch("social_read.weixin_public.read_public_article",side_effect=ReadError("source_resolution_required","参数错误")):
+                item=OpenCLIAdapter(runner).read("weixin","https://mp.weixin.qq.com/s/fixture",threading.Event())
+            self.assertEqual(item["body"],"浏览器可见正文")
+            self.assertEqual(runner.calls,[("weixin","download")])
+
+    def test_verification_stops_before_browser_fallback(self):
+        runner=object()
+        with patch("social_read.weixin_public.read_public_article",side_effect=ReadError("verification_required","去验证")),self.assertRaises(ReadError) as exc:
+            OpenCLIAdapter(runner).read("weixin","https://mp.weixin.qq.com/s/fixture",threading.Event())
+        self.assertEqual(exc.exception.code,"verification_required")

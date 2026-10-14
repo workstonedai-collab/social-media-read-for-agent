@@ -9,3 +9,5 @@
 执行计划中调研过的 [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)、[MediaCrawler](https://github.com/NanmiCoder/MediaCrawler) 等项目保留为候选与架构参考，本版没有引入其代码或服务。将来加入时必须重新核对具体版本许可、维护情况、访问逻辑和真实验证，不能因为开源就假定可以任意复制或商用。
 
 独立客户端验收使用本机已有的官方 [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)，仅作为开发验证工具，不把 SDK 打包进 Python 项目。
+
+公众号补充路径从搜狗同一公开索引响应读取文章链接与正常点击处理的偏移参数，使用 Cookie-free HTTP，不执行站点 JavaScript。原文仍经专用浏览器解析；当前微信返回“参数错误”，没有通过正文验收。公开索引成功与微信原文成功分别记录。

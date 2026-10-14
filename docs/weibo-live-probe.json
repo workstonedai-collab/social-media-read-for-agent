@@ -1,0 +1,99 @@
+{
+  "mode": "live",
+  "platform": "weibo",
+  "search_task_id": "task_5736c52ab9354774a9ff83ba5174186a",
+  "samples": [
+    {
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "source_url": "https://weibo.com/2154137571/RaMYR608I?refer_flag=1001030103_",
+      "read_task_id": "task_2687017739b9493d8711d6244d993455",
+      "status": "failed",
+      "body_chars": 0,
+      "retweet_returned": false,
+      "completeness": null,
+      "duration_seconds": 0.7,
+      "errors": [
+        {
+          "status": "bridge_unavailable",
+          "message": "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。",
+          "retryable": false
+        }
+      ],
+      "sample_number": 1
+    },
+    {
+      "content_ref": "content_0f9c7481be65a6ab18999f36",
+      "source_url": "https://weibo.com/1402400261/RbNovDGuE?refer_flag=1001030103_",
+      "read_task_id": "task_df7824e5268b4d1eb3bcf9bb983627f7",
+      "status": "success",
+      "body_chars": 518,
+      "retweet_returned": false,
+      "completeness": "unverified",
+      "duration_seconds": 9.7,
+      "errors": [],
+      "comments": {
+        "task_id": "task_646324f3092840ec824197729adcc02b",
+        "status": "success",
+        "rows": 0,
+        "coverage": {
+          "requested_top_level": 3,
+          "returned_rows": 0,
+          "all_comments": false,
+          "pagination": "bounded_by_upstream",
+          "replies": "not_expanded"
+        },
+        "errors": []
+      },
+      "sample_number": 2
+    },
+    {
+      "content_ref": "content_c3add5ffa25af1a41ffda901",
+      "source_url": "https://weibo.com/1890573293/Qikus5Yxz?refer_flag=1001030103_",
+      "read_task_id": "task_eea3c584e7a34837ba7495e18a677859",
+      "status": "success",
+      "body_chars": 167,
+      "retweet_returned": false,
+      "completeness": "unverified",
+      "duration_seconds": 6.0,
+      "errors": [],
+      "comments": {
+        "task_id": "task_9512561e8eed4106b59a43f57d570f55",
+        "status": "failed",
+        "rows": 0,
+        "coverage": null,
+        "errors": [
+          {
+            "status": "bridge_unavailable",
+            "message": "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。",
+            "retryable": false
+          }
+        ]
+      },
+      "sample_number": 3
+    },
+    {
+      "content_ref": "content_fa4db6275a55adf89e7c13e9",
+      "source_url": "https://weibo.com/2194035935/MuYiXwwEr?refer_flag=1001030103_",
+      "read_task_id": "task_24d092d6551943569b501b104d0904b7",
+      "status": "success",
+      "body_chars": 74,
+      "retweet_returned": false,
+      "completeness": "unverified",
+      "duration_seconds": 5.9,
+      "errors": [],
+      "sample_number": 4
+    },
+    {
+      "content_ref": "content_07461d0f547885d7ca407d60",
+      "source_url": "https://weibo.com/6387602267/OkBRrqNfM?refer_flag=1001030103_",
+      "read_task_id": "task_54492a97405b4e58b6fc1540407928d0",
+      "status": "success",
+      "body_chars": 495,
+      "retweet_returned": false,
+      "completeness": "unverified",
+      "duration_seconds": 12.2,
+      "errors": [],
+      "sample_number": 5
+    }
+  ]
+}

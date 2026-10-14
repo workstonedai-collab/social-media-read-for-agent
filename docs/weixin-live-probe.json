@@ -1,16 +1,24 @@
 {
-  "task_id": "task_ac7ea984836342cdaa8dbdd7a90cc084",
-  "status": "failed",
-  "title": null,
-  "backend": null,
-  "body_chars": 0,
-  "media_count": 0,
-  "source_url": null,
-  "errors": [
+  "attempt": "same-page public index parameters",
+  "samples": [
     {
-      "status": "content_unavailable",
-      "message": "没有取得文章标题或正文。可能是访问受限、页面变化或组件不兼容；请到原文核对。",
-      "retryable": false
+      "task_id": "task_f2321fcd48bf401daa574339e346380d",
+      "status": "failed",
+      "title": null,
+      "backend": null,
+      "body_chars": 0,
+      "media_count": 0,
+      "source_url": null,
+      "errors": [
+        {
+          "status": "source_resolution_required",
+          "message": "微信没有接受此跳转地址。请从搜狗结果页面打开原文，或提供微信文章链接。",
+          "retryable": false
+        }
+      ]
     }
-  ]
+  ],
+  "search_task_id": "task_aa6821a9e2824f73ba891b60e53be7b4",
+  "search_status": "success",
+  "search_errors": []
 }

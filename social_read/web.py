@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .engine import TERMINAL
-from .model import ReadError
+from .model import ReadError, validate_url
 
 STATIC = Path(__file__).parent / "static"
 
@@ -84,6 +84,13 @@ def handler_for(engine, port, token=None):
                     raise ReadError("invalid_input", "请求大小无效。")
                 data = json.loads(self.rfile.read(size))
                 path = urlsplit(self.path).path
+                if path == "/api/source":
+                    if engine.mode != "live" or not isinstance(data, dict) or set(data) != {"content_ref"} or not isinstance(data["content_ref"], str):
+                        raise ReadError("invalid_input", "请从真实内容记录打开来源。")
+                    item = engine.store.item(data["content_ref"])
+                    # Only the authenticated local UI receives the private access URL.
+                    # MCP and task/history responses remain redacted.
+                    return self.send_json({"url": validate_url(item["platform"], item["target"])})
                 if path == "/api/tasks":
                     if not isinstance(data, dict) or set(data) != {"action", "request"}:
                         raise ReadError("invalid_input", "任务参数无效。")

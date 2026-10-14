@@ -1,0 +1,27 @@
+{
+  "input": "user supplied original article link; access parameters kept private",
+  "task_id": "task_d7e61a70dadc4667a56e1c63ada4cd9c",
+  "status": "failed",
+  "title": null,
+  "backend": null,
+  "body_chars": 0,
+  "media_count": 0,
+  "content_ref": null,
+  "errors": [
+    {
+      "status": "source_resolution_required",
+      "message": "微信没有接受此跳转地址。请从搜狗结果页面打开原文，或提供微信文章链接。",
+      "retryable": false
+    }
+  ],
+  "user_browser_observation": "User confirmed title and article body visible in dedicated Chrome profile",
+  "browser_export_attempt": {
+    "status": "navigation_rejected",
+    "body_chars": 0
+  },
+  "isolated_browser_body_attempt": {
+    "status": "adapter_error",
+    "body_chars": 0,
+    "scope": "#js_content"
+  }
+}

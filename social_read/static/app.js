@@ -8,6 +8,21 @@ const demoJobs=new Map(), demoItems=new Map();
 function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(cls)n.className=cls;return n;}
 function message(text,error=false){$('notice').replaceChildren(node('div',text,'message'+(error?' error':'')));}
 function sourceLink(url,text){try{const p=new URL(url);if(p.protocol!=='https:'||p.username||p.password||!['www.xiaohongshu.com','xiaohongshu.com','weibo.com','www.weibo.com','m.weibo.cn','www.zhihu.com','zhihu.com','zhuanlan.zhihu.com','mp.weixin.qq.com','weixin.sogou.com','mmbiz.qpic.cn'].includes(p.hostname))return node('span','来源链接暂不可用','meta');const a=node('a',text);a.href=p.href;a.target='_blank';a.rel='noopener noreferrer';return a;}catch{return node('span','来源链接暂不可用','meta');}}
+function originalButton(item,text){
+ const button=node('button',text,'quiet');
+ button.onclick=async()=>{
+  const opened=window.open('about:blank','_blank');
+  if(!opened){message('浏览器阻止了新窗口，请允许本站打开来源。',true);return;}
+  opened.opener=null;
+  try{
+   const data=await api('/api/source',{content_ref:item.content_ref});
+   const safe=sourceLink(data.url,text);
+   if(safe.tagName!=='A')throw new Error('来源链接暂不可用');
+   opened.location.replace(safe.href);
+  }catch(e){opened.close();message(e.message,true);}
+ };
+ return button;
+}
 function stamp(s){if(!s)return '日期未提供';return String(s);}
 async function api(path,body){
  if(filePreview)return previewApi(path,body);
@@ -46,13 +61,13 @@ async function run(action,request){
 function renderResults(items){
  $('results').replaceChildren();
  if(!items?.length){$('results').append(node('p','本次没有取得内容。请查看提示或换一个关键词。','hint'));return;}
- for(const item of items){const card=node('article',undefined,'card');card.append(node('span',labels[item.platform]||item.platform,'badge'),node('p',item.title,'title'),node('p',(item.author||'作者未提供')+' · '+(item.date_estimate?'约 '+item.date_estimate+'（ID 推算）':stamp(item.published_at_raw)),'meta'),node('p',item.source||'来源未提供','meta'));if(item.summary)card.append(node('p',item.summary,'meta'));const actions=node('div',undefined,'card-actions'),button=node('button','阅读');button.onclick=()=>read({content_ref:item.content_ref});actions.append(button);if(mode==='live')actions.append(sourceLink(item.source_url,'打开原始结果'));card.append(actions);$('results').append(card);}
+ for(const item of items){const card=node('article',undefined,'card');card.append(node('span',labels[item.platform]||item.platform,'badge'),node('p',item.title,'title'),node('p',(item.author||'作者未提供')+' · '+(item.date_estimate?'约 '+item.date_estimate+'（ID 推算）':stamp(item.published_at_raw)),'meta'),node('p',item.source||'来源未提供','meta'));if(item.summary)card.append(node('p',item.summary,'meta'));const actions=node('div',undefined,'card-actions'),button=node('button','阅读');button.onclick=()=>read({content_ref:item.content_ref});actions.append(button);if(mode==='live')actions.append(originalButton(item,'打开原始结果'));card.append(actions);$('results').append(card);}
 }
 function renderContent(content){
  currentRef=content.content_ref;$('refresh').hidden=!currentRef;
  const box=$('content');box.replaceChildren(node('span',labels[content.platform]||content.platform,'badge'),node('h3',content.title),node('p',(content.author||'作者未提供')+' · '+stamp(content.published_at_raw),'meta'),node('div',content.notice||'请核对正文范围。','message'));
  if(content.cache?.used)box.append(node('p','使用本机缓存 · 获取于 '+stamp(content.fetched_at),'meta'));
- if(mode==='live')box.append(sourceLink(content.source_url,'到原帖核对'));
+ if(mode==='live')box.append(originalButton(content,'到原帖核对'));
  box.append(node('div',content.body||'未取得正文。','body'));
  if(content.media?.length){const media=node('details');media.append(node('summary','图片链接（未读取图内文字）'));for(const item of content.media){if(item.type==='image'){const row=node('p');row.append(sourceLink(item.url,'第 '+item.order+' 张图片'));media.append(row);}}box.append(media);}
  if(content.retweet)box.append(node('p','转发来源：'+content.retweet.author,'meta'),node('div',content.retweet.body||'转发正文未提供','body'));

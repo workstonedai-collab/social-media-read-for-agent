@@ -1,4 +1,4 @@
-// Explicit opt-in. Reads a previously fetched real item through the standard MCP client.
+// Explicit opt-in. May access the real platform again when the 30-minute cache expires.
 import assert from 'node:assert/strict';
 import { pathToFileURL } from 'node:url';
 import { join,resolve } from 'node:path';
@@ -12,12 +12,12 @@ try{
  const decode=r=>{assert.equal(r.isError,false);return JSON.parse(r.content[0].text);};
  const submitted=decode(await client.callTool({name:'read_content',arguments:{content_ref:ref}}));
  let job;
- for(let i=0;i<100;i++){
+ for(let i=0;i<900;i++){
   job=decode(await client.callTool({name:'get_task',arguments:{task_id:submitted.task_id}}));
   if(!['queued','running'].includes(job.status))break;
   await new Promise(r=>setTimeout(r,100));
  }
- assert.equal(job.status,'success');assert.equal(job.result.mode,'live');
+ assert.ok(['success','partial'].includes(job.status));assert.equal(job.result.mode,'live');if(job.status==='partial')assert.ok(job.result.errors.length>0);
  const c=job.result.content;assert.ok(c.body.length>0);
- console.log(JSON.stringify({status:'passed',client:'official MCP SDK',mode:'live',platform:c.platform,body_chars:c.body.length,cache:c.cache,title:c.title,task_id:job.task_id}));
+ console.log(JSON.stringify({status:'passed',client:'official MCP SDK',mode:'live',platform:c.platform,task_status:job.status,body_chars:c.body.length,cache:c.cache,title:c.title,task_id:job.task_id}));
 }finally{await client.close();}

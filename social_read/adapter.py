@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import time
 import uuid
+import secrets
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
@@ -95,6 +96,16 @@ class Runner:
         target = validate_url("weixin", target)
         if urlsplit(target).hostname != "weixin.sogou.com" or not self.profile:
             raise ReadError("invalid_input", "解析需要搜狗索引链接和专用浏览器资料。")
+        # Sogou's public result-page click handler adds k and h to each article link.
+        # Observed 2026-10-14: href.substr(indexOf("url=") + 4 + 21 + k, 1).
+        # These are normal navigation parameters, not a verification challenge.
+        if "&k=" not in target:
+            k = secrets.randbelow(100) + 1
+            at = target.find("url=")
+            if at < 0:
+                raise ReadError("source_resolution_required", "搜狗索引链接缺少正常跳转参数。")
+            h = target[at + 4 + 21 + k:at + 4 + 21 + k + 1]
+            target += "&k=%s&h=%s" % (k, h)
         session = "socialread-resolve-" + uuid.uuid4().hex
         tab = None
         try:
@@ -156,6 +167,14 @@ class OpenCLIAdapter:
         self.runner = runner
 
     def search(self, site, query, limit, cancel):
+        if site == "weixin":
+            from .weixin_public import search_public_articles
+            try:
+                data = search_public_articles(query, limit, cancel)
+                return [search_item(site, r, query, "public-http-sogou") for r in data]
+            except ReadError as exc:
+                if exc.code != "public_index_unavailable":
+                    raise
         data = self.runner.call(site, "search", [query, "--limit", str(limit)], cancel)
         return [search_item(site, r, query, self.name) for r in rows(data)]
 
@@ -213,7 +232,7 @@ class OpenCLIAdapter:
                     item["search_source_url"] = index_url
                 return item
             except ReadError as exc:
-                if exc.code != "public_article_unavailable":
+                if exc.code not in {"public_article_unavailable", "source_resolution_required"}:
                     raise
         with tempfile.TemporaryDirectory(prefix="article-", dir=str(self.runner.workdir)) as temp:
             raw = self.runner.call(site, "download", ["--url", target, "--output", temp, "--download-images", "false"], cancel)

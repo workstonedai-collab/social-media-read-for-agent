@@ -154,6 +154,10 @@ class Engine:
                     item = self._execute(r["platform"], event, lambda: self.adapter.read(r["platform"], r["_target"], event))
                     result["content"] = self.store.save_item(r["platform"], item, raw=item.get("_raw"), read=True)
                     result["content"]["cache"] = {"used": False}
+                answer_errors = result.get("content", {}).get("answer_errors", [])
+                if answer_errors:
+                    result["errors"].extend({"platform": r["platform"], **e} for e in answer_errors)
+                    status = "partial"
             elif action == "comments":
                 result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event)))
                 result["source_url"] = scrub(r["_target"])
@@ -175,6 +179,8 @@ class Engine:
         except ReadError as e:
             if action == "read" and e.code == "empty":
                 e = ReadError("content_unavailable", "没有取得可见正文。可能是内容受限、页面变化或组件不兼容；请到原帖核对。")
+            elif action == "comments" and e.code == "empty":
+                e = ReadError("comments_empty", "此次未取得评论。可能没有可见评论或组件未识别；请到原帖核对。")
             result["errors"].append(e.result())
             status = "cancelled" if e.code == "cancelled" else "failed"
         except Exception:

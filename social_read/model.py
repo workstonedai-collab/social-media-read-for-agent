@@ -16,7 +16,7 @@ HOSTS = {
     "zhihu": {"www.zhihu.com", "zhihu.com", "zhuanlan.zhihu.com"},
     "weixin": {"mp.weixin.qq.com", "weixin.sogou.com"},
 }
-SECRET_KEYS = {"cookie", "authorization", "access_token", "refresh_token", "token", "xsec_token", "api_key", "password", "secret"}
+SECRET_KEYS = {"cookie", "authorization", "access_token", "refresh_token", "token", "xsec_token", "api_key", "password", "secret", "signature"}
 
 
 class ReadError(Exception):
@@ -97,7 +97,7 @@ def scrub(value):
         return [scrub(v) for v in value]
     if isinstance(value, str):
         value = re.sub(r"https?://[^\s<>\"']+", lambda m: public_url(m.group()), value)
-        value = re.sub(r"(?i)\b(cookie|authorization|access_token|refresh_token|api_key|password|xsec_token)\s*[:=]\s*[^\s,;]+", r"\1=[已隐藏]", value)
+        value = re.sub(r"(?i)\b(cookie|authorization|access_token|refresh_token|api_key|password|xsec_token|signature)\s*[:=]\s*[^\s,;]+", r"\1=[已隐藏]", value)
     return value
 
 
@@ -137,7 +137,7 @@ def search_item(site, row, query, backend):
         raise ReadError("adapter_incompatible", "搜索结果缺少标题或来源链接。")
     validate_url(site, target)
     return {
-        "platform": site, "title": strip_markup(title), "author": row.get("author") or None,
+        "platform": site, "title": (strip_markup(title)[:100] + ("…" if len(strip_markup(title)) > 100 else "")) if site == "weibo" else strip_markup(title), "title_is_excerpt": site == "weibo", "author": row.get("author") or None,
         "published_at_raw": None if site == "xiaohongshu" and backend == "opencli" else row.get("published_at") or row.get("publish_time") or row.get("time") or None,
         "date_estimate": row.get("published_at") if site == "xiaohongshu" and backend == "opencli" else None,
         "date_estimate_method": "note_id_timestamp" if site == "xiaohongshu" and backend == "opencli" else None,
@@ -178,6 +178,7 @@ def classify_error(message, returncode=None):
         (r"captcha|安全验证|验证码|verification|security_block|security block", "verification_required", "平台要求验证。请在平台页面完成验证后重试。"),
         (r"rate.limit|429|访问过于频繁|too many|频繁", "rate_limited", "平台限制了本次请求。任务已停止，请稍后检查。"),
         (r"auth.required|not logged|unauthorized|请登录|需要登录|session.expir", "login_required", "请在选定浏览器中登录此平台，然后重新检查连接。"),
+        (r"navigation rejected|pre-navigation.*failed", "navigation_rejected", "浏览器没有完成平台页面跳转。请确认目标页面能正常打开后重试；这不代表账号被封。"),
         (r"bridge|daemon|extension|browser.*connect|连接浏览器", "bridge_unavailable", "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。"),
         (r"timeout|timed out|超时|deadline", "timeout", "本次读取超时，已保留完成的结果。"),
         (r"empty.result|no results|未找到|没有找到", "empty", "本次搜索没有结果。"),
