@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Social Read · 社交媒体搜索与阅读</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body>
+<header><a href="index.html" class="brand">Social Read<span>社交媒体搜索与阅读</span></a><span id="mode" class="badge">连接检查中</span></header>
+<main>
+<section class="intro"><p class="eyebrow">从真实讨论中寻找线索</p><h1>搜索，打开，再看清楚。</h1><p>在小红书、微博、知乎和公众号中查看内容。每个结果保留来源，读到哪里也会说明。</p></section>
+<div id="notice" role="status" aria-live="polite"></div>
+<section class="panel search-panel" aria-labelledby="search-title">
+<div class="section-head"><h2 id="search-title">开始一次搜索</h2><button id="check" class="quiet">检查浏览器连接</button></div>
+<form id="search-form"><label for="query">你想了解什么？</label><div class="search-line"><input id="query" maxlength="200" placeholder="例如：个人知识管理工具 使用体验" required><button id="search-submit" type="submit">搜索</button></div>
+<fieldset><legend>选择平台</legend><div id="platforms" class="platforms"></div></fieldset>
+<p class="hint">每个平台先取最多 5 条结果。公众号搜索来自搜狗索引；结果不代表平台全部内容。</p></form>
+<details><summary>已有原帖或文章链接？</summary><form id="read-form"><label for="direct-platform">平台</label><select id="direct-platform"><option value="xiaohongshu">小红书</option><option value="weibo">微博</option><option value="zhihu">知乎</option><option value="weixin">微信公众号</option></select><label for="url">完整内容链接</label><input id="url" type="url" required placeholder="粘贴原帖、具体回答或微信文章链接"><button type="submit">打开阅读</button></form></details>
+</section>
+<div class="workspace"><section class="panel result-panel" aria-labelledby="results-title"><div class="section-head"><h2 id="results-title">搜索结果</h2><button id="cancel" class="quiet" hidden>取消当前任务</button></div><p id="result-status" class="hint" aria-live="polite">输入关键词开始。阅读后会显示正文与来源。</p><div id="errors" role="status"></div><div id="results"></div></section>
+<section class="panel reader" aria-labelledby="reader-title"><div class="section-head"><h2 id="reader-title">阅读内容</h2><button id="refresh" class="quiet" hidden>重新读取</button></div><div id="content"><div class="empty"><span>↗</span><p>从结果中选择一条内容。<br>正文、评论和阅读范围会显示在这里。</p></div></div></section></div>
+<section class="panel"><div class="section-head"><h2>最近任务</h2><button id="history-refresh" class="quiet">刷新记录</button></div><div id="history"><p class="hint">任务保存在本机。搜索与阅读都可以回查。</p></div></section>
+<footer>首版仅提供读取。图片内文字、视频语音及全部评论尚未完成真实验证。账号登录和验证在平台页面完成。</footer>
+</main></body></html>

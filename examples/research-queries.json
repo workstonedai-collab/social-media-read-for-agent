@@ -1,0 +1,8 @@
+{
+  "topic": "AI 工具与个人知识管理",
+  "queries": ["Obsidian", "Notion AI", "知识管理工具 使用体验", "笔记软件 搜索 不好用", "个人知识管理", "AI 工具 用户反馈"],
+  "platforms": ["xiaohongshu", "weibo", "zhihu", "weixin"],
+  "limit_per_platform": 5,
+  "status": "test_plan_not_executed",
+  "notice": "验证前固定关键词，低频分散执行；遇到平台验证或限制停止。"
+}

@@ -1,0 +1,113 @@
+{
+  "mode": "live",
+  "platform": "xiaohongshu",
+  "search_task_id": "task_d2faface7a004754aca1360a5b2b0a46",
+  "samples": [
+    {
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "read_task_id": "task_6db47b8a19c540908ea6c33c6f1456a2",
+      "status": "success",
+      "body_chars": 110,
+      "completeness": "unverified",
+      "duration_seconds": 20.3,
+      "errors": [],
+      "comments": {
+        "task_id": "task_ecdee95410db487db17df8c8ea7587f3",
+        "status": "success",
+        "rows": 5,
+        "coverage": {
+          "requested_top_level": 3,
+          "returned_rows": 5,
+          "all_comments": false,
+          "pagination": "bounded_by_upstream",
+          "replies": "included_if_returned"
+        },
+        "errors": []
+      }
+    },
+    {
+      "title": "求网友们支招个人知识管理软件",
+      "content_ref": "content_6653d723ec0cc6df36cdaec3",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a256c78000000002201b9d3?xsec_source=",
+      "read_task_id": "task_3dca1ddd60884b7d898ea6613261af29",
+      "status": "success",
+      "body_chars": 368,
+      "completeness": "unverified",
+      "duration_seconds": 20.4,
+      "errors": [],
+      "comments": {
+        "task_id": "task_ab856e6966024a5eb9169ecb51a0749c",
+        "status": "success",
+        "rows": 5,
+        "coverage": {
+          "requested_top_level": 3,
+          "returned_rows": 5,
+          "all_comments": false,
+          "pagination": "bounded_by_upstream",
+          "replies": "included_if_returned"
+        },
+        "errors": []
+      }
+    },
+    {
+      "title": "我把错题本重新做了一遍❗️❗️❗️",
+      "content_ref": "content_d7021a7624617e2ff9b300a9",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a8464af0000000026037964?xsec_source=",
+      "read_task_id": "task_5673d355499f457cb9e357f8023ded77",
+      "status": "success",
+      "body_chars": 804,
+      "completeness": "unverified",
+      "duration_seconds": 20.2,
+      "errors": [],
+      "comments": {
+        "task_id": "task_fde655fe57db4e46bb77876c6f3e33be",
+        "status": "success",
+        "rows": 6,
+        "coverage": {
+          "requested_top_level": 3,
+          "returned_rows": 6,
+          "all_comments": false,
+          "pagination": "bounded_by_upstream",
+          "replies": "included_if_returned"
+        },
+        "errors": []
+      }
+    },
+    {
+      "title": "Obsidian入门教程 ①| 从0开始搭建知识库",
+      "content_ref": "content_8b5a2ff780a6cf6bc3853183",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a65e713000000001101f3d6?xsec_source=",
+      "read_task_id": "task_01c6dc55ac454df9b610930f42caabdf",
+      "status": "failed",
+      "body_chars": 0,
+      "completeness": null,
+      "duration_seconds": 30.0,
+      "errors": [
+        {
+          "status": "empty",
+          "message": "本次搜索没有结果。",
+          "retryable": false
+        }
+      ]
+    },
+    {
+      "title": "我的obsidian电子工位🌿",
+      "content_ref": "content_84f4069c90b8d3345f512c0f",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a885800000000003003f938?xsec_source=",
+      "read_task_id": "task_331acebc52304354ad51ed16955f6317",
+      "status": "failed",
+      "body_chars": 0,
+      "completeness": null,
+      "duration_seconds": 21.4,
+      "errors": [
+        {
+          "status": "empty",
+          "message": "本次搜索没有结果。",
+          "retryable": false
+        }
+      ]
+    }
+  ]
+}

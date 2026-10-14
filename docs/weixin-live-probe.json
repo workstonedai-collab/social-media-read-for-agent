@@ -1,0 +1,16 @@
+{
+  "task_id": "task_ac7ea984836342cdaa8dbdd7a90cc084",
+  "status": "failed",
+  "title": null,
+  "backend": null,
+  "body_chars": 0,
+  "media_count": 0,
+  "source_url": null,
+  "errors": [
+    {
+      "status": "content_unavailable",
+      "message": "没有取得文章标题或正文。可能是访问受限、页面变化或组件不兼容；请到原文核对。",
+      "retryable": false
+    }
+  ]
+}
