@@ -110,7 +110,7 @@ def handler_for(engine, port, token=None):
 
 def serve(engine, port=8767):
     server = ThreadingHTTPServer(("127.0.0.1", port), handler_for(engine, port))
-    print("Social Read: http://127.0.0.1:%s · %s" % (port, "离线演示" if engine.mode == "demo" else "真实读取"), flush=True)
+    print("social-media-read-for-agent: http://127.0.0.1:%s · %s" % (port, "离线演示" if engine.mode == "demo" else "真实读取"), flush=True)
     try:
         server.serve_forever()
     finally:

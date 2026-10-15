@@ -17,7 +17,7 @@ def default_state():
 
 def main():
     os.umask(0o077)
-    parser = argparse.ArgumentParser(description="Social Read · 四平台只读搜索与阅读")
+    parser = argparse.ArgumentParser(description="social-media-read-for-agent · 四平台只读搜索与阅读")
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("--state-dir", default=str(default_state()))
     parser.add_argument("--mode", choices=["live", "demo"], default="live")
@@ -45,6 +45,7 @@ def main():
             p.add_argument("--refresh", action="store_true")
         else:
             p.add_argument("--limit", type=int, default=10)
+            p.add_argument("--replies-limit", type=int, default=3)
     args = parser.parse_args()
     engine = None
     exit_code = 0
@@ -77,7 +78,7 @@ def main():
                 action, req = "connection", {}
             else:
                 action, req = args.command, {k: v for k, v in {"platform": args.platform, "url": args.url, "content_ref": args.content_ref}.items() if v is not None}
-                req.update({"refresh": args.refresh} if action == "read" else {"limit": args.limit})
+                req.update({"refresh": args.refresh} if action == "read" else {"limit": args.limit, "replies_limit": args.replies_limit})
             submitted = engine.submit(action, req)
             job = engine.wait(submitted["task_id"], 300)
             print(json.dumps(job, ensure_ascii=False, indent=2))

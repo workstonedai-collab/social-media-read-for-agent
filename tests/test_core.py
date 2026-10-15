@@ -84,6 +84,7 @@ class EngineTests(unittest.TestCase):
         search = self.task("search", {"platforms": ["xiaohongshu", "weibo", "zhihu", "weixin"], "query": "知识管理"})
         self.assertEqual(search["status"], "success")
         self.assertEqual(len(search["result"]["items"]), 4)
+        self.assertEqual(search["result"]["coverage"]["returned_by_platform"], {s:1 for s in ["xiaohongshu","weibo","zhihu","weixin"]})
         ref = search["result"]["items"][0]["content_ref"]
         read = self.task("read", {"content_ref": ref})
         self.assertEqual(read["result"]["content"]["mode"], "demo")
@@ -528,7 +529,7 @@ class WeixinContextTests(unittest.TestCase):
             def run(self,args,cancel=None,timeout=None):
                 self.calls.append(args)
                 if args[2:4]==["tab","new"]:return 0,'{"page":"owned-page"}',""
-                if args[2]=="wait" and blocked:return 1,"timeout", ""
+                if args[2]=="eval" and "const selector=" in args[3]:return 0,json.dumps({"ready":not blocked,"verification":blocked}),""
                 if args[2:4]==["get","text"]:return 0,'{"value":"安全验证 请输入验证码"}',""
                 if args[2]=="eval":return 0,json.dumps({"selected":selected} if "const wanted" in args[3] else {"url":"https://mp.weixin.qq.com/s/canonical"}),""
                 if args[2:4]==["get","url"]:return 0,"https://mp.weixin.qq.com/s?timestamp=100&signature=PRIVATE",""

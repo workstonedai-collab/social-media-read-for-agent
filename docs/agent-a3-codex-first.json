@@ -1,0 +1,296 @@
+{
+  "client_run": "codex-first",
+  "version": "0.1.0a3",
+  "basis": "actual local task database, independently checked against native tool calls where available",
+  "jobs": [
+    {
+      "task_id": "task_83918092923b4a1384ead9dffee63bac",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:10.360214+00:00",
+      "updated_at": "2026-10-15T02:42:27.074085+00:00",
+      "platform": [
+        "weibo"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {
+        "weibo": 2
+      },
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "weibo"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_f08d5175c77445f1a2a3c68e5b6bcd5f",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:10.364808+00:00",
+      "updated_at": "2026-10-15T02:42:21.593581+00:00",
+      "platform": [
+        "weixin"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {
+        "weixin": 2
+      },
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "weixin"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_b3b8b87adbf94c4a82ffced32fe4aff7",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:10.367410+00:00",
+      "updated_at": "2026-10-15T02:42:25.374600+00:00",
+      "platform": [
+        "zhihu"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {
+        "zhihu": 2
+      },
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "zhihu"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_3a4a31c861a54b0aa1b21c509eb54aae",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:10.371307+00:00",
+      "updated_at": "2026-10-15T02:42:27.654707+00:00",
+      "platform": [
+        "xiaohongshu"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {},
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "empty",
+          "message": "组件本次未返回结果，不能据此判断平台没有相关内容。"
+        }
+      ]
+    },
+    {
+      "task_id": "task_7023f74437934759828c5bf09d33acf6",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:32.314136+00:00",
+      "updated_at": "2026-10-15T02:42:39.258970+00:00",
+      "platform": "weibo",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "title": "这套极简的知识管理闭环，快速提升生产力！\n想要实现个人能力与工作效率的长效跃升，一套可落地、可流转的系统化知识管理体系至关重要。\n[点赞]有道云笔记打造了一套零…",
+      "source_url": "https://weibo.com/2154137571/RaMYR608I?refer_flag=1001030103_",
+      "body_chars": 308,
+      "image_ocr_chars": null,
+      "media_count": 0,
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "body_sha256": "c412706c307efb1e50b662b8c2c99afb5ccfd071429171d12118afb7dbdc3c10",
+      "backend": "opencli-weibo-expanded",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "Tue Jul 28 18:03:41 +0800 2026",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_f49ce00cb4b94664b2a2c5e17e5565bd",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:32.316178+00:00",
+      "updated_at": "2026-10-15T02:42:40.189697+00:00",
+      "platform": "weixin",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_329174474be457e7e8ece7c0",
+      "title": "重磅：程序员的个人知识管理神器",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792032153&ver=7027&new=1",
+      "body_chars": 1181,
+      "image_ocr_chars": null,
+      "media_count": 10,
+      "coverage": null,
+      "body_sha256": "248a8813c996543fc1e730d0f829b9aca1113d31d287798fc9847d82d9541e4c",
+      "backend": "opencli-sogou-click",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "2019年8月18日 21:30",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_116da85d0db7455889a612666b8e030f",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:32.318340+00:00",
+      "updated_at": "2026-10-15T02:42:47.790373+00:00",
+      "platform": "zhihu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_5931f95c3ab45c0bf98090d5",
+      "title": "如何打造个人知识管理系统（工具篇）",
+      "source_url": "https://zhuanlan.zhihu.com/p/522716891",
+      "body_chars": 2357,
+      "image_ocr_chars": null,
+      "media_count": 20,
+      "coverage": {
+        "text_source": "article_dom",
+        "local_truncation": false,
+        "collapsed": false,
+        "paywall_detected": false,
+        "images_ocr": false
+      },
+      "body_sha256": "cd098570b53a4453dca002b16b0b108f060e78c88000fd18fdb97135cdceb820",
+      "backend": "opencli-zhihu-article-dom",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "编辑于 2023-05-14 11:51・浙江",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_02adfadcbd7b4c6e9b08200be5d9fa09",
+      "action": "comments",
+      "status": "failed",
+      "created_at": "2026-10-15T02:42:54.700802+00:00",
+      "updated_at": "2026-10-15T02:42:55.875420+00:00",
+      "platform": "weibo",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": null,
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": [
+        {
+          "status": "timeout",
+          "message": "本次平台读取超时。",
+          "retryable": false
+        }
+      ]
+    },
+    {
+      "task_id": "task_105e296d470b44d2bb0e788cf0a26d9d",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:42:54.702907+00:00",
+      "updated_at": "2026-10-15T02:42:56.973199+00:00",
+      "platform": "zhihu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_5931f95c3ab45c0bf98090d5",
+      "title": null,
+      "source_url": "https://zhuanlan.zhihu.com/p/522716891",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 4,
+        "returned_replies": 3,
+        "returned_rows": 7,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 0,
+        "root_end_reached": false,
+        "stop_reason": "root_sample_limit",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    }
+  ]
+}

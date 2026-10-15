@@ -31,12 +31,12 @@ class Engine:
         self.closed = False
 
     def capabilities(self):
-        return {"mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "当前组件未返回图片正文，图片内文字需到原帖查看。", "weibo": "长文完整性和转发关系需实测；评论只取有限范围。", "zhihu": "问题页最多读取三个回答；文章评论暂未支持。", "weixin": "搜索来自搜狗索引，跳转链接需提供对应微信文章地址。"}[s]} for s, d in PLATFORMS.items()]}
+        return {"mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；具体回答与文章可取有限评论；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
 
     def _validate(self, action, request):
         if action not in {"search", "read", "comments", "connection"} or not isinstance(request, dict):
             raise ReadError("invalid_input", "不支持的读取任务。")
-        allowed = {"search": {"platforms", "query", "limit"}, "read": {"platform", "url", "content_ref", "refresh"}, "comments": {"platform", "url", "content_ref", "limit"}, "connection": set()}[action]
+        allowed = {"search": {"platforms", "query", "limit"}, "read": {"platform", "url", "content_ref", "refresh"}, "comments": {"platform", "url", "content_ref", "limit", "replies_limit"}, "connection": set()}[action]
         if set(request) - allowed:
             raise ReadError("invalid_input", "任务包含不支持的参数。")
         if self.mode == "live" and action != "connection" and not self.profile:
@@ -63,6 +63,7 @@ class Engine:
                 r["_target"] = validate_url(r["platform"], r["url"])
             if action == "comments":
                 r["limit"] = bounded_int(r.get("limit", 10), maximum=20)
+                r["replies_limit"] = bounded_int(r.get("replies_limit", 3), minimum=0, maximum=5)
             else:
                 if "refresh" in r and not isinstance(r["refresh"], bool):
                     raise ReadError("invalid_input", "刷新参数须为布尔值。")
@@ -155,15 +156,15 @@ class Engine:
                             raise
                         result["errors"].append({"platform": site, **e.result()})
                     self.store.update_job(job_id, "running", result)
-                failures = [e for e in result["errors"] if e["status"] != "empty"]
+                failures = result["errors"]
                 status = "partial" if failures and result["items"] else "failed" if failures else "success"
-                result["coverage"] = {"requested_platforms": r["platforms"], "max_results_per_platform": r["limit"], "all_content": False}
+                result["coverage"] = {"requested_platforms": r["platforms"], "max_results_per_platform": r["limit"], "all_content": False, "returned_by_platform": {s: sum(i["platform"] == s for i in result["items"]) for s in r["platforms"]}}
             elif action == "read":
                 cached = self.store.item(r["content_ref"]) if r.get("content_ref") else None
                 age = None
                 if cached and cached["read_at"]:
                     age = (datetime.now(timezone.utc) - datetime.fromisoformat(cached["read_at"])).total_seconds()
-                if age is not None and age < 1800 and not r["refresh"]:
+                if age is not None and age < 1800 and not r["refresh"] and (r["platform"] != "xiaohongshu" or "image_ocr" in cached["data"] or self.mode == "demo"):
                     result["content"] = {**cached["data"], "cache": {"used": True, "age_seconds": round(age)}}
                 else:
                     def fetch_content():
@@ -173,12 +174,16 @@ class Engine:
                     item = self._execute(r["platform"], event, fetch_content)
                     result["content"] = self.store.save_item(r["platform"], item, raw=item.get("_raw"), read=True)
                     result["content"]["cache"] = {"used": False}
-                answer_errors = result.get("content", {}).get("answer_errors", [])
+                answer_errors = result.get("content", {}).get("answer_errors", []) + result.get("content", {}).get("read_errors", [])
+                if result.get("content", {}).get("coverage", {}).get("ocr_unread", 0):
+                    status = "partial"
                 if answer_errors:
                     result["errors"].extend({"platform": r["platform"], **e} for e in answer_errors)
                     status = "partial"
             elif action == "comments":
-                result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event)))
+                result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event, replies_limit=r["replies_limit"])))
+                if result.get("errors"):
+                    status = "partial" if result.get("items") else "failed"
                 result["source_url"] = scrub(r["_target"])
                 result["platform"] = r["platform"]
             elif action == "connection":

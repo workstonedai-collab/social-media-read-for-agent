@@ -164,7 +164,7 @@ def content_item(site, data, target, backend, markdown=None):
     if not isinstance(d, dict):
         raise ReadError("adapter_incompatible", "正文数据格式无法识别。")
     body = markdown if markdown is not None else d.get("content") or d.get("text") or ""
-    body = strip_markup(body) if markdown is None else body
+    body = strip_markup(body) if markdown is None and d.get("text_format") != "plain" else body
     body = scrub(str(body))
     if not body.strip():
         raise ReadError("content_unavailable", "没有取得可见正文。可能是图文、权限限制或页面变化；请到原帖核对。")
@@ -186,7 +186,7 @@ def classify_error(message, returncode=None):
     cases = [
         (r"operation not permitted|eperm|eacces", "environment_restricted", "当前执行环境限制本地服务或连接。请从本机启动器运行后再检查。"),
         (r"captcha|安全验证|验证码|verification|security_block|security block", "verification_required", "平台要求验证。请在平台页面完成验证后重试。"),
-        (r"rate.limit|429|访问过于频繁|too many|频繁", "rate_limited", "平台限制了本次请求。任务已停止，请稍后检查。"),
+        (r"rate.limit|\b429\b|访问过于频繁|too many|频繁", "rate_limited", "平台限制了本次请求。任务已停止，请稍后检查。"),
         (r"auth.required|not logged|unauthorized|请登录|需要登录|session.expir", "login_required", "请在选定浏览器中登录此平台，然后重新检查连接。"),
         (r"navigation rejected|pre-navigation.*failed", "navigation_rejected", "浏览器没有完成平台页面跳转。请确认目标页面能正常打开后重试；这不代表账号被封。"),
         (r"bridge|daemon|extension|browser.*connect|连接浏览器", "bridge_unavailable", "浏览器连接未就绪。请检查 OpenCLI 扩展、本地服务及浏览器。"),

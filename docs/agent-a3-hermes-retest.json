@@ -1,0 +1,472 @@
+{
+  "client_run": "hermes-retest",
+  "version": "0.1.0a3",
+  "basis": "actual local task database, independently checked against native tool calls where available",
+  "jobs": [
+    {
+      "task_id": "task_8fcdf6bca61f432b8877e9e99a966d53",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:50:54.953807+00:00",
+      "updated_at": "2026-10-15T02:51:44.503562+00:00",
+      "platform": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {
+        "xiaohongshu": 2,
+        "weibo": 2,
+        "zhihu": 2,
+        "weixin": 2
+      },
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu",
+          "weibo",
+          "zhihu",
+          "weixin"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_cb5d59fd5f4a4283a220b8f21dd749ce",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:51:38.949369+00:00",
+      "updated_at": "2026-10-15T02:52:21.205761+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "body_chars": 1103,
+      "image_ocr_chars": 745,
+      "media_count": 9,
+      "coverage": {
+        "caption": "read",
+        "image_count": 9,
+        "discovered_images": 9,
+        "ocr_attempted": 9,
+        "ocr_succeeded": 9,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false
+      },
+      "body_sha256": "b19ca97c75ad6a0d522d42cbdd41ef06a477e27c77c03306028b81198c00f317",
+      "backend": "opencli-note-images",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "09-03",
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 50,
+          "image_sha256": "08e318386fd9e8e25be8378a23f693b00df7f3a589e0851e34d77a6bf9bea166",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 2,
+          "status": "success",
+          "text_chars": 82,
+          "image_sha256": "2f2a6572277e8a7426fd4c16c8c79d2ba501568c2dcf5e66c25322174b61b47c",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 3,
+          "status": "success",
+          "text_chars": 87,
+          "image_sha256": "4b0c1f399f720254f83505dfa3acb696f66ade8432a91428e36930689445c2b8",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 4,
+          "status": "success",
+          "text_chars": 101,
+          "image_sha256": "a0ea807149d23987e3b2c8efdeb34782d3b45707bda1c174a071eba6543d9051",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 5,
+          "status": "success",
+          "text_chars": 84,
+          "image_sha256": "c19e06f04b2a14c9e923aaa9cdc277b0db037502fccd0b1603635752cbf6ac27",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 6,
+          "status": "success",
+          "text_chars": 84,
+          "image_sha256": "6b3cceba6850a8a370dfef8dfdbb6808506dc3f10177f468d1c2d173b2aadf5e",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 7,
+          "status": "success",
+          "text_chars": 73,
+          "image_sha256": "fc735e08906bc5b91d129f9b1449aea7016d817680321a47f2a4aeed637e1a46",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 8,
+          "status": "success",
+          "text_chars": 76,
+          "image_sha256": "073c159330ec8ebec859f6480c479beac653ee375b0e220976f0d4444f3e8cc7",
+          "cache_used": true,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 9,
+          "status": "success",
+          "text_chars": 108,
+          "image_sha256": "03d011ba2775fd60cc07a811f7ebd8f5790adb96ad39d1aca9256f80f2a2fe65",
+          "cache_used": true,
+          "image_download_cache_used": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "task_id": "task_3c40dbea66e140069b9acb8e6313f724",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:51:38.953052+00:00",
+      "updated_at": "2026-10-15T02:53:07.480074+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_d7021a7624617e2ff9b300a9",
+      "title": "我把错题本重新做了一遍❗️❗️❗️",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a8464af0000000026037964?xsec_source=",
+      "body_chars": 3511,
+      "image_ocr_chars": 2570,
+      "media_count": 5,
+      "coverage": {
+        "caption": "read",
+        "image_count": 5,
+        "discovered_images": 5,
+        "ocr_attempted": 5,
+        "ocr_succeeded": 5,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false
+      },
+      "body_sha256": "72f74f761b68f2b0abcc657882e0f03ba0dbc65a130dcf55cc400114db16ce97",
+      "backend": "opencli-note-images",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "08-18",
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 807,
+          "image_sha256": "6fc794989ecdfc56194a5cce5583294359843e22a3155643c8e48a9e7f931289",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 2,
+          "status": "success",
+          "text_chars": 537,
+          "image_sha256": "1068b55897b6023336dde3620ec9c6b092862043cd5492647787e35903199b59",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 3,
+          "status": "success",
+          "text_chars": 355,
+          "image_sha256": "324c1583f8b14e8d45f62633cb4c2ffcd8e2e10d63e86d8b68bcde2d5c0ca3cc",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 4,
+          "status": "success",
+          "text_chars": 362,
+          "image_sha256": "ee2bdc910b006444a78fa45bb2eed03f64a773d35af71df358cb33de0bf035e7",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 5,
+          "status": "success",
+          "text_chars": 509,
+          "image_sha256": "ff411cd63a3d25376fd653f7f6b4639a5fed7597838c8d3c89602139a5e5155b",
+          "cache_used": false,
+          "image_download_cache_used": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "task_id": "task_0e10376cd0d746a2864eadb1087b1223",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:51:38.956335+00:00",
+      "updated_at": "2026-10-15T02:51:45.205296+00:00",
+      "platform": "weibo",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_0f9c7481be65a6ab18999f36",
+      "title": "【笔记软件的神话与现实：PKM真的让我们更聪明了吗？】近期关于Obsidian等个人知识管理（PKM）工具到底贡献了什么的讨论，戳破了大众长久以来的幻觉。怀疑者…",
+      "source_url": "https://weibo.com/1402400261/RbNovDGuE?refer_flag=1001030103_",
+      "body_chars": 518,
+      "image_ocr_chars": null,
+      "media_count": 0,
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "body_sha256": "ca2e99d2911454e1aac2eaa2283af515e554caac19fa05dafc1a5236c360bf98",
+      "backend": "opencli-weibo-expanded",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "Tue Aug 04 08:57:12 +0800 2026",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_154bf2a32d7448f5895997774ae56016",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:51:38.962019+00:00",
+      "updated_at": "2026-10-15T02:51:53.022546+00:00",
+      "platform": "zhihu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_5931f95c3ab45c0bf98090d5",
+      "title": "如何打造个人知识管理系统（工具篇）",
+      "source_url": "https://zhuanlan.zhihu.com/p/522716891",
+      "body_chars": 2357,
+      "image_ocr_chars": null,
+      "media_count": 20,
+      "coverage": {
+        "text_source": "article_dom",
+        "local_truncation": false,
+        "collapsed": false,
+        "paywall_detected": false,
+        "images_ocr": false,
+        "dom_stable": true
+      },
+      "body_sha256": "cd098570b53a4453dca002b16b0b108f060e78c88000fd18fdb97135cdceb820",
+      "backend": "opencli-zhihu-article-dom",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "编辑于 2023-05-14 11:51・浙江",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_c140d9ecb052451987a09a564dc3cb3c",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:51:50.634250+00:00",
+      "updated_at": "2026-10-15T02:51:56.481626+00:00",
+      "platform": [
+        "weixin"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {
+        "weixin": 2
+      },
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "weixin"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_8b53d85aaa904a6daf06388e623b9da3",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:53:04.077713+00:00",
+      "updated_at": "2026-10-15T02:53:15.586031+00:00",
+      "platform": "weixin",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_21a14b9d37c8ae073e8c5181",
+      "title": "浅析个人知识管理中工具的祛魅与实用价值内容的澄清",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792032788&ver=7027&new=1",
+      "body_chars": 4466,
+      "image_ocr_chars": null,
+      "media_count": 0,
+      "coverage": null,
+      "body_sha256": "c4c8b74e53722f2d4f65041d4874ca4ac78c0e46fc31c4a5c746bec9ff1a6927",
+      "backend": "opencli-sogou-click",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "2023年10月14日 16:00",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_68f3e9162f224ac09038ba0b494263b1",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:53:23.092092+00:00",
+      "updated_at": "2026-10-15T02:53:30.755391+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": null,
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 5,
+        "returned_replies": 2,
+        "returned_rows": 7,
+        "non_text_rows": 1,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 2,
+        "reply_requests": 2,
+        "root_end_reached": null,
+        "stop_reason": "bounded_visible_dom",
+        "backend": "note_dom_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_81d93acc7e7e4a7b99ff7aa9146fd45f",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:53:23.100994+00:00",
+      "updated_at": "2026-10-15T02:53:29.118133+00:00",
+      "platform": "weibo",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_0f9c7481be65a6ab18999f36",
+      "title": null,
+      "source_url": "https://weibo.com/1402400261/RbNovDGuE?refer_flag=1001030103_",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 0,
+        "returned_replies": 0,
+        "returned_rows": 0,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 0,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_9f9d42da9a4a48ecaa88d4e3e2e88ede",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:53:23.109735+00:00",
+      "updated_at": "2026-10-15T02:53:26.122595+00:00",
+      "platform": "zhihu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_5931f95c3ab45c0bf98090d5",
+      "title": null,
+      "source_url": "https://zhuanlan.zhihu.com/p/522716891",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 4,
+        "returned_replies": 3,
+        "returned_rows": 7,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 0,
+        "root_end_reached": false,
+        "stop_reason": "root_sample_limit",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    }
+  ]
+}

@@ -25,3 +25,10 @@
 查看的是实际 README、核心读取源码与许可信息，没有只以星数或仓库 updatedAt 判断有效性。本轮没有安装这些项目的额外浏览器，也没有复制其大段代码。OpenCLI 1.8.6 仍是唯一真实浏览器运行依赖，扩展仍为 1.0.24。Agent Reach 检查为 1.5.0 最新。
 
 本项目新增公众号同页点击路径：在独立、专用资料中的搜索页面等待结果，唯一匹配目标标题，确认链接属于搜狗 /link，使用正常点击处理打开原文，等待 #js_content 后提取限定文章区域。只关闭自身创建的页面。没有向模型开放任意 eval、任意选择器或浏览器命令。
+
+
+## 0.1.0a3 图片长文和评论
+
+OCR 使用 macOS 原生 Vision 的 VNRecognizeTextRequest，中文与英文识别在本机执行，无外部 OCR 服务或模型密钥。参考 Apple 官方文档 https://developer.apple.com/documentation/vision/vnrecognizetextrequest 。本机识别程序自行实现，未引入其他 OCR 项目的源码或模型。
+
+核查 OpenCLI 的小红书图片轮播 state、微博长文端点与知乎 legacy 评论逻辑；另核查其上游问题 https://github.com/jackwener/OpenCLI/issues/2303 及 MediaCrawler 的评论接口说明，借鉴根评论与子回复分开的读取方式，自行实现有界同源读取。没有引入其签名算法、额外账号、验证码绕过或大规模抓取。OpenCLI 固定选择器等待在 body 未出现时的 MutationObserver 错误已复现，改用本项目内部有界就绪检查。

@@ -1,0 +1,568 @@
+{
+  "version": "0.1.0a3",
+  "note": "failures and retests remain separate, no combined success rate",
+  "jobs": [
+    {
+      "task_id": "task_f9f9296956b640529d73f37708582b9c",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:32:09.995770+00:00",
+      "updated_at": "2026-10-15T02:32:42.731223+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_8b5a2ff780a6cf6bc3853183",
+      "title": "Obsidian入门教程 ①| 从0开始搭建知识库",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a65e713000000001101f3d6?xsec_source=",
+      "body_chars": 560,
+      "image_ocr_chars": 258,
+      "media_count": 1,
+      "coverage": {
+        "caption": "read",
+        "image_count": 1,
+        "discovered_images": 1,
+        "ocr_attempted": 1,
+        "ocr_succeeded": 1,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false
+      },
+      "body_sha256": "2469fffa098e46071e7f92ce6f73270bc0ac41f398573130db44678dfbdb5f31",
+      "backend": "opencli-note-images",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "编辑于 07-28",
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 258,
+          "image_sha256": "7bf624c84feb6ebd082f961ed9b69bd85cc167ff06de8cd8b79f0200d6a5d70c",
+          "cache_used": false,
+          "image_download_cache_used": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "task_id": "task_02a23d1e11e7446295029a024a0620f6",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:33:16.380021+00:00",
+      "updated_at": "2026-10-15T02:33:39.593547+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "body_chars": 1103,
+      "image_ocr_chars": 745,
+      "media_count": 9,
+      "coverage": {
+        "caption": "read",
+        "image_count": 9,
+        "discovered_images": 9,
+        "ocr_attempted": 9,
+        "ocr_succeeded": 9,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false
+      },
+      "body_sha256": "b19ca97c75ad6a0d522d42cbdd41ef06a477e27c77c03306028b81198c00f317",
+      "backend": "opencli-note-images",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "09-03",
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 50,
+          "image_sha256": "08e318386fd9e8e25be8378a23f693b00df7f3a589e0851e34d77a6bf9bea166",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 2,
+          "status": "success",
+          "text_chars": 82,
+          "image_sha256": "2f2a6572277e8a7426fd4c16c8c79d2ba501568c2dcf5e66c25322174b61b47c",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 3,
+          "status": "success",
+          "text_chars": 87,
+          "image_sha256": "4b0c1f399f720254f83505dfa3acb696f66ade8432a91428e36930689445c2b8",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 4,
+          "status": "success",
+          "text_chars": 101,
+          "image_sha256": "a0ea807149d23987e3b2c8efdeb34782d3b45707bda1c174a071eba6543d9051",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 5,
+          "status": "success",
+          "text_chars": 84,
+          "image_sha256": "c19e06f04b2a14c9e923aaa9cdc277b0db037502fccd0b1603635752cbf6ac27",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 6,
+          "status": "success",
+          "text_chars": 84,
+          "image_sha256": "6b3cceba6850a8a370dfef8dfdbb6808506dc3f10177f468d1c2d173b2aadf5e",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 7,
+          "status": "success",
+          "text_chars": 73,
+          "image_sha256": "fc735e08906bc5b91d129f9b1449aea7016d817680321a47f2a4aeed637e1a46",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 8,
+          "status": "success",
+          "text_chars": 76,
+          "image_sha256": "073c159330ec8ebec859f6480c479beac653ee375b0e220976f0d4444f3e8cc7",
+          "cache_used": false,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 9,
+          "status": "success",
+          "text_chars": 108,
+          "image_sha256": "03d011ba2775fd60cc07a811f7ebd8f5790adb96ad39d1aca9256f80f2a2fe65",
+          "cache_used": false,
+          "image_download_cache_used": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "task_id": "task_2c3dba72585249daafc9cdf58e8198f1",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:37:11.642138+00:00",
+      "updated_at": "2026-10-15T02:37:16.733875+00:00",
+      "platform": "weibo",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "title": "这套极简的知识管理闭环，快速提升生产力！\n想要实现个人能力与工作效率的长效跃升，一套可落地、可流转的系统化知识管理体系至关重要。\n[点赞]有道云笔记打造了一套零…",
+      "source_url": "https://weibo.com/2154137571/RaMYR608I?refer_flag=1001030103_",
+      "body_chars": 308,
+      "image_ocr_chars": null,
+      "media_count": 0,
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "body_sha256": "c412706c307efb1e50b662b8c2c99afb5ccfd071429171d12118afb7dbdc3c10",
+      "backend": "opencli-weibo-expanded",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "Tue Jul 28 18:03:41 +0800 2026",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_53ed6bf9cb934d57b301784ce231788b",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:37:16.766775+00:00",
+      "updated_at": "2026-10-15T02:37:24.571675+00:00",
+      "platform": "weibo",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "title": null,
+      "source_url": "https://weibo.com/2154137571/RaMYR608I?refer_flag=1001030103_",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 1,
+        "returned_replies": 2,
+        "returned_rows": 3,
+        "all_comments": false,
+        "all_replies": false,
+        "root_pages": 1,
+        "reply_requests": 0,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_b1c9f16bf8f84cb4aa9734455f935804",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:36:54.259956+00:00",
+      "updated_at": "2026-10-15T02:36:59.596261+00:00",
+      "platform": "zhihu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_aaced30ffc3619329bcd4266",
+      "title": "打造个人终身知识体系，最佳的笔记软件是什么？",
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "body_chars": 234,
+      "image_ocr_chars": null,
+      "media_count": 1,
+      "coverage": {
+        "text_source": "answer_api_content",
+        "local_truncation": false,
+        "all_answers": false,
+        "images_ocr": false
+      },
+      "body_sha256": "2ac7f4970946e74bc3f02705966c30613bd5794bdaff2aae5178fc0c8fa0bca9",
+      "backend": "opencli-zhihu-answer-html",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "2026-04-25T01:12:28+00:00",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_a9fe3c82a25c43a192684c4f01b0b82f",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:36:59.610291+00:00",
+      "updated_at": "2026-10-15T02:37:11.639844+00:00",
+      "platform": "zhihu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_aaced30ffc3619329bcd4266",
+      "title": null,
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 2,
+        "returned_replies": 3,
+        "returned_rows": 5,
+        "all_comments": false,
+        "all_replies": false,
+        "root_pages": 1,
+        "reply_requests": 2,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_7bc45ce937e34ec68e449010bbf2cb78",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T02:46:53.246893+00:00",
+      "updated_at": "2026-10-15T02:47:03.330742+00:00",
+      "platform": [
+        "xiaohongshu"
+      ],
+      "query": "个人知识管理工具",
+      "returned_by_platform": {
+        "xiaohongshu": 2
+      },
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_fdcda177a3244530828fee840efd9b83",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T02:47:43.213590+00:00",
+      "updated_at": "2026-10-15T02:47:50.230532+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": null,
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "body_chars": null,
+      "image_ocr_chars": null,
+      "media_count": null,
+      "coverage": {
+        "requested_top_level": 5,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 4,
+        "returned_replies": 2,
+        "returned_rows": 6,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 3,
+        "reply_requests": 2,
+        "root_end_reached": null,
+        "stop_reason": "bounded_visible_dom",
+        "backend": "note_dom_comments",
+        "reply_roots_not_expanded": 0
+      },
+      "body_sha256": null,
+      "backend": null,
+      "cache": null,
+      "published_at_raw": null,
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_9f41e927975e4f3e89a587e7683ae238",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:52:58.073625+00:00",
+      "updated_at": "2026-10-15T02:53:04.876059+00:00",
+      "platform": "weixin",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_d101fd7ad196f7ea26acce10",
+      "title": "重磅：程序员的个人知识管理神器",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792032778&ver=7027&new=1",
+      "body_chars": 1181,
+      "image_ocr_chars": null,
+      "media_count": 10,
+      "coverage": null,
+      "body_sha256": "248a8813c996543fc1e730d0f829b9aca1113d31d287798fc9847d82d9541e4c",
+      "backend": "opencli-sogou-click",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "2019年8月18日 21:30",
+      "images": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_9bb0410743d54c129870944e1bb7ec95",
+      "action": "read",
+      "status": "partial",
+      "created_at": "2026-10-15T02:58:31.446574+00:00",
+      "updated_at": "2026-10-15T02:58:58.541227+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "body_chars": 806,
+      "image_ocr_chars": 526,
+      "media_count": 9,
+      "coverage": {
+        "caption": "read",
+        "image_count": 9,
+        "discovered_images": 9,
+        "ocr_attempted": 9,
+        "ocr_succeeded": 6,
+        "ocr_unread": 3,
+        "image_order": "note_state_carousel",
+        "images_all_processed": false,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_from_download_cache": 0
+      },
+      "body_sha256": "c3826397653f996f51c5507b15723bfbc66956ec9224c0e9a45d46f228ea292f",
+      "backend": "opencli-note-images",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "09-03",
+      "images": [
+        {
+          "order": 1,
+          "status": "image_unavailable",
+          "text_chars": 0,
+          "image_sha256": null,
+          "cache_used": null,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 2,
+          "status": "image_unavailable",
+          "text_chars": 0,
+          "image_sha256": null,
+          "cache_used": null,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 3,
+          "status": "image_unavailable",
+          "text_chars": 0,
+          "image_sha256": null,
+          "cache_used": null,
+          "image_download_cache_used": null
+        },
+        {
+          "order": 4,
+          "status": "success",
+          "text_chars": 101,
+          "image_sha256": "a0ea807149d23987e3b2c8efdeb34782d3b45707bda1c174a071eba6543d9051",
+          "cache_used": true,
+          "image_download_cache_used": false
+        },
+        {
+          "order": 5,
+          "status": "success",
+          "text_chars": 84,
+          "image_sha256": "c19e06f04b2a14c9e923aaa9cdc277b0db037502fccd0b1603635752cbf6ac27",
+          "cache_used": true,
+          "image_download_cache_used": false
+        },
+        {
+          "order": 6,
+          "status": "success",
+          "text_chars": 84,
+          "image_sha256": "6b3cceba6850a8a370dfef8dfdbb6808506dc3f10177f468d1c2d173b2aadf5e",
+          "cache_used": true,
+          "image_download_cache_used": false
+        },
+        {
+          "order": 7,
+          "status": "success",
+          "text_chars": 73,
+          "image_sha256": "fc735e08906bc5b91d129f9b1449aea7016d817680321a47f2a4aeed637e1a46",
+          "cache_used": true,
+          "image_download_cache_used": false
+        },
+        {
+          "order": 8,
+          "status": "success",
+          "text_chars": 76,
+          "image_sha256": "073c159330ec8ebec859f6480c479beac653ee375b0e220976f0d4444f3e8cc7",
+          "cache_used": true,
+          "image_download_cache_used": false
+        },
+        {
+          "order": 9,
+          "status": "success",
+          "text_chars": 108,
+          "image_sha256": "03d011ba2775fd60cc07a811f7ebd8f5790adb96ad39d1aca9256f80f2a2fe65",
+          "cache_used": true,
+          "image_download_cache_used": false
+        }
+      ],
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "image_order": 1,
+          "status": "image_unavailable",
+          "message": "本次未取得图片，配文及其他已读图片保留。",
+          "retryable": false
+        },
+        {
+          "platform": "xiaohongshu",
+          "image_order": 2,
+          "status": "image_unavailable",
+          "message": "本次未取得图片，配文及其他已读图片保留。",
+          "retryable": false
+        },
+        {
+          "platform": "xiaohongshu",
+          "image_order": 3,
+          "status": "image_unavailable",
+          "message": "本次未取得图片，配文及其他已读图片保留。",
+          "retryable": false
+        }
+      ]
+    },
+    {
+      "task_id": "task_d72d0acfb3d24acbaa51cc4b7c563631",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T02:58:58.549616+00:00",
+      "updated_at": "2026-10-15T02:59:20.015092+00:00",
+      "platform": "xiaohongshu",
+      "query": null,
+      "returned_by_platform": null,
+      "content_ref": "content_6653d723ec0cc6df36cdaec3",
+      "title": "求网友们支招个人知识管理软件",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a256c78000000002201b9d3?xsec_source=",
+      "body_chars": 426,
+      "image_ocr_chars": 20,
+      "media_count": 1,
+      "coverage": {
+        "caption": "read",
+        "image_count": 1,
+        "discovered_images": 1,
+        "ocr_attempted": 1,
+        "ocr_succeeded": 1,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_from_download_cache": 0
+      },
+      "body_sha256": "352d4a50e838e093ae58b1b640566cb4f2bbf8eb654c7b01736b21bb9411f24e",
+      "backend": "opencli-note-images",
+      "cache": {
+        "used": false
+      },
+      "published_at_raw": "06-07",
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 20,
+          "image_sha256": "0d14a3f2927f081b4b8ab4d0d637e8aeb0d683408941792473adc11ced05608d",
+          "cache_used": false,
+          "image_download_cache_used": false
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

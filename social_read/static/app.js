@@ -7,7 +7,7 @@ const filePreview=location.protocol==='file:';
 const demoJobs=new Map(), demoItems=new Map();
 function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(cls)n.className=cls;return n;}
 function message(text,error=false){$('notice').replaceChildren(node('div',text,'message'+(error?' error':'')));}
-function sourceLink(url,text){try{const p=new URL(url);if(p.protocol!=='https:'||p.username||p.password||!['www.xiaohongshu.com','xiaohongshu.com','weibo.com','www.weibo.com','m.weibo.cn','www.zhihu.com','zhihu.com','zhuanlan.zhihu.com','mp.weixin.qq.com','weixin.sogou.com','mmbiz.qpic.cn'].includes(p.hostname))return node('span','来源链接暂不可用','meta');const a=node('a',text);a.href=p.href;a.target='_blank';a.rel='noopener noreferrer';return a;}catch{return node('span','来源链接暂不可用','meta');}}
+function sourceLink(url,text){try{const p=new URL(url);if(p.protocol!=='https:'||p.username||p.password||!((p.hostname.endsWith('.xhscdn.com') || p.hostname.endsWith('.zhimg.com')) || ['www.xiaohongshu.com','xiaohongshu.com','weibo.com','www.weibo.com','m.weibo.cn','www.zhihu.com','zhihu.com','zhuanlan.zhihu.com','mp.weixin.qq.com','weixin.sogou.com','mmbiz.qpic.cn'].includes(p.hostname)))return node('span','来源链接暂不可用','meta');const a=node('a',text);a.href=p.href;a.target='_blank';a.rel='noopener noreferrer';return a;}catch{return node('span','来源链接暂不可用','meta');}}
 function originalButton(item,text){
  const button=node('button',text,'quiet');
  button.onclick=async()=>{
@@ -67,24 +67,56 @@ function renderResults(items){
  if(!items?.length){$('results').append(node('p','本次没有取得内容。请查看提示或换一个关键词。','hint'));return;}
  for(const item of items){const card=node('article',undefined,'card');card.append(node('span',labels[item.platform]||item.platform,'badge'),node('p',item.title,'title'),node('p',(item.author||'作者未提供')+' · '+(item.date_estimate?'约 '+item.date_estimate+'（ID 推算）':stamp(item.published_at_raw)),'meta'),node('p',item.source||'来源未提供','meta'));if(item.summary)card.append(node('p',item.summary,'meta'));const actions=node('div',undefined,'card-actions'),button=node('button','阅读');button.onclick=()=>read({content_ref:item.content_ref});actions.append(button);if(mode==='live')actions.append(originalButton(item,'打开原始结果'));card.append(actions);$('results').append(card);}
 }
+function renderComments(result,box,source){
+ const section=node('section');section.id='comments-view';
+ section.append(node('h3','此次取得的评论'),node('p',result.notice||'仅代表本次读取范围。','hint'));
+ const coverage=result.coverage||{};
+ section.append(node('p','首层 '+(coverage.returned_top_level??'?')+' 条 · 回复 '+(coverage.returned_replies??'?')+' 条 · 不是全部评论','meta'));
+ const names=new Map((result.items||[]).map(c=>[c.id,c.author]));
+ for(const c of result.items||[]){
+  const row=node('div',undefined,'comment');row.append(node('strong',c.author||'作者未提供'));
+  if(c.is_reply)row.append(node('p','回复 '+(c.reply_to||names.get(c.parent_id)||'同一评论串'),'meta'));
+  if(c.published_at_raw)row.append(node('p',stamp(c.published_at_raw),'meta'));
+  row.append(node('p',c.text||c.content||''));section.append(row);
+ }
+ if(!result.items?.length)section.append(node('p','此次未取得可见评论，请到原帖核对。','hint'));
+ box.querySelector('#comments-view')?.remove();box.append(section);
+}
 function renderContent(content){
  currentRef=content.content_ref;$('refresh').hidden=!currentRef;
  const box=$('content');box.replaceChildren(node('span',labels[content.platform]||content.platform,'badge'),node('h3',content.title),node('p',(content.author||'作者未提供')+' · '+stamp(content.published_at_raw),'meta'),node('div',content.notice||'请核对正文范围。','message'));
  box.append(node('p','取得 '+(content.body_chars??Array.from(content.body||'').length)+' 个文字字符 · '+(content.media_count??content.media?.length??0)+' 个图片链接','meta'));
  if(content.cache?.used)box.append(node('p','使用本机缓存 · 获取于 '+stamp(content.fetched_at),'meta'));
  if(mode==='live')box.append(originalButton(content,'到原帖核对'));
- box.append(node('div',content.body||'未取得正文。','body'));
- if(content.media?.length){const media=node('details');media.append(node('summary','图片链接（未读取图内文字）'));for(const item of content.media){if(item.type==='image'){const row=node('p');row.append(sourceLink(item.url,'第 '+item.order+' 张图片'));media.append(row);}}box.append(media);}
+ if(content.image_ocr?.length){
+  const cov=content.coverage||{};
+  box.append(node('p','图片 '+(cov.ocr_succeeded??0)+' / '+(cov.image_count??content.image_ocr.length)+' 张已处理 · 图中文字 '+(content.image_ocr_chars??0)+' 字符','meta'));
+  box.append(node('h3','笔记配文'),node('div',content.caption||'此笔记没有可见配文。','body'));
+  for(const image of content.image_ocr){
+   const detail=node('details'),ok=['success','no_text_detected'].includes(image.status);
+   detail.append(node('summary','第 '+image.order+' 张 · '+(ok?(image.status==='no_text_detected'?'未检测到文字':'已识别 '+image.text_chars+' 字符'):'未完成识别')));
+   detail.append(node('p',ok?'本机识别，可能存在错字；图片排版与图表含义需要核对。':(image.message||image.status),'hint'));
+   detail.append(node('div',image.text||'没有取得图中文字。','body'));box.append(detail);
+  }
+ }else box.append(node('div',content.body||'未取得正文。','body'));
+ if(content.coverage?.long_text)box.append(node('p',content.coverage.long_text_expanded?'本条长微博已取得展开文字。':'本条长微博未取得展开文字，仅保留当前可见部分。','message'));
+ if(content.media?.length){const media=node('details');media.append(node('summary',content.image_ocr?.length?'图片来源链接':'图片链接（未读取图内文字）'));for(const item of content.media){if(item.type==='image'){const row=node('p');row.append(sourceLink(item.url,'第 '+item.order+' 张图片'));media.append(row);}}box.append(media);}
  if(content.retweet)box.append(node('p','转发来源：'+content.retweet.author,'meta'),node('div',content.retweet.body||'转发正文未提供','body'));
- const comments=node('button','查看评论','quiet');comments.disabled=content.platform==='weixin';comments.onclick=async()=>{const job=await run('comments',{content_ref:content.content_ref,limit:10});if(job&&job.status==='success'){const section=node('section');section.append(node('h3','此次取得的评论'),node('p',job.result.notice||'仅代表本次读取范围。','hint'));for(const c of job.result.items||[]){const row=node('div',undefined,'comment');row.append(node('strong',c.author||'作者未提供'));if(c.is_reply)row.append(node('p','回复 '+(c.reply_to||'上一层评论'),'meta'));row.append(node('p',c.text||c.content||''));section.append(row);}const coverage=job.result.coverage||{};section.append(node('p','取得 '+(coverage.returned_rows??job.result.items?.length??0)+' 条记录 · 不是全部评论','hint'));box.querySelector('#comments-view')?.remove();section.id='comments-view';box.append(section);}};
+ const controls=node('div',undefined,'card-actions'),rootLimit=node('select'),replyLimit=node('select');
+ rootLimit.setAttribute('aria-label','首层评论数量');replyLimit.setAttribute('aria-label','每条回复数量');
+ for(const n of [5,10,20]){const option=node('option','首层最多 '+n+' 条');option.value=n;rootLimit.append(option);}
+ for(const n of [2,0,5]){const option=node('option',n?'每条最多 '+n+' 条回复':'不展开回复');option.value=n;replyLimit.append(option);}
+ const comments=node('button','查看评论','quiet');comments.disabled=content.platform==='weixin';
+ comments.onclick=async()=>{const job=await run('comments',{content_ref:content.content_ref,limit:Number(rootLimit.value),replies_limit:Number(replyLimit.value)});if(job&&['success','partial'].includes(job.status))renderComments(job.result,box,content);};
+ controls.append(rootLimit,replyLimit);if(content.platform!=='weixin')box.append(controls);
  box.append(comments);if(content.platform==='weixin')box.append(node('p','公众号留言查看暂未支持。','hint'));
 }
 async function read(request){const job=await run('read',request);if(job?.result?.content){renderContent(job.result.content);if(window.innerWidth<760)$('reader-title').scrollIntoView({behavior:'smooth'});}}
-async function history(){try{const data=await api('/api/history');$('history').replaceChildren();for(const job of data.jobs||[]){const row=node('div',undefined,'history-row');row.append(node('span',({search:'搜索',read:'阅读',comments:'评论查看',connection:'连接检查'})[job.action]||job.action),node('span',statusNames[job.status]||job.status,'badge'),node('span',(job.request?.query||'')+' '+(job.request?.platform?labels[job.request.platform]:(job.request?.platforms||[]).map(s=>labels[s]).join('、')),'meta'));const button=node('button','查看记录','quiet');button.onclick=()=>{showErrors(job.result?.errors);if(job.action==='search')renderResults(job.result?.items);if(job.result?.content)renderContent(job.result.content);if(job.result?.connection)message(job.result.connection.message);$('result-status').textContent='历史记录 · '+stamp(job.updated_at||job.created_at);};row.append(button);$('history').append(row);}if(!data.jobs?.length)$('history').append(node('p','暂无任务，开始搜索后会保存在这里。','hint'));}catch(e){message('任务记录暂不可用，请确认本机服务正在运行。',true);}}
+async function history(){try{const data=await api('/api/history');$('history').replaceChildren();for(const job of data.jobs||[]){const row=node('div',undefined,'history-row');row.append(node('span',({search:'搜索',read:'阅读',comments:'评论查看',connection:'连接检查'})[job.action]||job.action),node('span',statusNames[job.status]||job.status,'badge'),node('span',(job.result?.content?.title||job.request?.query||'')+' · '+(job.request?.platform?labels[job.request.platform]:(job.request?.platforms||[]).map(s=>labels[s]).join('、'))+' · '+stamp(job.created_at),'meta'));const button=node('button','查看记录','quiet');button.onclick=()=>{showErrors(job.result?.errors);if(job.action==='search')renderResults(job.result?.items);if(job.result?.content)renderContent(job.result.content);if(job.action==='comments'){const box=$('content');box.replaceChildren(node('span',labels[job.result?.platform]||'评论记录','badge'));if(mode==='live'&&job.request?.content_ref)box.append(originalButton({content_ref:job.request.content_ref},'到原帖核对'));renderComments(job.result||{},box);}if(job.result?.connection)message(job.result.connection.message);$('result-status').textContent='历史记录 · '+stamp(job.updated_at||job.created_at);};row.append(button);$('history').append(row);}if(!data.jobs?.length)$('history').append(node('p','暂无任务，开始搜索后会保存在这里。','hint'));}catch(e){message('任务记录暂不可用，请确认本机服务正在运行。',true);}}
 $('search-form').onsubmit=async e=>{e.preventDefault();const platforms=Array.from($('platforms').querySelectorAll('input:checked')).map(x=>x.value);if(!platforms.length){message('请选择至少一个平台。');return;}const job=await run('search',{platforms,query:$('query').value,limit:5});if(job)renderResults(job.result?.items);};
 $('read-form').onsubmit=e=>{e.preventDefault();read({platform:$('direct-platform').value,url:$('url').value});};
 $('check').onclick=async()=>{const job=await run('connection',{});if(job?.result?.connection){message(job.result.connection.message);const identities=job.result.platforms||[];for(const i of identities){const n=node('div',(labels[i.platform]||i.platform)+'：'+(i.message||i.status),'message');$('errors').append(n);}}};
 $('cancel').onclick=async()=>{if(active){try{await api('/api/tasks/'+active+'/cancel',{});message('正在停止当前任务。');}catch(e){message(e.message,true);}}};
 $('refresh').onclick=()=>currentRef&&read({content_ref:currentRef,refresh:true});
 $('history-refresh').onclick=history;
-(async()=>{try{const boot=await api('/api/bootstrap');token=boot.token;mode=boot.mode;$('mode').textContent=mode==='demo'?'离线演示 · 虚构样例':'本机读取 · 试用版';for(const p of boot.platforms){const label=node('label'),input=node('input');input.type='checkbox';input.value=p.id;input.checked=true;label.append(input,node('span',p.label));$('platforms').append(label);}if(mode==='demo')message(filePreview?'这是界面预览，未运行读取服务；所有样例均为虚构。':'这是离线演示，所有内容均为虚构；不代表平台读取成功。');await history();}catch(e){$('mode').textContent='本机服务未连接';message('请从本机启动器运行 Social Read，再打开此页面。',true);}})();
+(async()=>{try{const boot=await api('/api/bootstrap');token=boot.token;mode=boot.mode;$('mode').textContent=mode==='demo'?'离线演示 · 虚构样例':'本机读取 · 试用版';for(const p of boot.platforms){const label=node('label'),input=node('input');input.type='checkbox';input.value=p.id;input.checked=true;label.append(input,node('span',p.label));$('platforms').append(label);}if(mode==='demo')message(filePreview?'这是界面预览，未运行读取服务；所有样例均为虚构。':'这是离线演示，所有内容均为虚构；不代表平台读取成功。');await history();}catch(e){$('mode').textContent='本机服务未连接';message('请从本机启动器运行 social-media-read-for-agent，再打开此页面。',true);}})();

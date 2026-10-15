@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 from .model import ReadError, classify_error, content_item, keyword, validate_url
 from .weixin_public import ArticleParser
+from .browser_page import wait_selector
 
 
 def read_search_article(runner, query, title, cancel):
@@ -38,7 +39,7 @@ def read_search_article(runner, query, title, cancel):
         if not isinstance(tab, str) or not re.fullmatch(r"[\w-]{1,100}", tab):
             raise ReadError("adapter_incompatible", "浏览器没有返回本次创建的页面标识。")
         try:
-            command(["wait", "selector", ".news-list h3 a", "--timeout", "15000", "--tab", tab], 18)
+            wait_selector(runner, session, tab, ".news-list h3 a", cancel, 15)
         except ReadError:
             check_page()
             raise
@@ -61,7 +62,7 @@ def read_search_article(runner, query, title, cancel):
             raise ReadError("source_context_changed", "搜索页没有唯一匹配这篇文章。请重新搜索后读取，不能替换成另一篇文章。")
         command(["click", '.news-list h3 a[data-social-read-selected="1"]', "--tab", tab])
         try:
-            command(["wait", "selector", "#js_content", "--timeout", "15000", "--tab", tab], 18)
+            wait_selector(runner, session, tab, "#js_content", cancel, 15)
         except ReadError:
             check_page()
             raise

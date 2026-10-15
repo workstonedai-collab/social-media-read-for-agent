@@ -185,6 +185,9 @@ class OpenCLIAdapter:
         self.runner = runner
 
     def search(self, site, query, limit, cancel):
+        if site == "xiaohongshu":
+            from .xiaohongshu_search import search_notes
+            return search_notes(self.runner, query, limit, cancel)
         if site == "weixin":
             from .weixin_public import search_public_articles
             try:
@@ -210,12 +213,14 @@ class OpenCLIAdapter:
         if site == "xiaohongshu":
             if not parse_qs(p.query).get("xsec_token"):
                 raise ReadError("access_context_required", "请从搜索结果打开笔记，或粘贴包含访问参数的完整小红书链接。")
-            return content_item(site, self.runner.call(site, "note", [target], cancel), target, self.name)
+            from .xiaohongshu_read import read_note
+            return read_note(self.runner, target, cancel)
         if site == "weibo":
-            ident = p.path.rstrip("/").split("/")[-1]
-            return content_item(site, self.runner.call(site, "post", [ident], cancel), target, self.name)
+            from .platform_reads import read_weibo
+            return read_weibo(self.runner, target, cancel)
         if site == "zhihu" and "/answer/" in p.path:
-            return content_item(site, self.runner.call(site, "answer-detail", [target], cancel), target, self.name)
+            from .platform_reads import read_zhihu_answer
+            return read_zhihu_answer(self.runner, target, cancel)
         if site == "zhihu" and "/question/" in p.path:
             data = self.runner.call(site, "question", [p.path.rstrip("/").split("/")[-1], "--limit", "3"], cancel)
             answers = rows(data)
@@ -243,6 +248,9 @@ class OpenCLIAdapter:
             item["type"] = "answer_collection"
             item["notice"] = "本次选择 %s 个回答分别读取，不代表全部回答。%s完整性需对照原帖。" % (len(detailed), "其中 %s 个只能取得摘要。" % len(failures) if failures else "")
             return item
+        if site == "zhihu" and p.path.startswith("/p/"):
+            from .platform_reads import read_zhihu_article
+            return read_zhihu_article(self.runner, target, cancel)
         index_url = None
         if site == "weixin" and p.hostname == "weixin.sogou.com":
             index_url = target
@@ -273,30 +281,13 @@ class OpenCLIAdapter:
                 item["search_source_url"] = index_url
             return item
 
-    def comments(self, site, target, limit, cancel):
+    def comments(self, site, target, limit, cancel, replies_limit=3):
         if site == "weixin":
-            raise ReadError("unsupported", "公众号留言查看尚未验证，首版不声明支持。")
-        target = validate_url(site, target)
-        p = urlsplit(target)
-        if site == "xiaohongshu":
-            if not parse_qs(p.query).get("xsec_token"):
-                raise ReadError("access_context_required", "请从搜索结果打开小红书评论。")
-            command, args = "comments", [target, "--limit", str(limit), "--with-replies", "true"]
-        elif site == "weibo":
-            ident = p.path.rstrip("/").split("/")[-1]
-            if not ident.isdigit():
-                from .model import unpack
-                d = unpack(self.runner.call(site, "post", [ident], cancel))
-                ident = str(d.get("id", ""))
-            if not ident.isdigit():
-                raise ReadError("adapter_incompatible", "未取得微博评论所需的内容标识。")
-            command, args = "comments", [ident, "--limit", str(limit)]
-        else:
-            if "/answer/" not in p.path:
-                raise ReadError("unsupported", "首版知乎评论仅支持具体回答链接。")
-            command, args = "answer-comments", [p.path.rstrip("/").split("/")[-1], "--limit", str(limit)]
-        data = rows(self.runner.call(site, command, args, cancel))
-        return {"items": data, "coverage": {"requested_top_level": limit, "returned_rows": len(data), "all_comments": False, "pagination": "bounded_by_upstream", "replies": "included_if_returned" if site != "weibo" else "not_expanded"}, "notice": "仅包含此次取得的评论；不代表全部评论。"}
+            raise ReadError("unsupported", "公众号留言读取尚未支持。")
+        if site == "xiaohongshu" and not parse_qs(urlsplit(target).query).get("xsec_token"):
+            raise ReadError("access_context_required", "请从搜索结果打开小红书评论。")
+        from .comments import read_comments
+        return read_comments(self.runner, site, target, limit, replies_limit, cancel)
 
 
 class DemoAdapter:
@@ -312,7 +303,7 @@ class DemoAdapter:
         item["notice"] = "离线演示，内容完全虚构；不代表真实平台读取成功。"
         return item
 
-    def comments(self, site, target, limit, cancel):
+    def comments(self, site, target, limit, cancel, replies_limit=3):
         if site == "weixin":
             raise ReadError("unsupported", "公众号留言暂不支持。")
         validate_url(site, target)

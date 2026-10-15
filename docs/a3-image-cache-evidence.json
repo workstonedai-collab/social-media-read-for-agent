@@ -1,0 +1,10 @@
+{
+  "backend": "macos-vision-local",
+  "status": "success",
+  "text_chars": 50,
+  "image_sha256": "08e318386fd9e8e25be8378a23f693b00df7f3a589e0851e34d77a6bf9bea166",
+  "cache_used": true,
+  "image_download_cache_used": true,
+  "cache_age_seconds": 266,
+  "proof": "same real image URL reused; no image download on cache hit"
+}
