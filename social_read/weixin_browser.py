@@ -41,7 +41,7 @@ def read_search_article(runner, query, title, cancel):
         if not isinstance(tab, str) or not re.fullmatch(r"[\w-]{1,100}", tab):
             raise ReadError("adapter_incompatible", "浏览器没有返回本次创建的页面标识。")
         stage = "wait_search_results"
-        wait_navigation(runner, session, tab, cancel, 25)
+        wait_navigation(runner, session, tab, cancel, 25, expected_hosts={"weixin.sogou.com"})
         try:
             wait_selector(runner, session, tab, ".news-list h3 a", cancel, 18)
         except ReadError:
@@ -67,6 +67,11 @@ def read_search_article(runner, query, title, cancel):
             raise ReadError("source_context_changed", "搜索页没有唯一匹配这篇文章。请重新搜索后读取，不能替换成另一篇文章。")
         stage = "open_article"
         command(["click", '.news-list h3 a[data-social-read-selected="1"]', "--tab", tab])
+        # The click can return while Chrome still exposes the old Sogou
+        # document. Native metadata does not attach an evaluator to that
+        # outgoing document; wait for the article host before probing its DOM.
+        stage = "wait_article_navigation"
+        wait_navigation(runner,session,tab,cancel,25,expected_hosts={"mp.weixin.qq.com"})
         stage = "wait_article_body"
         try:
             wait_selector(runner, session, tab, "#js_content", cancel, 20)

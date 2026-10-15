@@ -180,9 +180,10 @@ class SearchReadinessTests(unittest.TestCase):
             def __exit__(self,*a):pass
             def wait(self,*a):pass
             def command(self,*a):pass
+            def navigate_same_origin(self,*a):pass
             tab="owned"
             def evaluate(self,script,*a):
-                setup="""global.location={origin:'https://www.xiaohongshu.com',href:'https://www.zhihu.com/search?q=test'};
+                setup="""global.location={origin:'https://www.xiaohongshu.com',href:HREF.includes('xiaohongshu.com')?'https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent('主题'):'https://www.zhihu.com/search?q=test'};
                 const section={querySelector:()=>null};
                 const link={textContent:TEXT,innerText:TEXT,getAttribute:()=>HREF,closest:()=>section};
                 global.document={body:{innerText:EMPTY?'没有找到相关内容':'正常结果'},querySelector:()=>null,querySelectorAll:()=>EMPTY?[]:[link]};
@@ -206,18 +207,14 @@ class SearchReadinessTests(unittest.TestCase):
             with self.assertRaises(ReadError) as exc:search_notes(None,'主题',1,threading.Event())
         self.assertEqual(exc.exception.code,'search_empty_confirmed')
 
-    def test_search_recovery_uses_new_owned_page_and_reports_first_failure(self):
+    def test_search_loading_failure_closes_owned_page_without_replay(self):
         from social_read.xiaohongshu_search import search_notes
         from unittest.mock import MagicMock
-        first=MagicMock();first.__enter__.return_value=first
-        first.evaluate.side_effect=ReadError('content_loading_timeout','加载超时')
-        second=MagicMock();second.__enter__.return_value=second
-        second.evaluate.return_value={'items':[{'title':'可读笔记','url':XHS}]}
-        with patch('social_read.xiaohongshu_search.ReadPage',side_effect=[first,second]) as pages,patch('social_read.xiaohongshu_search._pause'):
-            result=search_notes(None,'主题',1,threading.Event())
-        self.assertEqual(pages.call_count,2);first.__exit__.assert_called_once();second.__exit__.assert_called_once()
-        self.assertEqual(result[0]['recovery']['previous_status'],'content_loading_timeout')
-        self.assertEqual(result[0]['recovery']['attempts'],2)
+        page=MagicMock();page.__enter__.return_value=page
+        page.evaluate.side_effect=ReadError('content_loading_timeout','加载超时')
+        with patch('social_read.xiaohongshu_search.ReadPage',return_value=page) as pages,patch('social_read.xiaohongshu_search._pause') as pause:
+            with self.assertRaises(ReadError):search_notes(None,'主题',1,threading.Event())
+        self.assertEqual(pages.call_count,1);page.__exit__.assert_called_once();pause.assert_not_called()
 
     def test_search_never_recovers_verification_rate_limit_or_unknown_adapter_failure(self):
         from social_read.xiaohongshu_search import search_notes

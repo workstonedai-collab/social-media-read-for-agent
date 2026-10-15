@@ -10,7 +10,7 @@
 
 项目标识：`social-media-read-for-agent`。为已有 Agent 提供七个只读 MCP 工具，也可以通过命令行或本地网页使用。本项目无需额外的模型 API 密钥；你的 Agent 自身仍按原来的方式运行。
 
-当前是 **0.1.0a9 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+当前是 **0.1.0a10 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
 
 ## 适合用它做什么
 
@@ -108,7 +108,7 @@ flowchart LR
 
 Hermes 换成 `--clients hermes`；明确两边都需要时使用 `--clients codex hermes`。其他本地 Agent 使用 `--clients generic` 生成配置，再由 Agent 合并到自己的客户端。
 
-macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a9/social-media-read-for-agent-v0.1.0a9.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
+macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a10/social-media-read-for-agent-v0.1.0a10.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
 
 - 安装器按系统/处理器下载固定版本的独立 Python、Node，校验 SHA256 后才执行，保存在项目 `.state/runtime/`，不改系统 Python/Node、shell 设置或 Agent 自己的依赖。
 - 首次需要联网下载运行时和组件；后续重复安装复用它们。不是把运行时删掉，而是免去用户单独安装和管理；运行时解压约260 MB，OpenCLI 与可选 OCR 另需空间。
@@ -159,7 +159,7 @@ MCP 客户端配置由安装器生成，入口是绝对路径 `start_mcp.py`，�
 
 这是真实的 CLI 备用路径，不应声称已替换客户端旧 MCP 注册。Hermes 显式工具筛选用原始名称：`-t social-media-read-for-agent`。
 
-小红书首个任务页持续空白时，会在约4秒后提前进入一次新页面恢复；恢复时可能把专用任务窗口带到前台。第二次仍保留完整导航预算，验证、登录限制、限流和拒绝访问会停止。结果保留恢复原因，不能将一次成功解释为长期无超时。
+小红书搜索先进入正常平台首页，再在同一任务页打开目标搜索，并核对关键词与结果链接；搜索和评论均只使用一个任务页，不自动重开页面。评论直接等待评论区，不要求笔记必须有标题或配文；逐步保存已读范围，已有足够回复时不再展开。加载、验证、登录和频率限制会明确返回状态。实际样本与使用边界见[验证记录](docs/validation.md)。
 
 ## 图片、长文与恢复
 

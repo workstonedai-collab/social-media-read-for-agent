@@ -11,30 +11,34 @@ spec=importlib.util.spec_from_file_location('bootstrap_onboarding',ROOT/'bootstr
 setup=importlib.util.module_from_spec(spec);spec.loader.exec_module(setup)
 
 class NavigationTests(unittest.TestCase):
-    def test_first_blank_page_fails_early_without_evaluating_or_replaying_navigation(self):
+    def test_waits_for_expected_committed_host_not_outgoing_document(self):
         from social_read.browser_page import wait_navigation
-        from social_read.model import ReadError
-        clock=[0.0];runner=Mock();runner.workdir=None
-        def run(args,cancel=None,timeout=None):
-            clock[0]+=1
-            return 0,'[{"page":"owned","url":"about:blank"}]',''
-        runner.run.side_effect=run
-        with patch('social_read.browser_page.time.monotonic',side_effect=lambda:clock[0]),patch('social_read.browser_page._pause'):
-            with self.assertRaises(ReadError) as error:wait_navigation(runner,'session','owned',threading.Event(),25,4)
-        self.assertEqual(error.exception.code,'navigation_not_started');self.assertEqual(clock[0],4)
-        self.assertTrue(all(c.args[0]==['browser','session','tab','list'] for c in runner.run.call_args_list))
+        runner=Mock();runner.workdir=None
+        runner.run.side_effect=[(0,'[{"page":"owned","url":"https://weixin.sogou.com/weixin"}]',''),(0,'[{"page":"owned","url":"https://weixin.sogou.com/link"}]',''),(0,'[{"page":"owned","url":"https://mp.weixin.qq.com/s?secret=private"}]','')]
+        with patch('social_read.browser_page._pause'):
+            result=wait_navigation(runner,'session','owned',threading.Event(),25,expected_hosts={'mp.weixin.qq.com'})
+        self.assertEqual(result['status'],'ready');self.assertEqual(runner.run.call_count,3)
+        self.assertTrue(all(c.args[0][2:]==['tab','list'] for c in runner.run.call_args_list))
 
-    def test_early_recovery_gives_second_page_full_navigation_budget(self):
+    def test_homepage_wait_does_not_accept_old_note_of_same_origin(self):
+        from social_read.browser_page import wait_navigation
+        runner=Mock();runner.workdir=None
+        runner.run.side_effect=[(0,'[{"page":"owned","url":"https://www.xiaohongshu.com/explore/123"}]',''),(0,'[{"page":"owned","url":"https://www.xiaohongshu.com/explore"}]','')]
+        with patch('social_read.browser_page._pause'):
+            wait_navigation(runner,'session','owned',threading.Event(),25,expected_hosts={'www.xiaohongshu.com'},expected_path='/explore')
+        self.assertEqual(runner.run.call_count,2)
+
+    def test_search_uses_one_established_origin_page_without_early_recovery(self):
         from social_read.xiaohongshu_search import search_notes
-        from social_read.model import ReadError
-        first=MagicMock();first.__enter__.side_effect=ReadError('navigation_not_started','blank')
-        second=MagicMock();second.__enter__.return_value=second
-        second.evaluate.return_value={'items':[{'title':'result','url':'https://www.xiaohongshu.com/explore/6a99838a000000002b0133c8?xsec_token=test'}]}
-        with patch('social_read.xiaohongshu_search.ReadPage',side_effect=[first,second]),patch('social_read.xiaohongshu_search._pause'):
+        page=MagicMock();page.__enter__.return_value=page
+        page.evaluate.return_value={'items':[{'title':'result','url':'https://www.xiaohongshu.com/explore/6a99838a000000002b0133c8?xsec_token=test'}]}
+        with patch('social_read.xiaohongshu_search.ReadPage',return_value=page) as pages:
             result=search_notes(None,'query',1,threading.Event())
-        self.assertEqual(first.blank_navigation_grace,4);self.assertIsNone(second.blank_navigation_grace)
-        self.assertFalse(first.foreground);self.assertTrue(second.foreground)
-        self.assertEqual(result[0]['recovery']['previous_status'],'navigation_not_started')
+        self.assertEqual(pages.call_args.args[1],'https://www.xiaohongshu.com/explore')
+        page.navigate_same_origin.assert_called_once()
+        self.assertIn('keyword=query',page.navigate_same_origin.call_args.args[0])
+        self.assertEqual(result[0]['navigation']['page_attempts'],1)
+        self.assertNotIn('recovery',result[0]);self.assertEqual(pages.call_count,1)
 
     def test_delayed_title_or_signed_link_waits_in_same_page(self):
         from social_read.xiaohongshu_search import search_notes
@@ -54,19 +58,13 @@ class NavigationTests(unittest.TestCase):
             with self.assertRaises(ReadError) as error:search_notes(None,'query',1,threading.Event())
         self.assertEqual(error.exception.code,'rate_limited');self.assertEqual(pages.call_count,1)
 
-    def test_comments_only_recover_initial_loading(self):
+    def test_comment_ready_failure_does_not_reopen_or_start_walk(self):
         from social_read.comments import xhs_comments
         from social_read.model import ReadError
-        first=MagicMock();first.__enter__.return_value=first;first.wait.side_effect=ReadError('content_loading_timeout','loading')
-        second=MagicMock();second.__enter__.return_value=second;second.evaluate.return_value={'items':[],'is_end':True,'backend':'test'}
-        with patch('social_read.comments.ReadPage',side_effect=[first,second]),patch('social_read.comments._pause'):
-            result=xhs_comments(None,'https://www.xiaohongshu.com/explore/6a99838a000000002b0133c8?xsec_token=test',2,1,threading.Event())
-        self.assertEqual(result['coverage']['loading_recovery']['previous_status'],'content_loading_timeout')
-        self.assertTrue(second.foreground);first.evaluate.assert_not_called()
-        page=MagicMock();page.__enter__.return_value=page;page.evaluate.side_effect=ReadError('timeout','walk outcome unknown')
-        with patch('social_read.comments.ReadPage',return_value=page) as pages,patch('social_read.comments._pause') as pause:
-            with self.assertRaises(ReadError):xhs_comments(None,'https://www.xiaohongshu.com/explore/6a99838a000000002b0133c8?xsec_token=test',2,1,threading.Event())
-        self.assertEqual(pages.call_count,1);pause.assert_not_called()
+        page=MagicMock();page.__enter__.return_value=page;page.wait.side_effect=ReadError('content_loading_timeout','loading')
+        with patch('social_read.comments.ReadPage',return_value=page) as pages,patch('social_read.comments._xhs_snapshot') as snapshot:
+            with self.assertRaises(ReadError) as error:xhs_comments(None,'https://www.xiaohongshu.com/explore/6a99838a000000002b0133c8?xsec_token=test',2,1,threading.Event())
+        self.assertEqual(page.wait.call_args.kwargs['phase'],'comments_ready');self.assertEqual(pages.call_count,1);snapshot.assert_not_called()
 
 
 class OnboardingTests(unittest.TestCase):

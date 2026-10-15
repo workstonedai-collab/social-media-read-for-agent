@@ -96,13 +96,13 @@ run.sh会使用项目解释器及Node，即使Agent的启动环境没有这些�
 | 已有安装锁 | 先核对本次项目安装进程；仍在运行则等待，不能删除别的进程的锁 |
 | dedicated_browser_extension | Agent在专用Chrome操作官方商店添加，用户只确认最终权限；等待并自动识别连接 |
 | login_pending | 用户已暂缓登录；不访问对应平台，先用其他能力，之后从此步骤恢复 |
-| navigation_not_started | 首个任务页仍为空白，约4秒提前关闭并恢复一次；恢复页保留完整等待预算 |
 | login_required / verification_required | 在专用窗口让用户正常完成，不反复提交 |
 | rate_limited / access_denied | 停止对应平台并保留其他结果 |
 | navigation_loading_timeout / content_loading_timeout | 页面未在预算内就绪；保留失败，不解释为账号被封或搜索无结果 |
 | command_outcome_unknown | 不自动重放操作，先核对任务 |
 | comments_loading_incomplete | 评论尚未加载完整；不能把零条当作没有评论 |
 | 图片部分失败 | 查看unread_orders，按原内容记录补读；成功图片保留 |
+| source_mismatch | 当前页面与目标关键词/笔记不符，停止，避免返回错帖 |
 | source_context_changed | 重新搜索取得新上下文，不猜另一篇同名文章 |
 | 公众号留言unsupported | 不提交或重试，本版只支持文章正文 |
 

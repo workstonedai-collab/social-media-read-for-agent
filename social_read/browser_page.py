@@ -13,7 +13,6 @@ class ReadPage:
         self.runner, self.url, self.cancel = runner, url, cancel
         self.session = "smrfa-" + label + "-" + uuid.uuid4().hex
         self.tab = None
-        self.blank_navigation_grace = None
         self.foreground = False
 
     def command(self, args, timeout=20):
@@ -36,12 +35,38 @@ class ReadPage:
     def evaluate(self, script, timeout=20):
         return self.json(["eval", script, "--tab", self.tab], timeout)
 
-    def wait(self, selector, seconds=12):
+    def wait(self, selector, seconds=12, phase="content_ready"):
+        started=time.monotonic();status="ready"
         try:
             wait_selector(self.runner, self.session, self.tab, selector, self.cancel, seconds)
         except ReadError as error:
-            error.stage = "content_ready"
+            error.stage=phase;status=error.code
             raise
+        finally:
+            _navigation_receipt(self.runner,{"phase":phase,"status":status,"seconds":round(time.monotonic()-started,3)})
+
+    def navigate_same_origin(self, target, timeout=12):
+        """One normal navigation from an established document, never an eval in blank.
+
+        Keep the operation idempotent if the upstream evaluator observes a
+        context transition. Consumers must independently verify the destination
+        and content; a submitted navigation is not a completed read.
+        """
+        origin=urlsplit(self.url)
+        destination=urlsplit(target)
+        if origin.scheme != "https" or destination.scheme != "https" or origin.netloc != destination.netloc:
+            raise ReadError("invalid_input", "站内导航必须保持同一平台和 HTTPS。")
+        script=r"""(()=>{
+          const target=new URL(%s), current=new URL(location.href);
+          if(current.origin!==target.origin)return {failure:'source_mismatch'};
+          const same=current.pathname.replace(/\/$/,'')===target.pathname.replace(/\/$/,'') &&
+            [...target.searchParams].every(([k,v])=>current.searchParams.get(k)===v);
+          if(!same)location.assign(target.href);
+          return {submitted:true};
+        })()""" % json.dumps(target)
+        receipt=self.evaluate(script,timeout)
+        if not isinstance(receipt,dict) or receipt.get("submitted") is not True:
+            raise ReadError("source_mismatch", "站内导航没有从预期的平台页面发起。")
 
     def check(self):
         data = self.evaluate("({value:document.body?.innerText || ''})")
@@ -60,8 +85,12 @@ class ReadPage:
             self.tab = None
             raise ReadError("adapter_incompatible", "浏览器没有返回本次创建的页面标识。")
         try:
-            self.navigation = wait_navigation(self.runner, self.session, self.tab, self.cancel, 25, self.blank_navigation_grace)
-            self.wait("body", 16)
+            target=urlsplit(self.url)
+            hosts={target.hostname}
+            if target.hostname in {"weibo.com","www.weibo.com"}:hosts={"weibo.com","www.weibo.com"}
+            self.navigation = wait_navigation(self.runner, self.session, self.tab, self.cancel, 25,
+                expected_hosts=hosts,expected_path="/explore" if target.hostname=="www.xiaohongshu.com" and target.path=="/explore" else None)
+            self.wait("body", 16, phase="page_body")
         except Exception as error:
             if isinstance(error, ReadError):error.stage = "page_ready"
             self.__exit__()
@@ -84,7 +113,7 @@ def _pause(cancel, seconds):
         time.sleep(seconds)
 
 
-def wait_navigation(runner, session, tab, cancel, seconds=25, blank_grace=None):
+def wait_navigation(runner, session, tab, cancel, seconds=25, expected_hosts=None, expected_path=None):
     """Do not attach an evaluator to the initial empty document of a new tab.
 
     OpenCLI tab creation returns before Chrome commits its navigation. Native
@@ -109,13 +138,13 @@ def wait_navigation(runner, session, tab, cancel, seconds=25, blank_grace=None):
             raise ReadError("adapter_incompatible", "浏览器导航状态格式发生变化。")
         sample={"found":bool(owned),"scheme":url.scheme if url else None,"host":url.hostname if url else None}
         if not samples or samples[-1]!=sample:samples.append(sample)
-        if url and url.scheme in {"http", "https"} and url.hostname:
+        if expected_hosts and url and url.hostname=='weixin.sogou.com' and re.search(r'/antispider|/captcha',url.path,re.I):
+            raise ReadError("verification_required","搜索页面要求验证，读取已停止。")
+        destination_matches=url and (not expected_hosts or url.hostname in expected_hosts) and (expected_path is None or url.path.rstrip('/')==expected_path.rstrip('/'))
+        if url and url.scheme in {"http", "https"} and url.hostname and destination_matches:
             receipt={"status":"ready","seconds":round(time.monotonic()-started,3),"transitions":samples}
             _navigation_receipt(runner,receipt)
             return {k:v for k,v in receipt.items() if k!='transitions'}
-        if blank_grace is not None and owned and url and url.scheme in {"", "about"} and time.monotonic()-started >= blank_grace:
-            _navigation_receipt(runner,{"status":"navigation_not_started","seconds":round(time.monotonic()-started,3),"transitions":samples})
-            raise ReadError("navigation_not_started","本次任务页仍为空白，未开始平台导航；将关闭它并进行一次有界的新页面恢复。")
         _pause(cancel, min(.4, max(0, deadline-time.monotonic())))
     _navigation_receipt(runner,{"status":"navigation_loading_timeout","seconds":round(time.monotonic()-started,3),"transitions":samples})
     raise ReadError("navigation_loading_timeout", "本次新页面未在预算内完成导航，已关闭本次页面；这不表示账号被封或没有搜索结果。")

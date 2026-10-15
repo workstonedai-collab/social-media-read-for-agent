@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import re
+import time
 from urllib.parse import urlsplit
 
 # Comment loading/end markers adapted from xpzouying/xiaohongshu-mcp
@@ -139,89 +140,120 @@ def read_comments(runner,site,target,limit,replies_limit,cancel,cursor=None):
         raw=page.evaluate(script,55)
     return finish(raw,site,limit,replies_limit)
 
-def xhs_comments(runner, target, limit, replies_limit, cancel, cursor=None):
-    config = {"limit": limit, "replies": replies_limit, "seen": (cursor or {}).get("seen", [])}
-    script = "(async()=>{const cfg=" + json.dumps(config) + ";" + r"""
-      const pause=ms=>new Promise(r=>setTimeout(r,ms));
+def _xhs_snapshot(page, note_id, seen, replies_limit, action=None, root_id=None, timeout=10):
+    """A bounded DOM snapshot or one visibility action; no page-side timers."""
+    cfg={"note_id":note_id,"seen":list(seen),"replies":replies_limit,"action":action,"root_id":root_id}
+    script="(async()=>{const cfg="+json.dumps(cfg)+";"+r"""
+      const current=location.pathname.match(/\/(?:explore|search_result|discovery\/item)\/([a-f0-9]{24})/i);
+      if(location.origin!=='https://www.xiaohongshu.com' || !current || current[1]!==cfg.note_id)return {failure:'source_mismatch'};
       const clean=e=>(e?.innerText || e?.textContent || '').trim();
       const body=document.body?.innerText || '';
       if(/安全限制|访问链接异常|验证码|安全验证/.test(body))return {failure:'verification_required'};
+      if(/访问过于频繁|请求过于频繁/.test(body))return {failure:'rate_limited'};
       if(/登录后查看|请登录/.test(body))return {failure:'login_required'};
       const stable=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,20);
-      const rootRow=async parent=>{
-        const item=parent.querySelector('.comment-item');if(!item)return null;
+      const seen=new Set(cfg.seen), roots=[];let available=0,clicked=false;
+      for(const parent of document.querySelectorAll('.parent-comment')){
+        const item=parent.querySelector('.comment-item');if(!item)continue;
         const root={id:(item.id || parent.id || '').replace(/^comment-/,''),
           author:clean(item.querySelector('.author-wrapper .name, .user-name')),
           text:clean(item.querySelector('.content, .note-text')),time:clean(item.querySelector('.date, .time')),is_reply:false};
         if(!root.text){root.text='（此评论没有可见文字，图片或表情未识别）';root.content_kind='non_text';}
         root.id=root.id || ('local_'+await stable(root.author+'|'+root.text+'|'+root.time));
-        return root;
-      };
-      const seen=new Set(cfg.seen), fresh=new Map();
-      const deadline=Date.now()+22000;let rounds=0, stagnant=0, previous=-1, ended=false, empty=false;
-      // End/no-comment detection and bounded progress tracking adapted from the
-      // Apache-2.0 upstream loader; preserve a resumable seen set per article.
-      while(Date.now()<deadline && rounds<12){
-        const text=clean(document.querySelector('.no-comments-text'));
-        empty=/这是一片荒地|暂无评论|还没有评论/.test(text);
-        ended=empty || /THE\s*END|没有更多评论|没有更多了/i.test(clean(document.querySelector('.end-container')));
-        for(const parent of document.querySelectorAll('.parent-comment')){
-          const root=await rootRow(parent);
-          if(root && !seen.has(root.id))fresh.set(root.id,{parent,root});
-        }
-        if(fresh.size>=cfg.limit || ended)break;
-        const count=document.querySelectorAll('.parent-comment').length;
-        stagnant=count===previous?stagnant+1:0;previous=count;
-        if(stagnant>=3 && count>0)break;
-        const scroller=document.querySelector('.note-scroller');
-        if(scroller)scroller.scrollTo(0,scroller.scrollHeight);
-        else document.querySelector('.comments-container')?.scrollIntoView({block:'end'});
-        rounds++;await pause(800);
-      }
-      const items=[];let clicks=0;
-      const selected=[...fresh.values()].slice(0,cfg.limit);
-      for(const {parent,root} of selected){
-        items.push(root);seen.add(root.id);
-        if(cfg.replies>0 && clicks<3 && Date.now()<deadline){
-          const candidates=[...parent.querySelectorAll('span,button,div')].filter(el=>{
-            const t=clean(el);
-            return t.length<30 && /^(展开.*回复|查看.*回复|更多回复|共\d+条回复)$/.test(t) && ![...el.children].some(c=>clean(c)===t);
-          });
-          if(candidates.length){candidates[0].click();clicks++;await pause(700);}
-        }
+        if(seen.has(root.id))continue;
+        available++;
+        const children=[];
         for(const child of [...parent.querySelectorAll('.reply-container .comment-item-sub, .sub-comment-list .comment-item')].slice(0,cfg.replies)){
-          let text=clean(child.querySelector('.content, .note-text'));
-          const nontext=!text;if(nontext)text='（此回复没有可见文字，图片或表情未识别）';
-          items.push({id:(child.id || '').replace(/^comment-/,''),parent_id:root.id,is_reply:true,
+          let text=clean(child.querySelector('.content, .note-text'));const nontext=!text;
+          if(nontext)text='（此回复没有可见文字，图片或表情未识别）';
+          children.push({id:(child.id || '').replace(/^comment-/,''),parent_id:root.id,is_reply:true,
             author:clean(child.querySelector('.name, .user-name')),text,content_kind:nontext?'non_text':'text',
             time:clean(child.querySelector('.date, .time')),reply_to:text.match(/^回复\s+([^:：]+)\s*[:：]/)?.[1]?.trim() || root.author});
         }
+        const expand=[...parent.querySelectorAll('span,button,div')].find(el=>{
+          const text=clean(el);
+          return text.length<30 && /^(展开.*回复|查看.*回复|更多回复|共\d+条回复)$/.test(text) && ![...el.children].some(c=>clean(c)===text);
+        });
+        if(cfg.action==='expand' && root.id===cfg.root_id && children.length<cfg.replies && expand){expand.click();clicked=true;}
+        if(roots.length<21)roots.push({root,children,expandable:!!expand});
       }
-      const exhausted=ended && fresh.size<=cfg.limit;
-      // A stalled DOM is not proof of end. Do not emit a cursor with no progress.
-      return {items,root_pages:rounds,reply_requests:clicks,is_end:exhausted?true:null,
-        next_state:!exhausted && selected.length && seen.size<2000?{seen:[...seen]}:null,
-        stop_reason:empty?'visible_empty':exhausted?'visible_end':selected.length>=cfg.limit?'root_sample_limit':stagnant>=3?'loading_stalled':'time_budget',
-        backend:'note_dom_comments'};
+      if(cfg.action==='scroll'){
+        const scroller=document.querySelector('.note-scroller');
+        if(scroller)scroller.scrollTo(0,scroller.scrollHeight);
+        else document.querySelector('.comments-container')?.scrollIntoView({block:'end'});
+      }
+      const empty=/这是一片荒地|暂无评论|还没有评论/.test(clean(document.querySelector('.no-comments-text')));
+      const ended=empty || /THE\s*END|没有更多评论|没有更多了/i.test(clean(document.querySelector('.end-container')));
+      return {roots,available,count:document.querySelectorAll('.parent-comment').length,empty,ended,clicked};
     })()"""
-    recovery=None
-    for attempt in (1,2):
-        page=ReadPage(runner,target,cancel,"xhs-comments")
-        page.foreground=attempt==2
-        reading_started=False
+    raw=page.evaluate(script,timeout)
+    if not isinstance(raw,dict):raise ReadError("adapter_incompatible","评论快照格式发生变化。")
+    if raw.get("failure")=="source_mismatch":raise ReadError("source_mismatch","评论页与请求的笔记不匹配，已停止。")
+    check_failure(raw)
+    if not isinstance(raw.get("roots"),list):raise ReadError("adapter_incompatible","评论快照没有返回首层结构。")
+    return raw
+
+
+def xhs_comments(runner, target, limit, replies_limit, cancel, cursor=None):
+    note_id=urlsplit(target).path.rstrip('/').split('/')[-1]
+    seen=set((cursor or {}).get("seen",[]))
+    selected={};rounds=0;stagnant=0;previous=-1;clicks=0;not_expanded=0
+    errors=[];raw={};stop_reason="time_budget"
+    started=time.monotonic()
+    # Caption/title nodes are optional on image/video notes. Wait for the
+    # comment widget itself, then validate the note ID on every snapshot.
+    with ReadPage(runner,"https://www.xiaohongshu.com/explore",cancel,"xhs-comments") as page:
+        page.navigate_same_origin(target)
+        page.wait(".comments-container, .parent-comment, .no-comments-text",20,phase="comments_ready")
+        deadline=time.monotonic()+22
+        def snapshot(action=None,root_id=None):
+            remaining=deadline-time.monotonic()
+            if remaining<=0:raise ReadError("timeout","评论读取预算已耗尽，已保留观察到的评论。")
+            return _xhs_snapshot(page,note_id,frozenset(seen),replies_limit,action,root_id,timeout=min(10,remaining))
         try:
-            with page:
-                page.wait("#detail-title, #detail-desc")
-                page.wait(".comments-container, .parent-comment, .no-comments-text")
-                reading_started=True
-                raw=page.evaluate(script,35)
-            break
+            while time.monotonic()<deadline:
+                if cancel and cancel.is_set():raise ReadError("cancelled","任务已取消。")
+                raw=snapshot()
+                for entry in raw["roots"]:
+                    root=entry.get("root",{})
+                    if root.get("id") and (root["id"] in selected or len(selected)<limit):selected[root["id"]]=entry
+                if len(selected)>=limit:
+                    stop_reason="root_sample_limit";break
+                if raw.get("ended"):
+                    stop_reason="visible_empty" if raw.get("empty") else "visible_end";break
+                count=raw.get("count",0);stagnant=stagnant+1 if count==previous else 0;previous=count
+                if stagnant>=3 and count>0:
+                    stop_reason="loading_stalled";break
+                if rounds>=12:break
+                snapshot("scroll")
+                rounds+=1;_pause(cancel,min(.8,max(0,deadline-time.monotonic())))
+            # Only expand when fewer than the requested replies are visible.
+            # Each root gets at most one click; waits live on the cancellable
+            # host, where background-tab timer throttling cannot stretch them.
+            for ident,entry in list(selected.items()):
+                if replies_limit<=len(entry.get("children",[])) or not entry.get("expandable"):continue
+                if clicks>=3 or time.monotonic()>=deadline:
+                    not_expanded+=1;continue
+                changed=snapshot("expand",ident)
+                if changed.get("clicked"):
+                    clicks+=1
+                    _pause(cancel,min(.7,max(0,deadline-time.monotonic())))
+                    fresh=snapshot()
+                    for updated in fresh["roots"]:
+                        if updated.get("root",{}).get("id")==ident:selected[ident]=updated
         except ReadError as error:
-            # Only recover initial page loading. Once scrolling/reply expansion
-            # started, preserve the outcome and cursor; never replay the walk.
-            if reading_started or attempt==2 or error.code not in {"navigation_loading_timeout","content_loading_timeout","navigation_rejected","timeout"}:raise
-            recovery={"attempts":2,"previous_status":error.code,"previous_stage":getattr(error,"stage",None),"method":"fresh_owned_page_before_comment_loading"}
-            _pause(cancel,2.5)
-    result=finish(raw,"xiaohongshu",limit,replies_limit)
-    if recovery:result["coverage"]["loading_recovery"]=recovery
+            if error.code=="cancelled" or not selected:raise
+            # Preserve already observed rows; no click, scroll or navigation
+            # is replayed after timeout, a gate, or an unknown command outcome.
+            errors.append({**error.result(),"stage":"comments_walk"})
+            stop_reason="read_interrupted"
+    items=[]
+    for ident,entry in selected.items():
+        items.append(entry["root"]);items.extend(entry.get("children",[])[:replies_limit]);seen.add(ident)
+    exhausted=bool(raw.get("ended")) and raw.get("available",0)<=len(selected)
+    result=finish({"items":items,"errors":errors,"root_pages":rounds,"reply_requests":clicks,
+        "reply_roots_not_expanded":not_expanded,"is_end":True if exhausted else None,
+        "next_state":{"seen":list(seen)} if not exhausted and selected and len(seen)<2000 else None,
+        "stop_reason":stop_reason,"backend":"note_dom_host_steps"},"xiaohongshu",limit,replies_limit)
+    result["coverage"]["loading"]={"page_attempts":1,"search_entry":"same_origin_navigation","seconds":round(time.monotonic()-started,3),"wait_driver":"host","optional_caption_required":False}
     return result

@@ -525,11 +525,12 @@ class WeixinContextTests(unittest.TestCase):
     def runner(self, blocked=False, selected=True):
         class Fake:
             profile="dedicated"
-            def __init__(self):self.calls=[]
+            def __init__(self):self.calls=[];self.clicked=False
             def run(self,args,cancel=None,timeout=None):
                 self.calls.append(args)
                 if args[2:4]==["tab","new"]:return 0,'{"page":"owned-page"}',""
-                if args[2:4]==["tab","list"]:return 0,'[{"page":"owned-page","url":"https://weixin.sogou.com/weixin"}]',""
+                if args[2]=="click":self.clicked=True;return 0,"{}",""
+                if args[2:4]==["tab","list"]:return 0,json.dumps([{"page":"owned-page","url":"https://mp.weixin.qq.com/s/article" if self.clicked else "https://weixin.sogou.com/weixin"}]),""
                 if args[2]=="eval" and "signature:" in args[3]:return 0,'{"signature":"body-stable"}',""
                 if args[2]=="eval" and "const selector=" in args[3]:return 0,json.dumps({"ready":not blocked,"verification":blocked}),""
                 if args[2:4]==["get","text"]:return 0,'{"value":"安全验证 请输入验证码"}',""
