@@ -12,6 +12,14 @@
 
 100项离线检查及官方MCP SDK七工具互操作通过；测试改为直接启动稳定入口。为Linux/macOS增加GitHub Actions干净依赖安装和隔离配置验收；实际远端结果以Actions记录及发布验收为准。平台账号登录、扫码、验证码在CI中不运行，也不提交账号给CI。
 
+### 公开发布收尾 · 2026-10-15
+
+仓库已公开：https://github.com/workstonedai-collab/social-media-read-for-agent 。源码提交7ebc1ce在GitHub全新macOS/Linux运行器中，两组100项离线检查与干净依赖安装、隔离Codex/Hermes/通用配置、七工具虚构数据验收全部通过。运行器预先通过官方Actions提供Python3.11和Node22，不冒称验证了从无Python/Node的机器自动安装系统环境。实际[Actions结果](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/runs/38689957414)与[a6-clean-install-ci.json](a6-clean-install-ci.json)可查。
+
+公开地址匿名克隆到另一新目录，再运行隔离安装验收成功；没有复制账号或状态，重复设置无改动。回执：[a6-public-clone-install.json](a6-public-clone-install.json)。本机可选OCR安装/预热另外通过，CI不运行社交账号登录。
+
+用户随后刷新了本段对话的客户端MCP注册。原生工具现直接返回0.1.0a6、stable-stdio-gateway、加载与磁盘指纹9c3bb9a9ed4d3060一致；不再需要上面的临时连接方案。最新原生搜索返回微博/知乎/公众号各1条，小红书首次timeout、一次有界恢复后content_loading_timeout；微博308字、知乎234字读取成功，新公众号候选正文加载超时。浏览器桥接仍connected。停止继续重试，并保留这些失败，不能用此前四平台成功记录冒充本次全部成功。见[a6-current-codex-refreshed.json](a6-current-codex-refreshed.json)。平台加载稳定性仍是公开预览版已知限制。
+
 ## 0.1.0a5 OCR、自动设置与当前对话
 
 ### OCR 同图对比及实际接入

@@ -1,0 +1,102 @@
+{
+  "caller": "current Codex conversation, client-registered MCP tools after user refresh",
+  "version": "0.1.0a6",
+  "runtime": {
+    "connection": "stable-stdio-gateway",
+    "loaded_revision": "9c3bb9a9ed4d3060",
+    "disk_revision": "9c3bb9a9ed4d3060",
+    "update_pending": false,
+    "reloads": 0,
+    "update_error": null
+  },
+  "old_client_registration_refreshed": true,
+  "mode": "live",
+  "jobs": [
+    {
+      "task_id": "task_2a98a8a493344c05af94517234781678",
+      "action": "search",
+      "status": "partial",
+      "version": "0.1.0a6",
+      "platform": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "counts": {
+        "xiaohongshu": 0,
+        "weibo": 1,
+        "zhihu": 1,
+        "weixin": 1
+      },
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "timeout",
+          "message": "本次读取超时，已停止执行。",
+          "retryable": true
+        }
+      ]
+    },
+    {
+      "task_id": "task_91213fd002614e94afff884a1b1d025a",
+      "action": "search",
+      "status": "failed",
+      "version": "0.1.0a6",
+      "platform": [
+        "xiaohongshu"
+      ],
+      "counts": {
+        "xiaohongshu": 0
+      },
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "content_loading_timeout",
+          "message": "页面内容未在等待时间内出现，已停止读取；这不表示内容已删除。",
+          "retryable": false
+        }
+      ]
+    },
+    {
+      "task_id": "task_e2b1dcba4f6449518615f6b3fc10bd9a",
+      "action": "read",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": "weibo",
+      "body_chars": 308,
+      "cache": {
+        "used": false
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_22069daedd544821b031b2b0bb4c67c2",
+      "action": "read",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": "zhihu",
+      "body_chars": 234,
+      "cache": {
+        "used": true,
+        "age_seconds": 435
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_c3f38f04a1ab424c96751559dccf8ade",
+      "action": "read",
+      "status": "failed",
+      "version": "0.1.0a6",
+      "platform": "weixin",
+      "errors": [
+        {
+          "status": "content_loading_timeout",
+          "message": "页面内容未在等待时间内出现，已停止读取；这不表示内容已删除。",
+          "retryable": false
+        }
+      ]
+    }
+  ],
+  "interpretation": "Connection refresh verified. Latest native run retained platform loading failures; not counted as four-platform success. Earlier same-conversation stdio run succeeded on four platforms."
+}

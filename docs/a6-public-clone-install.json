@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "version": "0.1.0a6",
+  "source_files": 101,
+  "fresh_source": true,
+  "fresh_python_venv": true,
+  "existing_state_copied": false,
+  "account_credentials_copied": false,
+  "project_local_opencli": "1.8.6",
+  "client_configs": [
+    "codex",
+    "hermes",
+    "generic"
+  ],
+  "existing_config_values_preserved": true,
+  "second_run_changes": [],
+  "unowned_browser_adopted": false,
+  "stopped_for": "official extension authorization and normal platform login",
+  "mcp_transport": "stable-stdio-gateway",
+  "mcp_tools": 7,
+  "demo_search_platforms": 4,
+  "demo_reads": 4,
+  "demo_comments": "success",
+  "ocr": null,
+  "live_logged_in_read_tested": false,
+  "os": "darwin"
+}
