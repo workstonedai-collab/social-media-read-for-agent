@@ -108,7 +108,7 @@ flowchart LR
 
 Hermes 换成 `--clients hermes`；明确两边都需要时使用 `--clients codex hermes`。其他本地 Agent 使用 `--clients generic` 生成配置，再由 Agent 合并到自己的客户端。
 
-macOS 用户也可以下载项目压缩包、解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
+macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a8/social-media-read-for-agent-v0.1.0a8.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
 
 - 安装器按系统/处理器下载固定版本的独立 Python、Node，校验 SHA256 后才执行，保存在项目 `.state/runtime/`，不改系统 Python/Node、shell 设置或 Agent 自己的依赖。
 - 首次需要联网下载运行时和组件；后续重复安装复用它们。不是把运行时删掉，而是免去用户单独安装和管理；运行时解压约260 MB，OpenCLI 与可选 OCR 另需空间。

@@ -94,7 +94,7 @@ Automatic browser setup primarily targets **macOS + Google Chrome**. Core behavi
 /bin/bash install.sh --clients codex --install-ocr
 ```
 
-Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also unzip a source download and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
+Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also [download the source installer ZIP](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a8/social-media-read-for-agent-v0.1.0a8.zip), unzip it, and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
 
 The installer downloads pinned standalone Python and Node distributions from their upstream release sites, verifies committed SHA256 checksums before execution, and keeps them in `.state/runtime/`. It does not modify system runtimes, shell settings, or the agent's dependencies. First setup needs network access; repeat setup reuses verified installations. Extracted runtimes use approximately 260 MB, with additional space for OpenCLI and optional OCR. This removes manual environment preparation, not the underlying runtimes.
 
