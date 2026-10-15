@@ -1,5 +1,6 @@
 """Search waits for usable cards, not skeleton placeholders."""
 import json
+import time
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlencode,urlsplit
 from .browser_page import ReadPage, _pause
@@ -26,24 +27,36 @@ def search_notes(runner,query,limit,cancel):
       const stop=()=>{
         const text=document.body?.innerText || '';
         if(/验证码|安全验证|安全限制|访问链接异常/.test(text))return 'verification_required';
+        if(/访问过于频繁|请求过于频繁/.test(text))return 'rate_limited';
         if(/登录后查看搜索结果/.test(text))return 'login_required';
         return '';
       };
+      const blocked=stop();if(blocked)return {failure:blocked,items:[]};
       const items=gather(), text=document.body?.innerText || '';
       return {failure:stop() || (items.length?'':/没有找到相关|暂无搜索结果|未找到相关笔记/.test(text)?'search_empty_confirmed':document.querySelector('section.note-item')?'adapter_incompatible':'content_loading_timeout'),items};
     })()""" % limit
     recovery=None
     for attempt in (1,2):
         try:
-            with ReadPage(runner,target,cancel,"xhs-search") as page:
-                page.wait('section a[href*="/search_result/"], section a[href*="/explore/"], .login-container, .search-empty', 20)
-                data=page.evaluate(script,12)
+            candidate=ReadPage(runner,target,cancel,"xhs-search")
+            candidate.blank_navigation_grace=4 if attempt==1 else None
+            candidate.foreground=attempt==2
+            with candidate as page:
+                deadline=time.monotonic()+20
+                while True:
+                    data=page.evaluate(script,max(.1,min(12,deadline-time.monotonic())))
+                    if not isinstance(data,dict) or data.get("failure") not in {"content_loading_timeout","adapter_incompatible"}:break
+                    if time.monotonic()>=deadline:
+                        error=ReadError(data["failure"],"搜索卡片未在预算内取得可用标题与访问链接。")
+                        error.stage="search_cards";raise error
+                    _pause(cancel,min(.5,max(0,deadline-time.monotonic())))
+                navigation=getattr(page,"navigation",None)
             break
         except ReadError as error:
             # A new target can recover an unrendered page. Never reload a
             # failed target indefinitely, replay account actions, or retry a
             # verification/rate-limit/access-denied response.
-            if attempt==2 or error.code not in {"timeout","navigation_loading_timeout","content_loading_timeout","navigation_rejected"}:
+            if attempt==2 or error.code not in {"timeout","navigation_not_started","navigation_loading_timeout","content_loading_timeout","navigation_rejected"}:
                 raise
             recovery={"attempts":2,"previous_status":error.code,"previous_stage":getattr(error,"stage",None),"method":"fresh_owned_page"}
             _pause(cancel,2.5)
@@ -59,5 +72,6 @@ def search_notes(runner,query,limit,cancel):
         except (ValueError,OSError,OverflowError):pass
         item=search_item("xiaohongshu",row,query,"opencli")
         if recovery:item["recovery"]=recovery
+        if isinstance(navigation,dict):item["navigation"]=navigation
         results.append(item)
     return results

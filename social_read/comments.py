@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 # Comment loading/end markers adapted from xpzouying/xiaohongshu-mcp
 # (Apache-2.0), commit 7797fd3. See THIRD_PARTY_NOTICES.md.
 from .article_text import html_text
-from .browser_page import ReadPage
+from .browser_page import ReadPage, _pause
 from .model import ReadError, digest, scrub, validate_url
 from .platform_reads import FETCH_JS, check_failure
 
@@ -204,8 +204,24 @@ def xhs_comments(runner, target, limit, replies_limit, cancel, cursor=None):
         stop_reason:empty?'visible_empty':exhausted?'visible_end':selected.length>=cfg.limit?'root_sample_limit':stagnant>=3?'loading_stalled':'time_budget',
         backend:'note_dom_comments'};
     })()"""
-    with ReadPage(runner,target,cancel,"xhs-comments") as page:
-        page.wait("#detail-title, #detail-desc")
-        page.wait(".comments-container, .parent-comment, .no-comments-text")
-        raw=page.evaluate(script,35)
-    return finish(raw,"xiaohongshu",limit,replies_limit)
+    recovery=None
+    for attempt in (1,2):
+        page=ReadPage(runner,target,cancel,"xhs-comments")
+        page.foreground=attempt==2
+        reading_started=False
+        try:
+            with page:
+                page.wait("#detail-title, #detail-desc")
+                page.wait(".comments-container, .parent-comment, .no-comments-text")
+                reading_started=True
+                raw=page.evaluate(script,35)
+            break
+        except ReadError as error:
+            # Only recover initial page loading. Once scrolling/reply expansion
+            # started, preserve the outcome and cursor; never replay the walk.
+            if reading_started or attempt==2 or error.code not in {"navigation_loading_timeout","content_loading_timeout","navigation_rejected","timeout"}:raise
+            recovery={"attempts":2,"previous_status":error.code,"previous_stage":getattr(error,"stage",None),"method":"fresh_owned_page_before_comment_loading"}
+            _pause(cancel,2.5)
+    result=finish(raw,"xiaohongshu",limit,replies_limit)
+    if recovery:result["coverage"]["loading_recovery"]=recovery
+    return result

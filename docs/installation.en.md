@@ -28,13 +28,17 @@ If a saved dedicated browser is connected, reuse it. Otherwise explain the offic
 /bin/bash run.sh setup --open-browser
 ```
 
-This opens a project-dedicated Chrome profile and the official store on macOS; it does not grant permissions. Rerun setup to discover the newly connected profile. Do not adopt an unconfirmed daily profile, inject cookies, force-load an extension, or modify browser policy. Guide platform sign-in as needed:
+The macOS default creates a blank normal Chrome profile and records its directory, allowing app-based desktop hosts to select its store window. The agent clicks Add to Chrome; the user approves the final permissions dialog. Permission details come from Chrome and include website data, debugging, downloads and tabs. A host without desktop control must state the remaining manual button. Use `setup --apply --clients codex --wait-for-browser 180 --open-login xiaohongshu` after opening the profile to detect authorization and proceed automatically. Waiting expires into a pending step without reinstalling components.
+
+`--browser-layout isolated` preserves a separate project user-data-dir/process. On macOS its `auto` extension path registers only the official store update URL inside that directory; user enablement is still required. Download was observed, but the enable entry was unclear on this machine, so this is not the novice default. `--extension-install store` skips registration. Never modify the daily profile's global extension registration or policy. Existing legacy isolated profiles retain their original layout. Do not adopt an unconfirmed daily profile, inject cookies, force-load an extension, or modify browser policy. Guide platform sign-in as needed:
 
 ```sh
 /bin/bash run.sh setup --open-login xiaohongshu
 # Also: weibo, zhihu, weixin
 /bin/bash run.sh setup --verify --platforms xiaohongshu
 ```
+
+After the user explicitly reports completing sign-in, the agent can pass `--login-completed xiaohongshu --verify --platforms xiaohongshu`. The marker only resumes the local pending step; actual search and fresh body text are still required. When sign-in is deferred, pending platforms are not visited by setup verification, and other platforms can be used first.
 
 Omitting `--platforms` verifies all four. Acceptance requires actual search and refreshed body text for exactly requested_platforms. setup_progress distinguishes dependencies, dedicated browser, client configuration and actual reading. Never equate identity/connection with readable content.
 

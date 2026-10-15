@@ -8,6 +8,8 @@ Local read-only search and reading for Xiaohongshu, Weibo, Zhihu, and WeChat art
 - Installation: docs/installation.md and docs/installation.en.md
 - Setup entry: /bin/bash install.sh --clients codex (or hermes/generic); no preinstalled Python/Node required
 - Optional local OCR: --install-ocr with --apply
+- Browser authorization: Agent operates official store in a blank dedicated Chrome profile; user confirms final permissions. setup --wait-for-browser 180 resumes connection automatically.
+- Deferred sign-in: preserve pending_logins, use other platforms, then --login-completed PLATFORM only after user confirmation; real verification still required.
 - Selective live acceptance: /bin/bash run.sh setup --verify --platforms xiaohongshu (omit platforms to check all four)
 - Offline fictional example: python3 scripts/demo_research.py
 - Standard MCP stdio gateway: start_mcp.py

@@ -1,0 +1,49 @@
+{
+  "version": "0.1.0a9",
+  "date": "2026-10-15",
+  "client": "current Codex conversation native MCP",
+  "xiaohongshu_search_samples": [
+    {
+      "query_group": "personal knowledge tools",
+      "status": "success",
+      "elapsed_seconds": 18.811,
+      "count": 1,
+      "recovery": "navigation_not_started then one fresh owned page"
+    },
+    {
+      "query_group": "notes migration",
+      "status": "success",
+      "elapsed_seconds": 18.052,
+      "count": 1,
+      "recovery": "navigation_not_started then one fresh owned page"
+    }
+  ],
+  "xiaohongshu_refreshed_read": {
+    "status": "success",
+    "body_chars": 1104,
+    "images_processed": 9,
+    "image_count": 9,
+    "ocr_accuracy_verified": false
+  },
+  "comments": {
+    "initial_status": "failed",
+    "initial_error": "content_loading_timeout",
+    "initial_stage": "content_ready",
+    "after_fix_status": "success",
+    "roots": 2,
+    "replies": 2,
+    "all_comments": false,
+    "recovery_used_in_successful_retest": false
+  },
+  "other_platform_search": {
+    "weibo": 1,
+    "zhihu": 1
+  },
+  "limits": [
+    "two same-date samples of the final search path are not a stability benchmark",
+    "earlier candidate successes and failures remain private and are not counted as final-code samples",
+    "blank navigation can still occur; bounded recovery mitigates waiting rather than proving a root-cause fix",
+    "comment recovery applies only before scrolling/reply expansion; the successful retest did not exercise the new fallback",
+    "new-user Xiaohongshu login remains deferred; no logged-in result is attributed to that empty profile"
+  ]
+}

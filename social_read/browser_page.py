@@ -1,5 +1,7 @@
 """Owned, profile-pinned pages for fixed internal read adapters."""
 import json
+import os
+from pathlib import Path
 import re
 import uuid
 import time
@@ -11,6 +13,8 @@ class ReadPage:
         self.runner, self.url, self.cancel = runner, url, cancel
         self.session = "smrfa-" + label + "-" + uuid.uuid4().hex
         self.tab = None
+        self.blank_navigation_grace = None
+        self.foreground = False
 
     def command(self, args, timeout=20):
         try:
@@ -50,13 +54,13 @@ class ReadPage:
     def __enter__(self):
         if not self.runner.profile:
             raise ReadError("profile_required", "读取需要明确指定专用浏览器资料。")
-        opened = self.json(["tab", "new", self.url], 25)
+        opened = self.json(["tab", "new", self.url]+(["--window","foreground"] if self.foreground else []), 25)
         self.tab = opened.get("page") if isinstance(opened, dict) else None
         if not isinstance(self.tab, str) or not re.fullmatch(r"[\w-]{1,100}", self.tab):
             self.tab = None
             raise ReadError("adapter_incompatible", "浏览器没有返回本次创建的页面标识。")
         try:
-            wait_navigation(self.runner, self.session, self.tab, self.cancel, 25)
+            self.navigation = wait_navigation(self.runner, self.session, self.tab, self.cancel, 25, self.blank_navigation_grace)
             self.wait("body", 16)
         except Exception as error:
             if isinstance(error, ReadError):error.stage = "page_ready"
@@ -80,7 +84,7 @@ def _pause(cancel, seconds):
         time.sleep(seconds)
 
 
-def wait_navigation(runner, session, tab, cancel, seconds=25):
+def wait_navigation(runner, session, tab, cancel, seconds=25, blank_grace=None):
     """Do not attach an evaluator to the initial empty document of a new tab.
 
     OpenCLI tab creation returns before Chrome commits its navigation. Native
@@ -88,6 +92,7 @@ def wait_navigation(runner, session, tab, cancel, seconds=25):
     Only inspect this operation's explicitly owned target, never another tab.
     """
     deadline = time.monotonic() + seconds
+    started=time.monotonic();samples=[]
     while time.monotonic() < deadline:
         if cancel and cancel.is_set():
             raise ReadError("cancelled", "任务已取消。")
@@ -102,9 +107,17 @@ def wait_navigation(runner, session, tab, cancel, seconds=25):
             url = urlsplit(owned.get("url") or "") if owned else None
         except (ValueError, TypeError, AttributeError):
             raise ReadError("adapter_incompatible", "浏览器导航状态格式发生变化。")
+        sample={"found":bool(owned),"scheme":url.scheme if url else None,"host":url.hostname if url else None}
+        if not samples or samples[-1]!=sample:samples.append(sample)
         if url and url.scheme in {"http", "https"} and url.hostname:
-            return
+            receipt={"status":"ready","seconds":round(time.monotonic()-started,3),"transitions":samples}
+            _navigation_receipt(runner,receipt)
+            return {k:v for k,v in receipt.items() if k!='transitions'}
+        if blank_grace is not None and owned and url and url.scheme in {"", "about"} and time.monotonic()-started >= blank_grace:
+            _navigation_receipt(runner,{"status":"navigation_not_started","seconds":round(time.monotonic()-started,3),"transitions":samples})
+            raise ReadError("navigation_not_started","本次任务页仍为空白，未开始平台导航；将关闭它并进行一次有界的新页面恢复。")
         _pause(cancel, min(.4, max(0, deadline-time.monotonic())))
+    _navigation_receipt(runner,{"status":"navigation_loading_timeout","seconds":round(time.monotonic()-started,3),"transitions":samples})
     raise ReadError("navigation_loading_timeout", "本次新页面未在预算内完成导航，已关闭本次页面；这不表示账号被封或没有搜索结果。")
 
 
@@ -148,3 +161,14 @@ def wait_selector(runner, session, tab, selector, cancel, seconds=12):
                 raise ReadError(status, message)
         _pause(cancel, min(.4, max(0, deadline-time.monotonic())))
     raise ReadError("content_loading_timeout", "页面内容未在等待时间内出现，已停止读取；这不表示内容已删除。")
+
+
+def _navigation_receipt(runner,receipt):
+    """Private timing/state only: no queries, URL tokens or account IDs."""
+    root=getattr(runner,"workdir",None)
+    if not isinstance(root,(str,os.PathLike)):return
+    try:
+        fd=os.open(str(Path(root)/"navigation-diagnostics.jsonl"),os.O_CREAT|os.O_WRONLY|os.O_APPEND,0o600)
+        try:os.write(fd,(json.dumps({"at":time.time(),**receipt})+"\n").encode())
+        finally:os.close(fd)
+    except OSError:pass

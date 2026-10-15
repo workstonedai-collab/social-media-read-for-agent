@@ -39,7 +39,18 @@
 /bin/bash run.sh setup --open-browser
 ```
 
-该命令在macOS打开项目独立Chrome资料与官方商店页面，不自动安装或授权扩展。不能采用未经确认的日常资料，不注入Cookie，不下载不明扩展。用户安装后重跑安装命令，会自动识别刚新增的专用连接；多个新连接时核对用户专用窗口，不让用户寻找内部ID。
+默认在macOS新建一个普通的、空白的专用Chrome资料，与日常资料隔离；记录确切目录，下次继续使用。这样支持按应用识别窗口的Agent也能找到官方商店页面。**由Agent点击“添加至Chrome”，用户只确认最终权限弹窗**，而不是让用户自己查找扩展和排障。没有桌面控制能力的Agent应明确说明需要用户协助的按钮，不能宣称已自动安装。扩展实际权限以Chrome弹窗为准，包括网站数据、页面调试、下载和标签页；项目只提供登记的读取工具，但不能缩小扩展权限。
+
+Agent可以在用户授权期间等待并自动继续，不需要用户回报浏览器资料编号：
+
+```sh
+# 当前客户端已完成配置后
+/bin/bash run.sh setup --apply --clients codex --wait-for-browser 180 --open-login xiaohongshu
+```
+
+先用`--open-browser`打开专用资料，再在当前Agent桌面能力中操作商店安装。等待超时保留“待授权”状态，不把依赖重新安装或要求反复登录。多个新连接会停止自动选择，由Agent核对专用窗口；不会擅自采用日常资料。
+
+需要完全独立Chrome进程的宿主可在首次启动时选`--browser-layout isolated`。macOS此模式默认用Chrome官方外部扩展登记方式，在项目自己的user-data-dir中准备官方商店扩展，仍需用户确认启用。实际测试已下载1.0.24，但某些Chrome界面没有清楚展示启用入口，因此它不是默认的新手流程；必要时Agent应转到官方商店处理。`--extension-install store`只打开商店。不会写入日常Chrome的全局扩展登记、企业策略或安全偏好。已有旧版独立进程设置仍沿用原目录，不静默迁移账号。
 
 按需打开平台登录页面：
 
@@ -56,6 +67,10 @@
 /bin/bash run.sh setup --verify --platforms xiaohongshu
 # 省略 --platforms 时验收四个平台
 ```
+
+用户明确说完成登录后，Agent可执行`--login-completed xiaohongshu --verify --platforms xiaohongshu`。`--login-completed`只清除本机待登录步骤，仍需真实搜索和正文证明可用；不能用该标记冒充平台验收。
+
+用户暂时没手机或跳过登录时保留pending_logins。验收不会访问这些明确待登录的平台，也不会阻塞公众号等已可用能力。用户以后告诉Agent已登录，再恢复对应平台，不重新安装。
 
 只对用户需要的平台操作，不强求一次登录全部账号。验收会实际搜索并刷新读取正文；accepted=true仅代表requested_platforms本批通过。setup_progress区分依赖、专用浏览器、配置和真实读取，连接或身份检查不等于正文可读。
 
@@ -79,7 +94,9 @@ run.sh会使用项目解释器及Node，即使Agent的启动环境没有这些�
 | --- | --- |
 | 下载失败/校验失败 | 保留已完成组件，核对官方来源与网络后有界重试；不关闭TLS或跳过校验 |
 | 已有安装锁 | 先核对本次项目安装进程；仍在运行则等待，不能删除别的进程的锁 |
-| dedicated_browser_extension | 引导专用Chrome、解释并确认官方扩展权限 |
+| dedicated_browser_extension | Agent在专用Chrome操作官方商店添加，用户只确认最终权限；等待并自动识别连接 |
+| login_pending | 用户已暂缓登录；不访问对应平台，先用其他能力，之后从此步骤恢复 |
+| navigation_not_started | 首个任务页仍为空白，约4秒提前关闭并恢复一次；恢复页保留完整等待预算 |
 | login_required / verification_required | 在专用窗口让用户正常完成，不反复提交 |
 | rate_limited / access_denied | 停止对应平台并保留其他结果 |
 | navigation_loading_timeout / content_loading_timeout | 页面未在预算内就绪；保留失败，不解释为账号被封或搜索无结果 |

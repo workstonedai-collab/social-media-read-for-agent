@@ -1,0 +1,41 @@
+{
+  "version": "0.1.0a9",
+  "date": "2026-10-15",
+  "source_acquisition": "downloaded public v0.1.0a8 source ZIP; applied a9 code without copying state",
+  "fresh_project_state": true,
+  "copied_accounts_or_cookies": false,
+  "runtimes": "downloaded project Python3.11.17 and Node22.23.3",
+  "opencli": "project-local 1.8.6",
+  "ocr": "fresh isolated installation and warmup completed",
+  "client_configuration": "generated isolated Codex configuration; daily configuration untouched",
+  "browser": "new blank normal Chrome profile",
+  "extension": {
+    "source": "official Chrome Web Store",
+    "version": "1.0.24",
+    "store_button": "operated by agent",
+    "final_permission_confirmation": "completed by user",
+    "new_connection": "detected and saved"
+  },
+  "login": {
+    "xiaohongshu": "opened; user deferred because phone unavailable; not passed",
+    "verification_after_deferral": "not_run; login_pending; no further platform visit"
+  },
+  "mcp": {
+    "version": "0.1.0a9",
+    "tool_count": 7,
+    "mode": "live",
+    "configuration": "generated_isolated_codex",
+    "accounts_copied": false,
+    "wechat_search_status": "success",
+    "wechat_candidates": 1,
+    "wechat_read_status": "success",
+    "wechat_body_chars": 1181,
+    "wechat_cache_used": false,
+    "wechat_errors": []
+  },
+  "limits": [
+    "same Mac, fresh directories and browser profile; not a new operating-system installation",
+    "full first-login Xiaohongshu search/read remains untested",
+    "host desktop control is required for agent-operated store buttons"
+  ]
+}

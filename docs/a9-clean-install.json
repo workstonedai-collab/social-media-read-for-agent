@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "source_files": 130,
+  "second_run_changes": [],
+  "mcp_tools": 7,
+  "demo_search_platforms": 4,
+  "demo_reads": 4,
+  "demo_comments": "success",
+  "ocr": null,
+  "live_logged_in_read_tested": false,
+  "os": "darwin"
+}

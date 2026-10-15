@@ -179,6 +179,8 @@ class SearchReadinessTests(unittest.TestCase):
             def __enter__(self):return self
             def __exit__(self,*a):pass
             def wait(self,*a):pass
+            def command(self,*a):pass
+            tab="owned"
             def evaluate(self,script,*a):
                 setup="""global.location={origin:'https://www.xiaohongshu.com',href:'https://www.zhihu.com/search?q=test'};
                 const section={querySelector:()=>null};
@@ -208,7 +210,7 @@ class SearchReadinessTests(unittest.TestCase):
         from social_read.xiaohongshu_search import search_notes
         from unittest.mock import MagicMock
         first=MagicMock();first.__enter__.return_value=first
-        first.wait.side_effect=ReadError('content_loading_timeout','加载超时')
+        first.evaluate.side_effect=ReadError('content_loading_timeout','加载超时')
         second=MagicMock();second.__enter__.return_value=second
         second.evaluate.return_value={'items':[{'title':'可读笔记','url':XHS}]}
         with patch('social_read.xiaohongshu_search.ReadPage',side_effect=[first,second]) as pages,patch('social_read.xiaohongshu_search._pause'):
@@ -221,7 +223,7 @@ class SearchReadinessTests(unittest.TestCase):
         from social_read.xiaohongshu_search import search_notes
         from unittest.mock import MagicMock
         for code in ['verification_required','rate_limited','access_denied','adapter_error']:
-            page=MagicMock();page.__enter__.return_value=page;page.wait.side_effect=ReadError(code,'停止')
+            page=MagicMock();page.__enter__.return_value=page;page.evaluate.side_effect=ReadError(code,'停止')
             with patch('social_read.xiaohongshu_search.ReadPage',return_value=page) as pages,patch('social_read.xiaohongshu_search._pause') as pause:
                 with self.assertRaises(ReadError):search_notes(None,'主题',1,threading.Event())
             self.assertEqual(pages.call_count,1);pause.assert_not_called();page.__exit__.assert_called_once()

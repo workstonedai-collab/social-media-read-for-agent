@@ -8,7 +8,7 @@ Give this repository to your local agent and follow its prompts to authorize the
 
 [![Install checks](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml/badge.svg)](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml)
 
-Package/repository identifier: `social-media-read-for-agent`. **0.1.0a8, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
+Package/repository identifier: `social-media-read-for-agent`. **0.1.0a9, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
 
 ## What it helps with
 
@@ -94,7 +94,7 @@ Automatic browser setup primarily targets **macOS + Google Chrome**. Core behavi
 /bin/bash install.sh --clients codex --install-ocr
 ```
 
-Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also [download the source installer ZIP](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a8/social-media-read-for-agent-v0.1.0a8.zip), unzip it, and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
+Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also [download the source installer ZIP](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a9/social-media-read-for-agent-v0.1.0a9.zip), unzip it, and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
 
 The installer downloads pinned standalone Python and Node distributions from their upstream release sites, verifies committed SHA256 checksums before execution, and keeps them in `.state/runtime/`. It does not modify system runtimes, shell settings, or the agent's dependencies. First setup needs network access; repeat setup reuses verified installations. Extracted runtimes use approximately 260 MB, with additional space for OpenCLI and optional OCR. This removes manual environment preparation, not the underlying runtimes.
 
@@ -155,3 +155,9 @@ Seven-day stability, new-machine signed-in onboarding, Windows browser setup, vi
 
 
 [Report a problem](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=feature_request.yml)
+
+### First-use assistance
+
+On macOS the default is a new normal Chrome profile, so desktop agents that identify apps by bundle ID can operate its official store page. The agent clicks **Add to Chrome**; the user confirms the final permissions dialog. A host without desktop control must disclose the remaining manual button instead of promising silent installation. Setup can wait for the new connection and open the platform login page automatically. Deferred logins remain pending; other platforms can be used first. Browser-owned profile data stays under Chrome management; private project state remains in ignored `.state/`.
+
+Xiaohongshu's first owned page, if still blank after about4 seconds, enters one bounded fresh-page recovery. The recovery may bring the dedicated task window forward; the second page retains the full navigation budget. Recovery is reported, not hidden as a first-attempt success. This reduces observed waiting but does not establish that the underlying blank-navigation defect is eliminated.
