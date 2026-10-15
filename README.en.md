@@ -28,6 +28,15 @@ Expected flow: **share repository → approve the official extension → sign in
 
 Initial MCP tool discovery is controlled by the client. The agent should refresh tools when supported, or use the same version's CLI while reporting the connection state accurately. You should not need to repeatedly reconfigure or sign in just to continue reading.
 
+<details>
+<summary>See the running dashboard (entirely fictional data)</summary>
+
+[![Fictional offline demo: search and reading](docs/assets/offline-preview.jpg)](docs/assets/offline-demo.jpg)
+
+Captured after real search/read operations in this project's local demo mode. No real accounts or platform content are shown. Click for the complete page. Daily use can remain in your agent conversation; the dashboard is optional.
+
+</details>
+
 ## What this integration adds
 
 | User need | Project behavior |

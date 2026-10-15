@@ -40,6 +40,15 @@ flowchart LR
 
 完整步骤、兼容性、升级和失败处理见 **[安装说明](docs/installation.md)**；执行约定见 [AGENTS.md](AGENTS.md)。
 
+<details>
+<summary>查看实际运行的界面演示（完全虚构数据）</summary>
+
+[![虚构演示：四平台搜索与正文阅读](docs/assets/offline-preview.jpg)](docs/assets/offline-demo.jpg)
+
+这是项目本地网页在 demo 模式下实际完成搜索与阅读后的截图，不含真实账号或社交平台原文。点击图片查看完整页面。日常使用可以直接在 Agent 对话中完成，不必打开这个网页。
+
+</details>
+
 ## 我们在能力集成的基础上做了什么
 
 | 你关心的事 | 本项目增加的使用体验 |

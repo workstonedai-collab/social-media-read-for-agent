@@ -1,0 +1,276 @@
+{
+  "client": "Hermes native CLI",
+  "session_id": "20261015_143900_2cba37",
+  "version": "0.1.0a7",
+  "basis": "actual tool-return messages in this exact Hermes session",
+  "mcp_calls": 19,
+  "tool_names": [
+    "mcp__social_media_read_for_agent__get_task",
+    "mcp__social_media_read_for_agent__list_platforms",
+    "mcp__social_media_read_for_agent__read_comments",
+    "mcp__social_media_read_for_agent__read_content",
+    "mcp__social_media_read_for_agent__search"
+  ],
+  "runtime_snapshots": [
+    {
+      "version": "0.1.0a7",
+      "runtime": {
+        "connection": "stable-stdio-gateway",
+        "loaded_revision": "5ce10869ac71f1c4",
+        "disk_revision": "5ce10869ac71f1c4",
+        "update_pending": false,
+        "reloads": 0,
+        "update_error": null
+      }
+    },
+    {
+      "version": "0.1.0a7",
+      "runtime": {
+        "connection": "stable-stdio-gateway",
+        "loaded_revision": "5ce10869ac71f1c4",
+        "disk_revision": "5ce10869ac71f1c4",
+        "update_pending": false,
+        "reloads": 0,
+        "update_error": null
+      }
+    }
+  ],
+  "totals": {
+    "tasks": 8,
+    "statuses": {
+      "failed": 3,
+      "partial": 1,
+      "success": 4
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "task_fbe0947345f4408da6c1d56fe3ab4dde",
+      "action": "search",
+      "status": "partial",
+      "requested_platforms": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "query": "个人知识管理工具",
+      "created_at": "2026-10-15T06:39:33.952351+00:00",
+      "updated_at": "2026-10-15T06:40:24.258082+00:00",
+      "version": "0.1.0a7",
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu",
+          "weibo",
+          "zhihu",
+          "weixin"
+        ],
+        "max_results_per_platform": 1,
+        "all_content": false,
+        "returned_by_platform": {
+          "xiaohongshu": 0,
+          "weibo": 1,
+          "zhihu": 1,
+          "weixin": 1
+        }
+      },
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "timeout",
+          "message": "本次读取超时，已停止执行。",
+          "retryable": true
+        }
+      ],
+      "search_items": [
+        {
+          "platform": "weibo",
+          "title": "分享一套我日常高频使用的效率工具流。很多朋友好奇我是怎么兼顾多线任务和知识输出的，其实核心在于工具的组合使用。从捕捉碎片灵感，到长期的知识库管理，这三款工具各司其职，帮我建立了一个很顺滑的闭环。飞书：…"
+        },
+        {
+          "platform": "zhihu",
+          "title": "打造个人终身知识体系，最佳的笔记软件是什么？"
+        },
+        {
+          "platform": "weixin",
+          "title": "重磅:程序员的个人知识管理神器"
+        }
+      ]
+    },
+    {
+      "task_id": "task_827960396b62445796dd832246bed1d2",
+      "action": "search",
+      "status": "failed",
+      "requested_platforms": [
+        "xiaohongshu"
+      ],
+      "query": "个人知识管理工具",
+      "created_at": "2026-10-15T06:40:39.783033+00:00",
+      "updated_at": "2026-10-15T06:41:05.537000+00:00",
+      "version": "0.1.0a7",
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu"
+        ],
+        "max_results_per_platform": 1,
+        "all_content": false,
+        "returned_by_platform": {
+          "xiaohongshu": 0
+        }
+      },
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "timeout",
+          "message": "本次读取超时，已停止执行。",
+          "retryable": true
+        }
+      ],
+      "search_items": []
+    },
+    {
+      "task_id": "task_3525170a98134742bc0ffd4ef80c295a",
+      "action": "read",
+      "status": "success",
+      "platform": "weibo",
+      "refresh": true,
+      "created_at": "2026-10-15T06:41:15.434087+00:00",
+      "updated_at": "2026-10-15T06:41:33.398999+00:00",
+      "version": "0.1.0a7",
+      "body_chars": 1121,
+      "body_sha256": "1554aca2018dedba048ae3672201262cae08295db4f79cf0a04027f717c7c753",
+      "published_at_raw": "Tue Mar 10 20:46:46 +0800 2026",
+      "cache": {
+        "used": false
+      },
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "errors": [],
+      "source_host": "weibo.com"
+    },
+    {
+      "task_id": "task_cc74d7ed0cab491e99d38f8aada76d09",
+      "action": "read",
+      "status": "success",
+      "platform": "zhihu",
+      "refresh": true,
+      "created_at": "2026-10-15T06:41:15.444218+00:00",
+      "updated_at": "2026-10-15T06:41:31.825962+00:00",
+      "version": "0.1.0a7",
+      "body_chars": 234,
+      "body_sha256": "2ac7f4970946e74bc3f02705966c30613bd5794bdaff2aae5178fc0c8fa0bca9",
+      "published_at_raw": "发布于2026-04-25 09:12\n・江苏",
+      "cache": {
+        "used": false
+      },
+      "coverage": {
+        "text_source": "answer_visible_dom",
+        "local_truncation": false,
+        "all_answers": false,
+        "images_ocr": false,
+        "api_status": "access_denied",
+        "dom_stable": true,
+        "collapsed": false,
+        "paywall_detected": false
+      },
+      "errors": [],
+      "source_host": "www.zhihu.com"
+    },
+    {
+      "task_id": "task_aebe9c9d204d476e978248b6d4425023",
+      "action": "read",
+      "status": "failed",
+      "platform": "weixin",
+      "refresh": true,
+      "created_at": "2026-10-15T06:41:15.498744+00:00",
+      "updated_at": "2026-10-15T06:41:49.885299+00:00",
+      "version": "0.1.0a7",
+      "errors": [
+        {
+          "status": "content_loading_timeout",
+          "message": "页面内容未在等待时间内出现，已停止读取；这不表示内容已删除。",
+          "retryable": false,
+          "stage": "wait_article_body"
+        }
+      ]
+    },
+    {
+      "task_id": "task_718abeec6d2a45149122c069a8127adb",
+      "action": "comments",
+      "status": "success",
+      "platform": "weibo",
+      "created_at": "2026-10-15T06:42:04.692858+00:00",
+      "updated_at": "2026-10-15T06:42:17.505042+00:00",
+      "version": "0.1.0a7",
+      "coverage": {
+        "requested_top_level": 3,
+        "replies_per_root_limit": 1,
+        "returned_top_level": 1,
+        "returned_replies": 0,
+        "returned_rows": 1,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 0,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0,
+        "continued": false,
+        "sort": "platform_flow_0"
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_29802900963a415aa2c1929c9ce60e49",
+      "action": "comments",
+      "status": "success",
+      "platform": "zhihu",
+      "created_at": "2026-10-15T06:42:04.702049+00:00",
+      "updated_at": "2026-10-15T06:42:22.011142+00:00",
+      "version": "0.1.0a7",
+      "coverage": {
+        "requested_top_level": 3,
+        "replies_per_root_limit": 1,
+        "returned_top_level": 2,
+        "returned_replies": 2,
+        "returned_rows": 4,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 2,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0,
+        "continued": false,
+        "sort": "score"
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_8dfa8422a9ec4b3c96e2f6dabca96d72",
+      "action": "comments",
+      "status": "failed",
+      "platform": "weixin",
+      "created_at": "2026-10-15T06:42:04.733797+00:00",
+      "updated_at": "2026-10-15T06:42:11.516683+00:00",
+      "version": "0.1.0a7",
+      "errors": [
+        {
+          "status": "unsupported",
+          "message": "公众号留言读取尚未支持。",
+          "retryable": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "source_commit": "cce334c4437862e8aa1ad769ccf536f264fad195",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/workstonedai-collab/social-media-read-for-agent/actions/runs/38694815643",
+  "jobs": [
+    {
+      "name": "Clean install (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Offline behavior checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Reproduce account-free walkthrough",
+          "conclusion": "success"
+        },
+        {
+          "name": "Browser-independent JavaScript check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Fresh dependency installation and Agent configuration",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "Clean install (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Offline behavior checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Reproduce account-free walkthrough",
+          "conclusion": "success"
+        },
+        {
+          "name": "Browser-independent JavaScript check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Fresh dependency installation and Agent configuration",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}
