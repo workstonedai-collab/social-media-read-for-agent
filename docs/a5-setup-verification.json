@@ -1,0 +1,44 @@
+{
+  "kind": "same-machine setup acceptance",
+  "version": "0.1.0a5",
+  "verification": {
+    "search_status": "success",
+    "counts": {
+      "xiaohongshu": 1,
+      "weibo": 1,
+      "zhihu": 1,
+      "weixin": 1
+    },
+    "errors": [],
+    "reads": [
+      {
+        "platform": "xiaohongshu",
+        "status": "success",
+        "body_chars": 1104,
+        "ref": "content_324874beddbc2a2b3354ab8b"
+      },
+      {
+        "platform": "weibo",
+        "status": "success",
+        "body_chars": 308,
+        "ref": "content_3a26e525f6a45f37ac12fe98"
+      },
+      {
+        "platform": "zhihu",
+        "status": "success",
+        "body_chars": 234,
+        "ref": "content_aaced30ffc3619329bcd4266"
+      },
+      {
+        "platform": "weixin",
+        "status": "success",
+        "body_chars": 1181,
+        "ref": "content_ffb905fc256e24dbd874a186"
+      }
+    ],
+    "accepted": true
+  },
+  "fresh_machine_install_tested": false,
+  "configuration_second_run_changes": [],
+  "optional_ocr_environment": "separate venv; prewarm completed"
+}

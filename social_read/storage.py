@@ -74,11 +74,42 @@ class Store:
             self.db.commit()
         return clean  # Search returns its own result metadata, not an old body.
 
+    def bind_read(self, source_ref, content):
+        """Keep the original search handle readable after an article redirects.
+
+        Retain its private search target/query for an explicit refresh. The public
+        content_ref still identifies the resolved article; no title-only matching.
+        """
+        if not source_ref or source_ref == content.get("content_ref"):
+            return
+        with self.lock:
+            source = self.db.execute("SELECT platform,data FROM items WHERE ref=?",(source_ref,)).fetchone()
+            resolved = self.db.execute("SELECT platform,read_at FROM items WHERE ref=?",(content.get("content_ref"),)).fetchone()
+            if not source or not resolved or source["platform"] != resolved["platform"] or not resolved["read_at"]:
+                return
+            data = dict(content)
+            context = json.loads(source["data"])
+            if context.get("query"):data["query"] = context["query"]
+            data["requested_content_ref"] = source_ref
+            self.db.execute("UPDATE items SET data=?,read_at=? WHERE ref=?",(json.dumps(data,ensure_ascii=False),resolved["read_at"],source_ref))
+            self.db.commit()
+
     def item(self, ref):
         with self.lock:
             r = self.db.execute("SELECT * FROM items WHERE ref=?", (ref,)).fetchone()
         if not r:
             raise ReadError("invalid_input", "未找到此内容记录，请重新搜索或提供原帖链接。")
+        # Upgrade pre-a5 source records only on an exact recorded source URL match.
+        # Never infer that equal titles refer to the same article.
+        if r["platform"] == "weixin" and not r["read_at"]:
+            with self.lock:
+                records = self.db.execute("SELECT data FROM items WHERE platform='weixin' AND read_at IS NOT NULL ORDER BY read_at DESC LIMIT 500").fetchall()
+                for old in records:
+                    article = json.loads(old["data"])
+                    if public_url(article.get("search_source_url")) == public_url(r["target"]):
+                        self.bind_read(ref,article)
+                        r = self.db.execute("SELECT * FROM items WHERE ref=?",(ref,)).fetchone()
+                        break
         return {"platform": r["platform"], "target": r["target"], "data": json.loads(r["data"]), "read_at": r["read_at"]}
 
     def save_comment_cursor(self, site, target, data):

@@ -203,3 +203,20 @@ def classify_error(message, returncode=None):
     if returncode == 69:
         return ReadError("bridge_unavailable", "浏览器连接未就绪，请检查扩展与本地服务。")
     return ReadError("adapter_error", "读取组件未完成操作。请检查连接状态或查看兼容记录。")
+
+
+def publication_age(value, observed=None):
+    """Compute age only from an explicit full date, never a search/id estimate."""
+    import re
+    from datetime import date
+    if not isinstance(value,str):return None
+    match=re.match(r"^(\d{4})[-年/](\d{1,2})[-月/](\d{1,2})(?:日|\b)",value)
+    if not match:return None
+    try:
+        published=date(*map(int,match.groups()))
+        at=observed or date.today()
+        if published>at:return None
+        return {"published_date":published.isoformat(),"observed_date":at.isoformat(),
+                "elapsed_whole_years":at.year-published.year-((at.month,at.day)<(published.month,published.day)),
+                "method":"explicit_date_calendar_comparison"}
+    except ValueError:return None

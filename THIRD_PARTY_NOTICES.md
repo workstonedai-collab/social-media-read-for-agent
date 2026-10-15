@@ -16,3 +16,15 @@ Crawlee and Scrapy document the persisted queue/handled-request patterns used as
 MediaCrawler has a non-commercial learning license and is a design reference only; no code, signing logic or runtime from it is incorporated.
 
 The wechat-article-to-markdown README declares MIT, but this revision does not contain a standalone LICENSE file. We did not copy its source. The article parser and browser extraction are independently implemented using the platform DOM and HTML conventions.
+
+
+## Optional RapidOCR / PaddleOCR models
+
+- Upstream: https://github.com/RapidAI/RapidOCR ; optional package `rapidocr==3.9.2`, code Apache-2.0, copyright RapidOCR Authors. The installed 3.9.2 wheel did not include an independent LICENSE/NOTICE; the full upstream Apache-2.0 text is retained in `licenses/RapidOCR-Apache-2.0.txt`.
+- PP-OCRv6 small detection and recognition weights and legacy angle classifier originate from Baidu/PaddleOCR (Baidu and PaddleOCR contributors), separately attributed under Apache-2.0. Full upstream license retained in `licenses/PaddleOCR-Apache-2.0.txt`. Official provenance: https://rapidai.github.io/RapidOCRDocs/main/en/model_licenses/ . Recorded wheel model hashes match the official model statement:
+  - `PP-OCRv6_det_small.onnx`: `090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f`
+  - `PP-OCRv6_rec_small.onnx`: `6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884`
+  - `ch_ppocr_mobile_v2.0_cls_mobile.onnx`: `e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c`
+- Optional inference dependency `onnxruntime==1.23.2` is MIT (Microsoft); Pillow 12.3.0 uses its HPND/Pillow license. Other transitive dependencies retain their own installed package notices. No third-party wheel or model binary is redistributed in this repository; `--install-ocr` installs them into a separate private environment. Do not remove their installed license notices when redistributing an environment.
+- Our `rapidocr_worker.py`, geometry-based overlap ownership and backend integration are independently written MIT project code invoking the public API. No RapidOCR or PaddleOCR implementation source was copied.
+- Test images rendered with locally installed fonts remain private. The repository includes fixture-generation source and metric summaries, not system font files or raw social-media images. Platform screenshots are not relicensed by the OCR dependencies.

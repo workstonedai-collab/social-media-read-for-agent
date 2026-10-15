@@ -1,0 +1,108 @@
+{
+  "task_id": "task_d130bbc00a8c48c8a1fd85d990c16004",
+  "status": "success",
+  "version": "0.1.0a5",
+  "title": "如何用AI搭一个「真的会用到」的个人知识库",
+  "body_chars": 1104,
+  "coverage": {
+    "caption": "read",
+    "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+    "image_count": 9,
+    "discovered_images": 9,
+    "ocr_attempted": 0,
+    "ocr_succeeded": 9,
+    "ocr_unread": 0,
+    "image_order": "note_state_carousel",
+    "images_all_processed": true,
+    "video_transcription": false,
+    "ocr_accuracy_verified": false,
+    "images_reused": 9,
+    "images_processed_this_run": 0,
+    "unread_orders": [],
+    "undiscovered_image_count": 0,
+    "images_from_download_cache": 0
+  },
+  "images": [
+    {
+      "order": 1,
+      "status": "success",
+      "text_chars": 47,
+      "image_sha256": "08e318386fd9e8e25be8378a23f693b00df7f3a589e0851e34d77a6bf9bea166",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 2,
+      "status": "success",
+      "text_chars": 83,
+      "image_sha256": "2f2a6572277e8a7426fd4c16c8c79d2ba501568c2dcf5e66c25322174b61b47c",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 3,
+      "status": "success",
+      "text_chars": 89,
+      "image_sha256": "4b0c1f399f720254f83505dfa3acb696f66ade8432a91428e36930689445c2b8",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 4,
+      "status": "success",
+      "text_chars": 100,
+      "image_sha256": "a0ea807149d23987e3b2c8efdeb34782d3b45707bda1c174a071eba6543d9051",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 5,
+      "status": "success",
+      "text_chars": 90,
+      "image_sha256": "c19e06f04b2a14c9e923aaa9cdc277b0db037502fccd0b1603635752cbf6ac27",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 6,
+      "status": "success",
+      "text_chars": 85,
+      "image_sha256": "6b3cceba6850a8a370dfef8dfdbb6808506dc3f10177f468d1c2d173b2aadf5e",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 7,
+      "status": "success",
+      "text_chars": 74,
+      "image_sha256": "fc735e08906bc5b91d129f9b1449aea7016d817680321a47f2a4aeed637e1a46",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 8,
+      "status": "success",
+      "text_chars": 83,
+      "image_sha256": "073c159330ec8ebec859f6480c479beac653ee375b0e220976f0d4444f3e8cc7",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    },
+    {
+      "order": 9,
+      "status": "success",
+      "text_chars": 95,
+      "image_sha256": "03d011ba2775fd60cc07a811f7ebd8f5790adb96ad39d1aca9256f80f2a2fe65",
+      "backend": "rapidocr-onnx-local",
+      "cache_used": false,
+      "checkpoint_reused": true
+    }
+  ]
+}

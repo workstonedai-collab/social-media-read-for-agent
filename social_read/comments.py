@@ -1,6 +1,7 @@
 """Bounded comments with stable root/reply relationships and explicit coverage."""
 # SPDX-License-Identifier: Apache-2.0
 import json
+import re
 from urllib.parse import urlsplit
 
 # Comment loading/end markers adapted from xpzouying/xiaohongshu-mcp
@@ -38,7 +39,7 @@ def normalize_rows(raw, site, limit, replies_limit):
         result.append({"id": ident, "id_source": "local_content_hash" if ident.startswith("local_") else "platform", "parent_id": parent,
             "author": str(row.get("author") or "作者未提供"), "text": text, "is_reply": is_reply, "reply_to": row.get("reply_to") or None,
             "likes": row.get("likes"), "published_at_raw": row.get("time") or row.get("created_at") or None,
-            "depth": None if is_reply else 0, "source": site, "content_kind": row.get("content_kind", "text")})
+            "depth": None if is_reply else 0, "source": site, "content_kind": "non_text" if re.fullmatch(r"图片评论(?:\s+https?://\S+)?",text.strip()) else row.get("content_kind", "text")})
     return scrub(result)
 
 def finish(raw,site,limit,replies_limit):

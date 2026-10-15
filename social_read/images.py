@@ -1,4 +1,4 @@
-"""Bounded CDN image downloads and local macOS Vision OCR."""
+"""Bounded CDN downloads and optional local Vision / RapidOCR backends."""
 import hashlib
 import json
 import os
@@ -102,6 +102,22 @@ class LocalOCR:
         self.root = Path(root) / "image-ocr"
         self.root.mkdir(mode=0o700, exist_ok=True)
         self.root.chmod(0o700)
+        self.backend = os.environ.get("SOCIAL_READ_OCR", "auto")
+        if self.backend not in {"auto", "vision", "rapidocr"}:
+            raise ReadError("invalid_input", "OCR 请选择 auto、vision 或 rapidocr。")
+        self.python = Path(os.environ.get("SOCIAL_READ_RAPIDOCR_PYTHON", str(Path(__file__).resolve().parent.parent / ".state/rapidocr-env/bin/python")))
+        # The worker and environment lock participate in cache identity.
+        lock = Path(__file__).resolve().parent.parent / ".state/rapidocr-lock.json"
+        if self.backend == "auto":
+            self.backend = "rapidocr" if self.python.is_file() and lock.is_file() else "vision" if platform.system() == "Darwin" else "rapidocr"
+        self.cache_version = CACHE_VERSION + "-" + digest((Path(__file__).parent/"native/vision_ocr.swift").read_text())[:16] if self.backend == "vision" else self.backend + "-v1-" + digest((Path(__file__).parent / "rapidocr_worker.py").read_text() + (lock.read_text() if lock.exists() else str(self.python)))[:16]
+
+    def command(self, cancel, deadline=None):
+        if self.backend == "vision" or (self.backend == "auto" and platform.system() == "Darwin" and shutil.which("swiftc")):
+            return [str(self.binary(cancel, deadline))]
+        if not self.python.is_file():
+            raise ReadError("ocr_unavailable", "请让 Agent 运行 bootstrap.py --install-ocr 安装可选本机识别环境。")
+        return [str(self.python), str(Path(__file__).parent / "rapidocr_worker.py")]
 
     def binary(self, cancel, deadline=None):
         if platform.system() != "Darwin" or not shutil.which("swiftc"):
@@ -121,13 +137,13 @@ class LocalOCR:
         url = image_url(url)
         if cancel and cancel.is_set():
             raise ReadError("cancelled", "任务已取消。")
-        index = self.root / ("url-" + digest(CACHE_VERSION + "|" + url) + ".json")
+        index = self.root / ("url-" + digest(self.cache_version + "|" + url) + ".json")
         try:
             record = json.loads(index.read_text())
             sha = record.get("sha", "")
             age = time.time() - record["at"]
             if len(sha) == 64 and all(c in "0123456789abcdef" for c in sha) and 0 <= age < 1800:
-                cached = self.root / (CACHE_VERSION + "-" + sha + ".json")
+                cached = self.root / (self.cache_version + "-" + sha + ".json")
                 result = json.loads(cached.read_text())
                 if result.get("image_sha256") == sha:
                     result.update(cache_used=True, image_download_cache_used=True, cache_age_seconds=round(age))
@@ -135,13 +151,13 @@ class LocalOCR:
         except (OSError, ValueError, TypeError, KeyError):
             pass
         remaining(deadline)
-        binary = self.binary(cancel, deadline)
+        command = self.command(cancel, deadline)
         with tempfile.TemporaryDirectory(dir=str(self.root)) as temp:
             path = Path(temp) / "image"
             remaining(deadline)
             download_image(url, path, cancel, deadline)
             sha = hashlib.sha256(path.read_bytes()).hexdigest()
-            cached = self.root / (CACHE_VERSION + "-" + sha + ".json")
+            cached = self.root / (self.cache_version + "-" + sha + ".json")
             result = None
             if cached.exists():
                 try:
@@ -150,14 +166,17 @@ class LocalOCR:
                 except (OSError, ValueError):
                     pass
             if result is None:
-                seconds = min(25, remaining(deadline))
-                value = json.loads(run_local([str(binary), str(path)], cancel, seconds))
+                seconds = min(45 if self.backend == "rapidocr" else 25, remaining(deadline))
+                value = json.loads(run_local(command + [str(path)], cancel, seconds))
+                used_rapid = "rapidocr_worker.py" in command[-1]
                 lines = value.get("lines", [])
                 if not isinstance(lines, list) or len(lines) > 5000:
                     raise ReadError("ocr_failed", "图片识别结果格式不符合要求。")
                 text = scrub("\n".join(str(line.get("text", "")) for line in lines))
                 result = {"status": value.get("status"), "text": text, "text_chars": len(text),
-                          "image_sha256": sha, "backend": "macos-vision-local", "lines": lines,
+                          "image_sha256": sha, "backend": "rapidocr-onnx-local" if used_rapid else "macos-vision-local", "lines": lines,
+                          "tiles": value.get("tiles", 1), "formula_semantics": False,
+                          "fallback_status": value.get("fallback_status"),
                           "width": value.get("width"), "height": value.get("height"),
                           "resized": value.get("resized", False), "cache_used": False}
                 if len(text) > 50000:
@@ -212,7 +231,7 @@ def enrich_images(item, images, runner, cancel, order_source, reported_count=Non
     # Bind progress to the exact note and ordered image manifest. Never reuse an
     # image by its position alone; edited/reordered notes get a new checkpoint.
     note_identity = urlsplit(item["_target"]).path.rstrip("/").split("/")[-1]
-    manifest = digest(note_identity + "|" + json.dumps(identities))
+    manifest = digest(ocr.cache_version + "|" + note_identity + "|" + json.dumps(identities))
     checkpoint = ocr.root / ("note-" + manifest + ".json")
     previous = {}
     try:
@@ -236,7 +255,7 @@ def enrich_images(item, images, runner, cancel, order_source, reported_count=Non
         item["body_sha256"] = digest(item["body"])
         item["image_ocr"] = [dict(r) for r in rows]
         item["image_ocr_chars"] = sum(r.get("text_chars", 0) for r in rows)
-        item["coverage"] = {"caption": "read", "image_count": expected, "discovered_images": len(unique),
+        item["coverage"] = {"caption": "read", "ocr_profile": ocr.cache_version, "image_count": expected, "discovered_images": len(unique),
             "ocr_attempted": processed, "ocr_succeeded": succeeded, "ocr_unread": expected - succeeded,
             "image_order": order_source, "images_all_processed": bool(expected) and succeeded == expected,
             "video_transcription": False, "ocr_accuracy_verified": False,

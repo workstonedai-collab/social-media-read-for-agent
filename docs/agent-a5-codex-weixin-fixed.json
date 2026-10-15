@@ -1,0 +1,86 @@
+{
+  "client": "codex-weixin-fixed",
+  "version": "0.1.0a5",
+  "generated_at": "2026-10-15T05:40:13.637895+00:00",
+  "basis": "actual native-client tool results; no database time-window inference",
+  "mcp_calls": 4,
+  "jobs": [
+    {
+      "task_id": "task_34abdc4b74ce40738678f3437a151628",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:37:28.334651+00:00",
+      "updated_at": "2026-10-15T05:37:28.339140+00:00",
+      "platform": "weixin",
+      "content_ref": "content_e688da89898b59cd227f657c",
+      "title": "重磅：程序员的个人知识管理神器",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792042438&ver=7027&new=1",
+      "source_link_kind": "temporary_signed; use local original-link button",
+      "article_identity": {
+        "biz": "MjM5NDkxMTgyNw==",
+        "idx": "1",
+        "mid": "2653061828"
+      },
+      "body_chars": 1181,
+      "body_sha256": "248a8813c996543fc1e730d0f829b9aca1113d31d287798fc9847d82d9541e4c",
+      "published_at_raw": "2019年8月18日 21:30",
+      "published_at_source": "visible_publish_time",
+      "publication_age": {
+        "published_date": "2019-08-18",
+        "observed_date": "2026-10-15",
+        "elapsed_whole_years": 7,
+        "method": "explicit_date_calendar_comparison"
+      },
+      "cache": {
+        "used": true,
+        "age_seconds": 198
+      },
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    }
+  ],
+  "continuation_checks": [],
+  "totals": {
+    "jobs": 1,
+    "statuses": {
+      "success": 1
+    },
+    "read_successes": 1,
+    "searches": 0
+  },
+  "runtime_snapshots": [
+    {
+      "version": "0.1.0a5",
+      "runtime": {
+        "connection": "stable-stdio-gateway",
+        "loaded_revision": "293c7fff3d613eb4",
+        "disk_revision": "293c7fff3d613eb4",
+        "update_pending": false,
+        "reloads": 0,
+        "update_error": null
+      }
+    },
+    {
+      "version": "0.1.0a5",
+      "runtime": {
+        "connection": "stable-stdio-gateway",
+        "loaded_revision": "293c7fff3d613eb4",
+        "disk_revision": "293c7fff3d613eb4",
+        "update_pending": false,
+        "reloads": 0,
+        "update_error": null
+      }
+    }
+  ]
+}

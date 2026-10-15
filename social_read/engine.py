@@ -170,7 +170,11 @@ class Engine:
                 age = None
                 if cached and cached["read_at"]:
                     age = (datetime.now(timezone.utc) - datetime.fromisoformat(cached["read_at"])).total_seconds()
-                xhs_incomplete = bool(cached and r["platform"] == "xiaohongshu" and cached["data"].get("coverage", {}).get("ocr_unread", 0))
+                ocr_changed = False
+                if cached and r["platform"] == "xiaohongshu" and self.mode == "live":
+                    from .images import LocalOCR
+                    ocr_changed = cached["data"].get("coverage",{}).get("ocr_profile") != LocalOCR(self.runner.workdir).cache_version
+                xhs_incomplete = ocr_changed or bool(cached and r["platform"] == "xiaohongshu" and cached["data"].get("coverage", {}).get("ocr_unread", 0))
                 if age is not None and age < 1800 and not r["refresh"] and not xhs_incomplete and (r["platform"] != "xiaohongshu" or "image_ocr" in cached["data"] or self.mode == "demo"):
                     result["content"] = {**cached["data"], "cache": {"used": True, "age_seconds": round(age)}}
                 else:
@@ -185,8 +189,15 @@ class Engine:
                             return self.adapter.read_with_context(r["platform"], r["_target"], event, cached["data"] if cached else {})
                         return self.adapter.read(r["platform"], r["_target"], event)
                     item = self._execute(r["platform"], event, fetch_content)
+                    from .model import publication_age
+                    age_info = publication_age(item.get("published_at_raw"))
+                    if age_info:item["publication_age"] = age_info
                     result["content"] = self.store.save_item(r["platform"], item, raw=item.get("_raw"), read=True)
+                    self.store.bind_read(r.get("content_ref"), result["content"])
                     result["content"]["cache"] = {"used": False}
+                from .model import publication_age
+                age_info = publication_age(result.get("content",{}).get("published_at_raw"))
+                if age_info:result["content"]["publication_age"] = age_info
                 answer_errors = result.get("content", {}).get("answer_errors", []) + result.get("content", {}).get("read_errors", [])
                 if result.get("content", {}).get("coverage", {}).get("ocr_unread", 0):
                     status = "partial"

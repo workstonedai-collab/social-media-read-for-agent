@@ -1,0 +1,4 @@
+# Optional isolated local OCR; do not install into the Agent environment.
+rapidocr==3.9.2
+onnxruntime==1.23.2
+pillow==12.3.0

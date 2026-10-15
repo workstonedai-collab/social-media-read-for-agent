@@ -1,0 +1,491 @@
+{
+  "client": "current-conversation",
+  "version": "0.1.0a4",
+  "generated_at": "2026-10-15T05:40:13.630582+00:00",
+  "basis": "exact task ids submitted and polled by this current Codex conversation; persisted receipts, no time-window inference",
+  "mcp_calls": null,
+  "jobs": [
+    {
+      "task_id": "task_de3d3aca5bf94229b20d3b2f27a60c31",
+      "action": "search",
+      "status": "partial",
+      "created_at": "2026-10-15T05:15:46.668460+00:00",
+      "updated_at": "2026-10-15T05:16:27.675195+00:00",
+      "platform": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "publication_age": null,
+      "cache": null,
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu",
+          "weibo",
+          "zhihu",
+          "weixin"
+        ],
+        "max_results_per_platform": 1,
+        "all_content": false,
+        "returned_by_platform": {
+          "xiaohongshu": 1,
+          "weibo": 1,
+          "zhihu": 0,
+          "weixin": 1
+        }
+      },
+      "errors": [
+        {
+          "platform": "zhihu",
+          "status": "content_loading_timeout",
+          "message": "知乎搜索页没有在预算内出现可读结果。",
+          "retryable": false
+        }
+      ],
+      "next_cursor_available": false
+    },
+    {
+      "task_id": "task_cc37a94e73314f988f2da7a3213180be",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:20:15.865088+00:00",
+      "updated_at": "2026-10-15T05:20:34.946577+00:00",
+      "platform": "xiaohongshu",
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 1103,
+      "body_sha256": "b19ca97c75ad6a0d522d42cbdd41ef06a477e27c77c03306028b81198c00f317",
+      "published_at_raw": "09-03",
+      "published_at_source": null,
+      "publication_age": null,
+      "cache": {
+        "used": false
+      },
+      "coverage": {
+        "caption": "read",
+        "image_count": 9,
+        "discovered_images": 9,
+        "ocr_attempted": 9,
+        "ocr_succeeded": 9,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 0,
+        "images_processed_this_run": 9,
+        "unread_orders": [],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 50,
+          "checkpoint_reused": null,
+          "image_sha256": "08e318386fd9e8e25be8378a23f693b00df7f3a589e0851e34d77a6bf9bea166",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 2,
+          "status": "success",
+          "text_chars": 82,
+          "checkpoint_reused": null,
+          "image_sha256": "2f2a6572277e8a7426fd4c16c8c79d2ba501568c2dcf5e66c25322174b61b47c",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 3,
+          "status": "success",
+          "text_chars": 87,
+          "checkpoint_reused": null,
+          "image_sha256": "4b0c1f399f720254f83505dfa3acb696f66ade8432a91428e36930689445c2b8",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 4,
+          "status": "success",
+          "text_chars": 101,
+          "checkpoint_reused": null,
+          "image_sha256": "a0ea807149d23987e3b2c8efdeb34782d3b45707bda1c174a071eba6543d9051",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 5,
+          "status": "success",
+          "text_chars": 84,
+          "checkpoint_reused": null,
+          "image_sha256": "c19e06f04b2a14c9e923aaa9cdc277b0db037502fccd0b1603635752cbf6ac27",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 6,
+          "status": "success",
+          "text_chars": 84,
+          "checkpoint_reused": null,
+          "image_sha256": "6b3cceba6850a8a370dfef8dfdbb6808506dc3f10177f468d1c2d173b2aadf5e",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 7,
+          "status": "success",
+          "text_chars": 73,
+          "checkpoint_reused": null,
+          "image_sha256": "fc735e08906bc5b91d129f9b1449aea7016d817680321a47f2a4aeed637e1a46",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 8,
+          "status": "success",
+          "text_chars": 76,
+          "checkpoint_reused": null,
+          "image_sha256": "073c159330ec8ebec859f6480c479beac653ee375b0e220976f0d4444f3e8cc7",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        },
+        {
+          "order": 9,
+          "status": "success",
+          "text_chars": 108,
+          "checkpoint_reused": null,
+          "image_sha256": "03d011ba2775fd60cc07a811f7ebd8f5790adb96ad39d1aca9256f80f2a2fe65",
+          "cache_used": true,
+          "backend": "macos-vision-local"
+        }
+      ]
+    },
+    {
+      "task_id": "task_b76f6692b2484fcc8800bca73f0b4ac6",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:22:48.668539+00:00",
+      "updated_at": "2026-10-15T05:22:58.259149+00:00",
+      "platform": "weixin",
+      "content_ref": "content_ad07e155f41636f35c5c08fa",
+      "title": "重磅：程序员的个人知识管理神器",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792041770&ver=7027&new=1",
+      "source_link_kind": "temporary_signed; use local original-link button",
+      "article_identity": {
+        "biz": "MjM5NDkxMTgyNw==",
+        "idx": "1",
+        "mid": "2653061828"
+      },
+      "body_chars": 1181,
+      "body_sha256": "248a8813c996543fc1e730d0f829b9aca1113d31d287798fc9847d82d9541e4c",
+      "published_at_raw": "2019年8月18日 21:30",
+      "published_at_source": "visible_publish_time",
+      "publication_age": null,
+      "cache": {
+        "used": false
+      },
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    },
+    {
+      "task_id": "task_a9ed1e8dd95f48fbbb31e1142229415d",
+      "action": "search",
+      "status": "success",
+      "created_at": "2026-10-15T05:22:48.680145+00:00",
+      "updated_at": "2026-10-15T05:22:52.471592+00:00",
+      "platform": [
+        "zhihu"
+      ],
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "publication_age": null,
+      "cache": null,
+      "coverage": {
+        "requested_platforms": [
+          "zhihu"
+        ],
+        "max_results_per_platform": 1,
+        "all_content": false,
+        "returned_by_platform": {
+          "zhihu": 1
+        }
+      },
+      "errors": [],
+      "next_cursor_available": false
+    },
+    {
+      "task_id": "task_a72f0a171ac0468cbe79ff1b71c4479f",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:25:45.084124+00:00",
+      "updated_at": "2026-10-15T05:25:47.847921+00:00",
+      "platform": "zhihu",
+      "content_ref": "content_aaced30ffc3619329bcd4266",
+      "title": "打造个人终身知识体系，最佳的笔记软件是什么？",
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 234,
+      "body_sha256": "2ac7f4970946e74bc3f02705966c30613bd5794bdaff2aae5178fc0c8fa0bca9",
+      "published_at_raw": "2026-04-25T01:12:28+00:00",
+      "published_at_source": null,
+      "publication_age": null,
+      "cache": {
+        "used": false
+      },
+      "coverage": {
+        "text_source": "answer_api_content",
+        "local_truncation": false,
+        "all_answers": false,
+        "images_ocr": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    },
+    {
+      "task_id": "task_fbb06f28c61e4169b1f1200bc9af2ad0",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:27:56.837193+00:00",
+      "updated_at": "2026-10-15T05:28:02.945859+00:00",
+      "platform": "weibo",
+      "content_ref": "content_3a26e525f6a45f37ac12fe98",
+      "title": "这套极简的知识管理闭环，快速提升生产力！\n想要实现个人能力与工作效率的长效跃升，一套可落地、可流转的系统化知识管理体系至关重要。\n[点赞]有道云笔记打造了一套零…",
+      "source_url": "https://weibo.com/2154137571/RaMYR608I?refer_flag=1001030103_",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 308,
+      "body_sha256": "c412706c307efb1e50b662b8c2c99afb5ccfd071429171d12118afb7dbdc3c10",
+      "published_at_raw": "Tue Jul 28 18:03:41 +0800 2026",
+      "published_at_source": null,
+      "publication_age": null,
+      "cache": {
+        "used": false
+      },
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    },
+    {
+      "task_id": "task_812287147aac43e98fea8bb74dcee846",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:38:28.524378+00:00",
+      "updated_at": "2026-10-15T05:38:28.528800+00:00",
+      "platform": "xiaohongshu",
+      "content_ref": "content_324874beddbc2a2b3354ab8b",
+      "title": "如何用AI搭一个「真的会用到」的个人知识库",
+      "source_url": "https://www.xiaohongshu.com/search_result/6a99838a000000002b0133c8?xsec_source=",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 1104,
+      "body_sha256": "2827e4ac859e007aed074d7fd5f64a10d87add1e61db81738228b2c838397fa1",
+      "published_at_raw": "09-03",
+      "published_at_source": null,
+      "publication_age": null,
+      "cache": {
+        "used": true,
+        "age_seconds": 269
+      },
+      "coverage": {
+        "caption": "read",
+        "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+        "image_count": 9,
+        "discovered_images": 9,
+        "ocr_attempted": 0,
+        "ocr_succeeded": 9,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 9,
+        "images_processed_this_run": 0,
+        "unread_orders": [],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": [
+        {
+          "order": 1,
+          "status": "success",
+          "text_chars": 47,
+          "checkpoint_reused": true,
+          "image_sha256": "08e318386fd9e8e25be8378a23f693b00df7f3a589e0851e34d77a6bf9bea166",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 2,
+          "status": "success",
+          "text_chars": 83,
+          "checkpoint_reused": true,
+          "image_sha256": "2f2a6572277e8a7426fd4c16c8c79d2ba501568c2dcf5e66c25322174b61b47c",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 3,
+          "status": "success",
+          "text_chars": 89,
+          "checkpoint_reused": true,
+          "image_sha256": "4b0c1f399f720254f83505dfa3acb696f66ade8432a91428e36930689445c2b8",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 4,
+          "status": "success",
+          "text_chars": 100,
+          "checkpoint_reused": true,
+          "image_sha256": "a0ea807149d23987e3b2c8efdeb34782d3b45707bda1c174a071eba6543d9051",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 5,
+          "status": "success",
+          "text_chars": 90,
+          "checkpoint_reused": true,
+          "image_sha256": "c19e06f04b2a14c9e923aaa9cdc277b0db037502fccd0b1603635752cbf6ac27",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 6,
+          "status": "success",
+          "text_chars": 85,
+          "checkpoint_reused": true,
+          "image_sha256": "6b3cceba6850a8a370dfef8dfdbb6808506dc3f10177f468d1c2d173b2aadf5e",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 7,
+          "status": "success",
+          "text_chars": 74,
+          "checkpoint_reused": true,
+          "image_sha256": "fc735e08906bc5b91d129f9b1449aea7016d817680321a47f2a4aeed637e1a46",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 8,
+          "status": "success",
+          "text_chars": 83,
+          "checkpoint_reused": true,
+          "image_sha256": "073c159330ec8ebec859f6480c479beac653ee375b0e220976f0d4444f3e8cc7",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        },
+        {
+          "order": 9,
+          "status": "success",
+          "text_chars": 95,
+          "checkpoint_reused": true,
+          "image_sha256": "03d011ba2775fd60cc07a811f7ebd8f5790adb96ad39d1aca9256f80f2a2fe65",
+          "cache_used": false,
+          "backend": "rapidocr-onnx-local"
+        }
+      ]
+    },
+    {
+      "task_id": "task_c90c5f6bf90243e8abbf4e5bf6f0f733",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T05:38:28.535362+00:00",
+      "updated_at": "2026-10-15T05:38:28.536621+00:00",
+      "platform": "weixin",
+      "content_ref": "content_e688da89898b59cd227f657c",
+      "title": "重磅：程序员的个人知识管理神器",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792042438&ver=7027&new=1",
+      "source_link_kind": "temporary_signed; use local original-link button",
+      "article_identity": {
+        "biz": "MjM5NDkxMTgyNw==",
+        "idx": "1",
+        "mid": "2653061828"
+      },
+      "body_chars": 1181,
+      "body_sha256": "248a8813c996543fc1e730d0f829b9aca1113d31d287798fc9847d82d9541e4c",
+      "published_at_raw": "2019年8月18日 21:30",
+      "published_at_source": "visible_publish_time",
+      "publication_age": {
+        "published_date": "2019-08-18",
+        "observed_date": "2026-10-15",
+        "elapsed_whole_years": 7,
+        "method": "explicit_date_calendar_comparison"
+      },
+      "cache": {
+        "used": true,
+        "age_seconds": 259
+      },
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    }
+  ],
+  "continuation_checks": [],
+  "totals": {
+    "jobs": 8,
+    "statuses": {
+      "partial": 1,
+      "success": 7
+    },
+    "read_successes": 6,
+    "searches": 2
+  }
+}
