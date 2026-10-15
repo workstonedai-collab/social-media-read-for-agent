@@ -1,5 +1,11 @@
 # 组件复用记录
 
+当前复用状态以 `THIRD_PARTY_NOTICES.md` 为准：OpenCLI 是独立运行依赖；小红书评论逻辑已有署名的 Apache-2.0 改编；RapidOCR 为可选本地依赖。公众号解析与导航等待自行实现。以下早期记录保留当时状态，后续版本的采用情况在相应小节更新。
+
+本轮对同类项目介绍及新手体验的比较见 [项目定位与改进](project-positioning.md)。
+
+## 首版调研记录（历史）
+
 首版明确复用 [OpenCLI](https://github.com/jackwener/OpenCLI)，本机已安装版本 1.8.6，软件许可 Apache-2.0。通过其命令接口调用站点适配器和浏览器桥接，不复制适配器源码进本仓库，也不修改全局安装。官方 Chrome 扩展来源为项目 README 链接的应用商店页面，当前公布版本 1.0.24。
 
 已核查本机包的 xiaohongshu search/note/comments、weibo search/post/comments、zhihu search/question/answer-detail/answer-comments/download 和 weixin search/download 的参数与结果结构。特别发现知乎 question 截断至 200 字，因而本项目额外逐个调用 answer-detail 补读正文。公众号 search 只提供搜狗索引链接，download 面向微信原文链接；本项目增加了独立页面的跳转解析，禁止模型提供任意浏览器命令；真实正文导出仍在验证。

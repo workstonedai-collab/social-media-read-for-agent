@@ -72,6 +72,11 @@ class CommentTests(unittest.TestCase):
         self.assertFalse(value["coverage"]["all_comments"])
         self.assertIn("不能据此判断",value["notice"])
 
+    def test_stalled_comments_return_loading_error_instead_of_empty_success(self):
+        value=finish({"items":[],"is_end":None,"stop_reason":"loading_stalled"},"xiaohongshu",3,1)
+        self.assertEqual(value["errors"][0]["status"],"comments_loading_incomplete")
+        self.assertEqual(value["coverage"]["returned_rows"],0)
+
     def test_challenge_never_becomes_empty_success(self):
         with self.assertRaises(ReadError) as exc:finish({"failure":"verification_required"},"zhihu",5,2)
         self.assertEqual(exc.exception.code,"verification_required")
@@ -99,6 +104,7 @@ class LongReadTests(unittest.TestCase):
             runner=Runner(td,profile="dedicated");calls=[]
             def run(args,cancel=None,timeout=None):
                 calls.append(args)
+                if args[2:4]==["tab","list"]:return 0,'[{"page":"owned","url":"https://weibo.com/100000/AbCd"}]',""
                 return (0,'{"page":"owned"}','') if args[2:4]==["tab","new"] else (0,'{"ready":true}',"")
             with patch.object(runner,"run",side_effect=run):
                 with self.assertRaises(ValueError):
@@ -132,6 +138,11 @@ class EnhancedEngineTests(unittest.TestCase):
             finally:e.shutdown()
 
 class ErrorClassificationTests(unittest.TestCase):
+    def test_unknown_operation_outcome_never_becomes_retryable_timeout(self):
+        from social_read.model import classify_error
+        error=classify_error('command_result_unknown browser extension timeout')
+        self.assertEqual(error.code,'command_outcome_unknown');self.assertFalse(error.retryable)
+
     def test_process_id_is_not_http_429(self):
         from social_read.model import classify_error
         self.assertEqual(classify_error("(node:84290) TypeError: observe target is not a Node").code,"adapter_error")
@@ -168,15 +179,67 @@ class ImageCacheTests(unittest.TestCase):
                 self.assertEqual(get.call_count,2)
 
 class BodyReadinessTests(unittest.TestCase):
-    def test_poll_handles_absent_body_without_mutation_observer(self):
+    def test_blank_page_and_absent_body_do_not_pass_readiness(self):
         import shutil,subprocess
         from social_read.browser_page import wait_selector
         node=shutil.which("node")
         if not node:self.skipTest("Node runtime not installed")
         class Runner:
+            calls=0
             def run(self,args,cancel=None,timeout=None):
-                script=args[3]
-                harness="let attempts=0;global.document={querySelector:()=>++attempts>2?{}:null};Promise.resolve("+script+").then(v=>console.log(JSON.stringify(v)));"
+                self.calls+=1
+                # A blank document has a body, then the real document briefly
+                # has no body; only the third sample can satisfy this wait.
+                protocol='about:' if self.calls==1 else 'https:'
+                body=self.calls!=2
+                harness="global.location={protocol:"+json.dumps(protocol)+"};global.document={body:null,querySelector:()=>"+str(body).lower()+"};console.log(JSON.stringify("+args[3]+"));"
                 p=subprocess.run([node,"-e",harness],text=True,capture_output=True,timeout=3)
                 return p.returncode,p.stdout,p.stderr
-        wait_selector(Runner(),"owned","tab","body",threading.Event(),1)
+        runner=Runner()
+        wait_selector(runner,"owned","tab","body",threading.Event(),3)
+        self.assertEqual(runner.calls,3)
+
+    def test_native_navigation_waits_for_owned_target_not_another_tab(self):
+        from social_read.browser_page import wait_navigation
+        class Runner:
+            calls=0
+            def run(self,args,cancel=None,timeout=None):
+                self.calls+=1
+                assert args==["browser","owned","tab","list"]
+                tabs=[{"page":"other","url":"https://example.org"},{"page":"target","url":"about:blank" if self.calls==1 else "https://weixin.sogou.com/weixin"}]
+                return 0,json.dumps(tabs),""
+        runner=Runner();wait_navigation(runner,"owned","target",threading.Event(),2)
+        self.assertEqual(runner.calls,2)
+
+    def test_verification_stops_without_extra_probes(self):
+        from social_read.browser_page import wait_selector
+        from unittest.mock import Mock
+        runner=Mock();runner.run.return_value=(0,'{"ready":false,"verification":true}',"")
+        with self.assertRaises(ReadError) as exc:wait_selector(runner,"owned","tab","#js_content",threading.Event(),2)
+        self.assertEqual(exc.exception.code,"verification_required");self.assertEqual(runner.run.call_count,1)
+
+    def test_context_change_recovers_but_unknown_outcome_does_not(self):
+        from social_read.browser_page import wait_selector
+        from unittest.mock import Mock
+        runner=Mock();runner.run.side_effect=[(1,"Inspected target navigated", ""),(0,'{"ready":true}',"")]
+        wait_selector(runner,"owned","tab","#js_content",threading.Event(),2)
+        self.assertEqual(runner.run.call_count,2)
+        runner=Mock();runner.run.return_value=(1,"command_result_unknown Inspected target navigated","")
+        with self.assertRaises(ReadError):wait_selector(runner,"owned","tab","#js_content",threading.Event(),2)
+        self.assertEqual(runner.run.call_count,1)
+
+    def test_ready_article_mentioning_verification_is_readable(self):
+        from social_read.browser_page import wait_selector
+        from unittest.mock import Mock
+        runner=Mock();runner.run.return_value=(0,'{"ready":true,"verification":true}',"")
+        wait_selector(runner,"owned","tab","#js_content",threading.Event(),1)
+
+    def test_navigation_deadline_and_cancellation(self):
+        from social_read.browser_page import wait_navigation
+        from unittest.mock import Mock
+        runner=Mock();runner.run.return_value=(0,'[{"page":"target","url":"about:blank"}]',"")
+        with self.assertRaises(ReadError) as exc:wait_navigation(runner,"owned","target",threading.Event(),.05)
+        self.assertEqual(exc.exception.code,"navigation_loading_timeout")
+        event=threading.Event();event.set();runner.reset_mock()
+        with self.assertRaises(ReadError) as exc:wait_navigation(runner,"owned","target",event,2)
+        self.assertEqual(exc.exception.code,"cancelled");runner.run.assert_not_called()

@@ -2,12 +2,12 @@
 import json
 from datetime import datetime,timezone,timedelta
 from urllib.parse import urlencode,urlsplit
-from .browser_page import ReadPage
+from .browser_page import ReadPage, _pause
 from .model import ReadError,search_item,validate_url
 
 def search_notes(runner,query,limit,cancel):
     target="https://www.xiaohongshu.com/search_result?"+urlencode({"keyword":query,"source":"web_explore_feed"})
-    script="""(async()=>{
+    script="""(()=>{
       const limit=%s;
       const gather=()=>{
         const found=[],seen=new Set();
@@ -29,15 +29,24 @@ def search_notes(runner,query,limit,cancel):
         if(/登录后查看搜索结果/.test(text))return 'login_required';
         return '';
       };
-      const ready=()=>gather().length>=limit || stop();
-      const deadline=Date.now()+15000;
-      while(!ready() && Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,750));
       const items=gather(), text=document.body?.innerText || '';
       return {failure:stop() || (items.length?'':/没有找到相关|暂无搜索结果|未找到相关笔记/.test(text)?'search_empty_confirmed':document.querySelector('section.note-item')?'adapter_incompatible':'content_loading_timeout'),items};
     })()""" % limit
-    with ReadPage(runner,target,cancel,"xhs-search") as page:
-        page.wait('section a[href*="/search_result/"], section a[href*="/explore/"], .login-container, .search-empty', 12)
-        data=page.evaluate(script,22)
+    recovery=None
+    for attempt in (1,2):
+        try:
+            with ReadPage(runner,target,cancel,"xhs-search") as page:
+                page.wait('section a[href*="/search_result/"], section a[href*="/explore/"], .login-container, .search-empty', 20)
+                data=page.evaluate(script,12)
+            break
+        except ReadError as error:
+            # A new target can recover an unrendered page. Never reload a
+            # failed target indefinitely, replay account actions, or retry a
+            # verification/rate-limit/access-denied response.
+            if attempt==2 or error.code not in {"timeout","navigation_loading_timeout","content_loading_timeout","navigation_rejected"}:
+                raise
+            recovery={"attempts":2,"previous_status":error.code,"previous_stage":getattr(error,"stage",None),"method":"fresh_owned_page"}
+            _pause(cancel,2.5)
     if not isinstance(data,dict):raise ReadError("adapter_incompatible","搜索结果结构变化。")
     if data.get("failure"):
         messages={"search_empty_confirmed":"平台明确显示本次搜索没有结果。", "adapter_incompatible":"搜索页有卡片，但未取得可用的标题和访问链接。", "content_loading_timeout":"搜索页未在预算内加载可读结果，不能判断没有相关内容。"}
@@ -48,5 +57,7 @@ def search_notes(runner,query,limit,cancel):
         note_id=urlsplit(target).path.rstrip("/").split("/")[-1]
         try:row["published_at"]=(datetime.fromtimestamp(int(note_id[:8],16),timezone.utc)+timedelta(hours=8)).date().isoformat()
         except (ValueError,OSError,OverflowError):pass
-        results.append(search_item("xiaohongshu",row,query,"opencli"))
+        item=search_item("xiaohongshu",row,query,"opencli")
+        if recovery:item["recovery"]=recovery
+        results.append(item)
     return results

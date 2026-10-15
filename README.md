@@ -1,12 +1,30 @@
-# social-media-read-for-agent
+# 智能体国内社媒使用工具
 
-让本地 Agent 搜索、阅读中国社交媒体。支持 **小红书、微博、知乎、微信公众号**，提供七个只读 MCP 工具、命令行和本地网页。
+这个项目能够让智能体访问、搜索、查阅社交媒体，当前已经集成了小红书、微博、知乎和微信公众号，其他社交媒体正在陆续接通中。项目适用于小白，借鉴了现有多个开源工具，并做了集成。直接把这个项目丢给你的智能体，并在他的引导下登录社交媒体账号，你的智能体即可访问这些平台了。请注意，为确保安全，登录时尽量使用无过多个人隐私内容的空白账号
+
+**把账号登录好，其余交给 Agent：跨平台搜索、读原文和图片、查评论，留下可回查的来源。**
+
+**中文** · [English](README.en.md) · [安装与排障](docs/installation.md) · [实际验证](docs/validation.md)
 
 [![Install checks](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml/badge.svg)](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml)
 
-**Read Chinese social platforms with your own local agent and browser session.** Agent-led setup for Codex and Hermes; standard MCP stdio configuration for other local agents. Search and read only. No model API key required by this project.
+项目标识：`social-media-read-for-agent`。为已有 Agent 提供七个只读 MCP 工具，也可以通过命令行或本地网页使用。本项目无需额外的模型 API 密钥；你的 Agent 自身仍按原来的方式运行。
 
-当前是 **0.1.0a6 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+当前是 **0.1.0a7 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+
+## 适合用它做什么
+
+- **开发产品前做调研**：跨平台搜索同一个问题，读原帖和有限评论，归纳需求、使用场景及反例。
+- **核对真实反馈**：把用户经历、品牌推广和作者教程分开，保留来源与原始日期，回查结论依据。
+- **让 Agent 帮你阅读**：提供一条内容链接，读取正文；小红书还能按图片顺序提取图中文字，失败图片可继续补读。
+
+```mermaid
+flowchart LR
+    A[把仓库交给本地 Agent] --> B[Agent 自动检查和配置]
+    B --> C[你确认扩展授权并正常登录]
+    C --> D[直接提出搜索或调研问题]
+    D --> E[原文、图中文字、有限评论与来源]
+```
 
 ## 把仓库交给 Agent
 
@@ -21,6 +39,42 @@
 用户不需要找浏览器资料编号、复制 Cookie、配置模型密钥或保持手动启动的服务。平台再次要求扫码、验证码或安全验证时，需要本人正常完成。某些 Agent 首次发现 MCP 需要刷新工具；Agent 可先用同仓库 CLI 完成任务，不应把反复重配交给用户。
 
 完整步骤、兼容性、升级和失败处理见 **[安装说明](docs/installation.md)**；执行约定见 [AGENTS.md](AGENTS.md)。
+
+## 我们在能力集成的基础上做了什么
+
+| 你关心的事 | 本项目增加的使用体验 |
+| --- | --- |
+| 不想研究一堆安装教程 | 把仓库交给 Agent，由它检查环境、安装独立依赖、合并配置、引导授权和登录；已有连接直接复用 |
+| 不想分别配置四个平台 | 七个统一工具返回相同任务结构、确定条数和来源；某个平台失败时，其他已读内容保留 |
+| 不想只读到搜索摘要 | 从搜索记录继续读原文；小红书按顺序读图中文字，公众号记录正文边界和加载状态 |
+| 不想失败后全部重来 | 成功图片逐张保留，缺图继续补读；兼容的代码更新在空闲时加载，任务和缓存不丢失 |
+| 不懂怎么判断是否装好了 | 用当前 Agent 实际搜索、阅读验收；返回明确失败原因，不把“已登录”当成“已读成功” |
+
+底层读取复用 [OpenCLI](https://github.com/jackwener/OpenCLI)，评论加载借鉴并署名 [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)，图片识别可选 [RapidOCR](https://github.com/RapidAI/RapidOCR)。本项目的重点是把这些能力做成**容易上手、可以恢复、结果可核对的国内社媒阅读流程**。复用范围及许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
+只想先用一个平台，也可以先让 Agent 配置它、完成登录，再按需接通其他平台；不必为了试用而一次登录所有账号。
+
+## 先看一个不需要账号的例子
+
+想先了解输出、不连接浏览器时，可让 Agent 在克隆的仓库中执行：
+
+```sh
+python3 scripts/demo_research.py
+```
+
+不安装第三方包、不联网、不登录，也不需要密钥。它通过项目真实的任务引擎，以**完全虚构的演示数据**完成四平台搜索、四次阅读和一次有限评论，并输出 JSON；这不能证明真实平台已连接。
+
+```json
+{
+  "mode": "demo",
+  "fictional": true,
+  "search_counts": {"xiaohongshu": 1, "weibo": 1, "zhihu": 1, "weixin": 1},
+  "read_count": 4,
+  "comment_rows": 1
+}
+```
+
+完整可重现输出见 [演示结果](examples/demo-research.json)。真实使用的结果还包括正文、原始日期、来源、取得时间、图片处理状态和明确失败原因；Agent 应按这些字段判断资料覆盖，不能把搜索摘要写成“已读全文”。
 
 ## 能读取什么
 
@@ -121,6 +175,6 @@ python3 scripts/verify_clean_install.py --output .state/clean-install.json
 
 第二条在新目录和独立Python环境中安装项目本地OpenCLI，生成隔离的Codex/Hermes/通用配置，检查重复安装、配置保留与七工具协议；不复制账号或现有项目状态，不会使用你的日常浏览器作为已授权资料。加 `--install-ocr` 可验收可选本地OCR。GitHub Actions在Linux、macOS运行账号无关检查。
 
-[真实验收与失败记录](docs/validation.md) · [安装与排障](docs/installation.md) · [架构](docs/architecture.md) · [上游复用](docs/upstream.md)
+[项目定位与后续改进](docs/project-positioning.md) · [贡献与反馈](CONTRIBUTING.md) · [真实验收与失败记录](docs/validation.md) · [安装与排障](docs/installation.md) · [架构](docs/architecture.md) · [上游复用](docs/upstream.md)
 
 提交问题时，请附平台、版本、实际失败状态及复现步骤，删除账号身份、Cookie、访问令牌和带签名的私有链接。七日稳定性、Windows浏览器设置、视频转写和更多媒体内容仍未完成。

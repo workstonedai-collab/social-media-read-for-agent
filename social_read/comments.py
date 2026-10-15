@@ -46,13 +46,16 @@ def finish(raw,site,limit,replies_limit):
     check_failure(raw)
     items=normalize_rows(raw.get("items",[]),site,limit,replies_limit)
     roots=sum(not i["is_reply"] for i in items)
+    errors=list(raw.get("errors",[]))
+    if raw.get("is_end") is not True and raw.get("stop_reason") in {"loading_stalled", "time_budget"} and roots<limit:
+        errors.append({"status":"comments_loading_incomplete", "message":"评论尚未完成加载，保留本次已读内容；不能判断平台没有评论。"})
     return {"items":items,"coverage":{"requested_top_level":limit,"replies_per_root_limit":replies_limit,
         "returned_top_level":roots,"returned_replies":len(items)-roots,"returned_rows":len(items),"non_text_rows":sum(i.get("content_kind")=="non_text" for i in items),
         "all_comments":False,"all_replies":False,"reply_relationship":"root_thread_and_reply_to_author; deeper_nesting_unverified","root_pages":raw.get("root_pages",1),
         "reply_requests":raw.get("reply_requests",0),"root_end_reached":raw.get("is_end"),
         "stop_reason":raw.get("stop_reason","bounded_sample"),"backend":raw.get("backend"),
         "reply_roots_not_expanded":raw.get("reply_roots_not_expanded",0)},
-        "_continuation":raw.get("next_state"),"errors":raw.get("errors",[]),"notice":"本次最多读取 %s 条首层评论、每条最多 %s 条回复；只覆盖此次取得的范围，不代表全部评论。%s" % (limit,replies_limit,"此次未取得可见评论，不能据此判断没有评论。" if not items else "")}
+        "_continuation":raw.get("next_state"),"errors":errors,"notice":"本次最多读取 %s 条首层评论、每条最多 %s 条回复；只覆盖此次取得的范围，不代表全部评论。%s" % (limit,replies_limit,"此次未取得可见评论，不能据此判断没有评论。" if not items else "")}
 
 def read_comments(runner,site,target,limit,replies_limit,cancel,cursor=None):
     target=validate_url(site,target)
@@ -155,7 +158,6 @@ def xhs_comments(runner, target, limit, replies_limit, cancel, cursor=None):
         return root;
       };
       const seen=new Set(cfg.seen), fresh=new Map();
-      const scroller=document.querySelector('.note-scroller');
       const deadline=Date.now()+22000;let rounds=0, stagnant=0, previous=-1, ended=false, empty=false;
       // End/no-comment detection and bounded progress tracking adapted from the
       // Apache-2.0 upstream loader; preserve a resumable seen set per article.
@@ -171,6 +173,7 @@ def xhs_comments(runner, target, limit, replies_limit, cancel, cursor=None):
         const count=document.querySelectorAll('.parent-comment').length;
         stagnant=count===previous?stagnant+1:0;previous=count;
         if(stagnant>=3 && count>0)break;
+        const scroller=document.querySelector('.note-scroller');
         if(scroller)scroller.scrollTo(0,scroller.scrollHeight);
         else document.querySelector('.comments-container')?.scrollIntoView({block:'end'});
         rounds++;await pause(800);
@@ -202,6 +205,7 @@ def xhs_comments(runner, target, limit, replies_limit, cancel, cursor=None):
         backend:'note_dom_comments'};
     })()"""
     with ReadPage(runner,target,cancel,"xhs-comments") as page:
-        page.wait("#detail-title, #detail-desc, .note-container")
+        page.wait("#detail-title, #detail-desc")
+        page.wait(".comments-container, .parent-comment, .no-comments-text")
         raw=page.evaluate(script,35)
     return finish(raw,"xiaohongshu",limit,replies_limit)

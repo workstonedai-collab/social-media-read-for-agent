@@ -25,7 +25,9 @@ class ReadError(Exception):
         self.code, self.message, self.retryable = code, message, retryable
 
     def result(self):
-        return {"status": self.code, "message": self.message, "retryable": self.retryable}
+        result = {"status": self.code, "message": self.message, "retryable": self.retryable}
+        if getattr(self, "stage", None):result["stage"] = self.stage
+        return result
 
 
 def now():
@@ -184,6 +186,7 @@ def classify_error(message, returncode=None):
     """Inspect raw errors, return fixed safe messages instead of upstream logs."""
     m = str(message).lower()
     cases = [
+        (r"command_result_unknown|command_lost|result_evicted", "command_outcome_unknown", "浏览器未能确认操作结果，已停止自动恢复；请先检查本次任务。"),
         (r"operation not permitted|eperm|eacces", "environment_restricted", "当前执行环境限制本地服务或连接。请从本机启动器运行后再检查。"),
         (r"captcha|安全验证|验证码|verification|security_block|security block", "verification_required", "平台要求验证。请在平台页面完成验证后重试。"),
         (r"rate.limit|\b429\b|访问过于频繁|too many|频繁", "rate_limited", "平台限制了本次请求。任务已停止，请稍后检查。"),

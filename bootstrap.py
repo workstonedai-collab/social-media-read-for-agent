@@ -138,6 +138,24 @@ print(json.dumps({'rapidocr':m.version('rapidocr'),'onnxruntime':m.version('onnx
         private_write(warmup,json.dumps({'environment_id':environment_id,'status':'success'}))
 
 
+def verify_reading(engine, sites, query):
+    """Check only requested platforms and require fresh, actual bodies.
+
+    A saved login or old cached body is not today's reading acceptance.
+    """
+    sites=list(dict.fromkeys(sites))
+    job=engine.wait(engine.submit('search',{'platforms':sites,'query':query,'limit':1})['task_id'],180)
+    checks=[]
+    for item in job.get('result',{}).get('items',[]):
+        if item['platform'] not in sites:continue
+        read=engine.wait(engine.submit('read',{'content_ref':item['content_ref'],'refresh':True})['task_id'],180)
+        content=read.get('result',{}).get('content',{})
+        checks.append({'platform':item['platform'],'status':read['status'],'body_chars':content.get('body_chars',0),'ref':item['content_ref'],'errors':read.get('result',{}).get('errors',[])})
+    counts=job.get('result',{}).get('coverage',{}).get('returned_by_platform',{})
+    accepted=job['status']=='success' and {c['platform'] for c in checks}==set(sites) and all(c['status']=='success' and c['body_chars']>0 for c in checks)
+    return {'requested_platforms':sites,'search_status':job['status'],'counts':counts,'errors':job.get('result',{}).get('errors',[]),'reads':checks,'accepted':accepted}
+
+
 def main():
     os.umask(0o077)
     p=argparse.ArgumentParser(description='Agent 自动设置；默认只检查，--apply 合并配置并安装缺失的 OpenCLI。')
@@ -146,6 +164,7 @@ def main():
     p.add_argument('--config-home',type=Path,help='隔离配置目录；默认使用当前用户/客户端配置位置')
     p.add_argument('--bridge',choices=['auto','project'],default='auto',help='project强制安装并使用本项目OpenCLI')
     p.add_argument('--verify',action='store_true');p.add_argument('--query',default='个人知识管理工具')
+    p.add_argument('--platforms',nargs='+',choices=list(LOGIN),help='仅验收用户需要的平台；默认四个平台')
     a=p.parse_args();STATE.mkdir(exist_ok=True,mode=0o700)
     local=STATE/'opencli/node_modules/.bin/opencli'
     executable=shutil.which('opencli') or (str(local) if local.exists() else None)
@@ -208,16 +227,18 @@ def main():
         sys.path.insert(0,str(ROOT));from social_read.engine import Engine
         engine=Engine(STATE,'live',selected)
         try:
-            job=engine.wait(engine.submit('search',{'platforms':list(LOGIN),'query':a.query,'limit':1})['task_id'],180)
-            checks=[]
-            for item in job.get('result',{}).get('items',[]):
-                read=engine.wait(engine.submit('read',{'content_ref':item['content_ref']})['task_id'],180)
-                content=read.get('result',{}).get('content',{})
-                checks.append({'platform':item['platform'],'status':read['status'],'body_chars':content.get('body_chars',0),'ref':item['content_ref']})
-            result['verification']={'search_status':job['status'],'counts':job.get('result',{}).get('coverage',{}).get('returned_by_platform',{}),'errors':job.get('result',{}).get('errors',[]),'reads':checks,'accepted':len(checks)==4 and all(c['status']=='success' and c['body_chars']>0 for c in checks)}
+            result['verification']=verify_reading(engine,a.platforms or list(LOGIN),a.query)
         finally:engine.shutdown()
     result['status']='needs_user_action' if result['next_actions'] else 'ready_for_verification' if selected else 'needs_setup'
     if 'verification' in result:result['status']='ready' if result['verification']['accepted'] else 'partial'
+    # This progress describes evidence, not an inferred login state. It lets
+    # agents explain one pending user action without exposing internal IDs.
+    result['setup_progress']={
+        'dependencies':'ready' if executable else 'missing',
+        'dedicated_browser':'connected' if selected else 'authorization_needed',
+        'client_configuration':'configured' if a.apply and clients else 'not_changed',
+        'live_reading':'verified' if result.get('verification',{}).get('accepted') else 'partial' if 'verification' in result else 'not_checked'}
+    result['user_message']='设置与读取验收已完成，可以直接提出调研问题。' if result['status']=='ready' else '已完成部分设置，请由 Agent 继续处理 next_actions；你只需在需要时确认扩展授权或在平台页面正常登录。'
     print(json.dumps(result,ensure_ascii=False,indent=2));return 0
 
 

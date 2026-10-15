@@ -17,7 +17,7 @@ def default_state():
 
 def main():
     os.umask(0o077)
-    parser = argparse.ArgumentParser(description="social-media-read-for-agent · 四平台只读搜索与阅读")
+    parser = argparse.ArgumentParser(description="智能体国内社媒使用工具 · 四平台只读搜索与阅读")
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("--state-dir", default=str(default_state()))
     parser.add_argument("--mode", choices=["live", "demo"], default="live")

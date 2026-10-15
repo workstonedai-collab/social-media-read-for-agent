@@ -24,6 +24,10 @@ jobs:
           node-version: '22'
       - name: Offline behavior checks
         run: python -m unittest discover -s tests -q
+      - name: Reproduce account-free walkthrough
+        run: |
+          python scripts/demo_research.py --output .state/demo-research.json
+          diff examples/demo-research.json .state/demo-research.json
       - name: Browser-independent JavaScript check
         run: node --check social_read/static/app.js
       - name: Fresh dependency installation and Agent configuration

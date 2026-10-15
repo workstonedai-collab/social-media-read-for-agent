@@ -2,11 +2,12 @@
 import json
 import re
 import uuid
+import time
 from urllib.parse import urlencode
 
 from .model import ReadError, classify_error, content_item, keyword, validate_url
 from .weixin_public import ArticleParser, article_item
-from .browser_page import wait_selector
+from .browser_page import wait_selector, wait_navigation
 
 
 def read_search_article(runner, query, title, cancel):
@@ -15,6 +16,7 @@ def read_search_article(runner, query, title, cancel):
     query = keyword(query)
     session = "socialread-article-" + uuid.uuid4().hex
     tab = None
+    stage = "open_search"
 
     def command(args, timeout=15):
         code, out, err = runner.run(["browser", session] + args, cancel, timeout)
@@ -38,13 +40,16 @@ def read_search_article(runner, query, title, cancel):
         tab = opened.get("page")
         if not isinstance(tab, str) or not re.fullmatch(r"[\w-]{1,100}", tab):
             raise ReadError("adapter_incompatible", "浏览器没有返回本次创建的页面标识。")
+        stage = "wait_search_results"
+        wait_navigation(runner, session, tab, cancel, 25)
         try:
-            wait_selector(runner, session, tab, ".news-list h3 a", cancel, 15)
+            wait_selector(runner, session, tab, ".news-list h3 a", cancel, 18)
         except ReadError:
             check_page()
             raise
         # The title is a JSON string, never executable source. Only a known result
         # link gets a local target change; the site's normal click handler runs.
+        stage = "select_article"
         select = """(() => {
           const norm = s => String(s || '').normalize('NFKC').replace(/\\s+/g, '');
           const wanted = %s;
@@ -60,13 +65,19 @@ def read_search_article(runner, query, title, cancel):
         selected = json.JSONDecoder().raw_decode(command(["eval", select, "--tab", tab]))[0]
         if not selected.get("selected"):
             raise ReadError("source_context_changed", "搜索页没有唯一匹配这篇文章。请重新搜索后读取，不能替换成另一篇文章。")
+        stage = "open_article"
         command(["click", '.news-list h3 a[data-social-read-selected="1"]', "--tab", tab])
+        stage = "wait_article_body"
         try:
-            wait_selector(runner, session, tab, "#js_content", cancel, 15)
+            wait_selector(runner, session, tab, "#js_content", cancel, 20)
         except ReadError:
             check_page()
             raise
+        stage = "extract_article"
         return extract_article(command,session,tab)
+    except ReadError as error:
+        error.stage = stage
+        raise
     except (ValueError, TypeError, AttributeError):
         raise ReadError("adapter_incompatible", "文章读取组件的返回格式发生变化。")
     finally:
@@ -78,19 +89,24 @@ def read_search_article(runner, query, title, cancel):
 
 
 def extract_article(command, session, tab):
-    stable_script = """(async()=>{
-      let last='', same=0;const deadline=Date.now()+10000;
-      while(Date.now()<deadline){
-        const el=document.querySelector('#js_content');
-        const text=el?.textContent || '';
-        const signature=text.length+'|'+el?.querySelectorAll('img').length+'|'+text.slice(-160);
-        same=text.trim() && signature===last?same+1:0;last=signature;
-        if(same>=3)return {stable:true};
-        await new Promise(r=>setTimeout(r,400));
-      }
-      return {stable:false};
+    # Short synchronous samples survive document changes and background timer
+    # throttling; the host owns the deadline, not a promise in the old document.
+    stable_script = """(() => {
+      const el=document.querySelector('#js_content');
+      const text=el?.textContent || '';
+      return {signature:text.trim()?text.length+'|'+el.querySelectorAll('img').length+'|'+text.slice(-160):null};
     })()"""
-    state=json.JSONDecoder().raw_decode(command(['eval',stable_script,'--tab',tab],15))[0]
+    deadline=time.monotonic()+10
+    last=None; same=0; state={"stable":False}
+    while time.monotonic()<deadline:
+        sample=json.JSONDecoder().raw_decode(command(['eval',stable_script,'--tab',tab],min(6,max(.1,deadline-time.monotonic()))))[0]
+        signature=sample.get('signature')
+        same=same+1 if signature and signature==last else 0
+        last=signature
+        if same>=3:
+            state['stable']=True
+            break
+        time.sleep(min(.35,max(0,deadline-time.monotonic())))
     current=validate_url('weixin',command(['get','url','--tab',tab]),allow_index=False)
     html=command(['get','html','--selector','.rich_media_area_primary','--max','1500000','--tab',tab])
     if len(html)>=1500000:

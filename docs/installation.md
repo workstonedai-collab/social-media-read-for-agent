@@ -1,5 +1,7 @@
 # 安装、登录与日常使用
 
+[English](installation.en.md) · [返回项目介绍](../README.md)
+
 ## 给普通用户
 
 把下面的话和仓库地址发给本地Agent：
@@ -90,6 +92,7 @@ python3 bootstrap.py --verify
 | `needs_user_action` / `dedicated_browser_extension` | 打开项目专用Chrome，引导确认官方扩展权限；不要认作安装失败 |
 | 已保存资料不在`connected_profiles` | 先恢复那个专用窗口/扩展连接；不要改用日常资料 |
 | `login_required` / `verification_required` | 在专用窗口让用户正常完成；不自动重复请求 |
+| `navigation_loading_timeout` | 本次新页面未在预算内完成导航；本次创建的页面会关闭，不据此判断账号被封 |
 | `content_loading_timeout` | 只针对普通加载/只读网络超时进行有界恢复，保留其他平台结果 |
 | 图片超时/部分图片失败 | 查看`unread_orders`，再次阅读原内容记录；成功图片已保存 |
 | `source_context_changed` | 搜索结果已变化，不能同标题猜另一篇；重新搜索后选择并核对来源 |
@@ -116,3 +119,17 @@ python3 scripts/verify_clean_install.py --install-ocr --output .state/clean-inst
 创建新源码目录、独立Python环境及隔离客户端配置，不复制`.state`、账号或现有配置。验证项目本地OpenCLI、YAML、可选OCR、配置保留与幂等，并从配置的绝对路径启动七工具MCP，在虚构数据上搜索和阅读。
 
 这不等于干净环境登录过真实账号：没有用户授权和正常登录就不能宣称真实平台验收成功。GitHub Actions无社交账号，负责Linux/macOS依赖与协议验收；真实读取回执另列在验证记录中。
+
+
+## 按需接通 · Connect only what you need
+
+用户只需要一个平台时，由 Agent 先处理该平台的登录与验收：
+
+```sh
+python3 bootstrap.py --verify --platforms xiaohongshu
+python3 bootstrap.py --verify --platforms weixin
+```
+
+省略 `--platforms` 时仍验收四个平台。`accepted=true` 只代表 `requested_platforms` 中的平台本批搜索及刷新正文通过；不把一个平台通过写成四平台可用。`setup_progress` 分别报告依赖、专用浏览器、客户端配置、真实读取四个阶段。用户不需要看内部资料编号，由 Agent 将待完成动作说清楚。验收会刷新正文，普通重复阅读仍可使用缓存。
+
+For a user who only needs one platform, the agent can verify that platform first using the commands above. Omitting `--platforms` checks all four. `accepted=true` applies only to `requested_platforms`. `setup_progress` separates dependencies, dedicated browser, client configuration, and actual reading. Verification refreshes article bodies; ordinary repeat reads may still use cache. The agent should explain pending actions without asking the user to handle internal profile IDs.

@@ -204,6 +204,28 @@ class SearchReadinessTests(unittest.TestCase):
             with self.assertRaises(ReadError) as exc:search_notes(None,'主题',1,threading.Event())
         self.assertEqual(exc.exception.code,'search_empty_confirmed')
 
+    def test_search_recovery_uses_new_owned_page_and_reports_first_failure(self):
+        from social_read.xiaohongshu_search import search_notes
+        from unittest.mock import MagicMock
+        first=MagicMock();first.__enter__.return_value=first
+        first.wait.side_effect=ReadError('content_loading_timeout','加载超时')
+        second=MagicMock();second.__enter__.return_value=second
+        second.evaluate.return_value={'items':[{'title':'可读笔记','url':XHS}]}
+        with patch('social_read.xiaohongshu_search.ReadPage',side_effect=[first,second]) as pages,patch('social_read.xiaohongshu_search._pause'):
+            result=search_notes(None,'主题',1,threading.Event())
+        self.assertEqual(pages.call_count,2);first.__exit__.assert_called_once();second.__exit__.assert_called_once()
+        self.assertEqual(result[0]['recovery']['previous_status'],'content_loading_timeout')
+        self.assertEqual(result[0]['recovery']['attempts'],2)
+
+    def test_search_never_recovers_verification_rate_limit_or_unknown_adapter_failure(self):
+        from social_read.xiaohongshu_search import search_notes
+        from unittest.mock import MagicMock
+        for code in ['verification_required','rate_limited','access_denied','adapter_error']:
+            page=MagicMock();page.__enter__.return_value=page;page.wait.side_effect=ReadError(code,'停止')
+            with patch('social_read.xiaohongshu_search.ReadPage',return_value=page) as pages,patch('social_read.xiaohongshu_search._pause') as pause:
+                with self.assertRaises(ReadError):search_notes(None,'主题',1,threading.Event())
+            self.assertEqual(pages.call_count,1);pause.assert_not_called();page.__exit__.assert_called_once()
+
     def test_zhihu_normal_page_preserves_large_answer_id(self):
         from social_read.zhihu_search import search_zhihu
         url='https://www.zhihu.com/question/123/answer/2031299531585873699'

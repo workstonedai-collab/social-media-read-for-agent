@@ -529,6 +529,8 @@ class WeixinContextTests(unittest.TestCase):
             def run(self,args,cancel=None,timeout=None):
                 self.calls.append(args)
                 if args[2:4]==["tab","new"]:return 0,'{"page":"owned-page"}',""
+                if args[2:4]==["tab","list"]:return 0,'[{"page":"owned-page","url":"https://weixin.sogou.com/weixin"}]',""
+                if args[2]=="eval" and "signature:" in args[3]:return 0,'{"signature":"body-stable"}',""
                 if args[2]=="eval" and "const selector=" in args[3]:return 0,json.dumps({"ready":not blocked,"verification":blocked}),""
                 if args[2:4]==["get","text"]:return 0,'{"value":"安全验证 请输入验证码"}',""
                 if args[2]=="eval":return 0,json.dumps({"selected":selected} if "const wanted" in args[3] else {"url":"https://mp.weixin.qq.com/s/canonical"}),""
@@ -546,6 +548,17 @@ class WeixinContextTests(unittest.TestCase):
         self.assertEqual(item["source_url"],"https://mp.weixin.qq.com/s/canonical")
         self.assertEqual(runner.calls[-1][2:],["tab","close","owned-page"])
         self.assertTrue(all("--tab" not in x or x[x.index("--tab")+1]=="owned-page" for x in runner.calls))
+
+    def test_article_click_timeout_reports_stage_and_closes_owned_page(self):
+        from social_read.weixin_browser import read_search_article
+        runner=self.runner();original=runner.run
+        def run(args,cancel=None,timeout=None):
+            if args[2]=="click":raise ReadError("timeout","读取超时。",True)
+            return original(args,cancel,timeout)
+        runner.run=run
+        with self.assertRaises(ReadError) as exc:read_search_article(runner,"主题","标题",threading.Event())
+        self.assertEqual(exc.exception.result()["stage"],"open_article")
+        self.assertEqual(runner.calls[-1][2:],["tab","close","owned-page"])
 
     def test_verification_or_ambiguous_title_stops_before_click(self):
         from social_read.weixin_browser import read_search_article

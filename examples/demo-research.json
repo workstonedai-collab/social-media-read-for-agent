@@ -1,0 +1,53 @@
+{
+  "mode": "demo",
+  "fictional": true,
+  "search_counts": {
+    "xiaohongshu": 1,
+    "weibo": 1,
+    "zhihu": 1,
+    "weixin": 1
+  },
+  "read_count": 4,
+  "comment_rows": 1,
+  "articles": [
+    {
+      "platform": "xiaohongshu",
+      "title": "虚构样例｜个人知识管理工具",
+      "body": "这是离线演示资料，不是社交平台真实帖子。\n\n样例观点：用户希望搜索方便、来源可回查，也希望退出后能继续上次阅读。\n\n这段文字只用于检查界面、引用与任务记录。",
+      "body_chars": 78,
+      "source_url": "https://www.xiaohongshu.com/explore/000000000000000000000001",
+      "notice": "离线演示，内容完全虚构；不代表真实平台读取成功。"
+    },
+    {
+      "platform": "weibo",
+      "title": "虚构样例｜个人知识管理工具",
+      "body": "这是离线演示资料，不是社交平台真实帖子。\n\n样例观点：用户希望搜索方便、来源可回查，也希望退出后能继续上次阅读。\n\n这段文字只用于检查界面、引用与任务记录。",
+      "body_chars": 78,
+      "source_url": "https://weibo.com/1000000000/AbCdDemo",
+      "notice": "离线演示，内容完全虚构；不代表真实平台读取成功。"
+    },
+    {
+      "platform": "zhihu",
+      "title": "虚构样例｜个人知识管理工具",
+      "body": "这是离线演示资料，不是社交平台真实帖子。\n\n样例观点：用户希望搜索方便、来源可回查，也希望退出后能继续上次阅读。\n\n这段文字只用于检查界面、引用与任务记录。",
+      "body_chars": 78,
+      "source_url": "https://www.zhihu.com/question/100000000/answer/200000000",
+      "notice": "离线演示，内容完全虚构；不代表真实平台读取成功。"
+    },
+    {
+      "platform": "weixin",
+      "title": "虚构样例｜个人知识管理工具",
+      "body": "这是离线演示资料，不是社交平台真实帖子。\n\n样例观点：用户希望搜索方便、来源可回查，也希望退出后能继续上次阅读。\n\n这段文字只用于检查界面、引用与任务记录。",
+      "body_chars": 78,
+      "source_url": "https://mp.weixin.qq.com/s/FICTIONAL_DEMO",
+      "notice": "离线演示，内容完全虚构；不代表真实平台读取成功。"
+    }
+  ],
+  "comments": [
+    {
+      "author": "虚构用户",
+      "text": "这是一条演示评论，不来自真实平台。"
+    }
+  ],
+  "notice": "完全虚构的离线演示，不连接浏览器，不证明真实平台可读。"
+}

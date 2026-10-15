@@ -37,6 +37,21 @@ class SetupTests(unittest.TestCase):
         self.assertIsNone(bootstrap.discover_profile(['a','b'],None,[]))
         self.assertEqual(bootstrap.discover_profile(['known'],'known'),'known')
 
+    def test_selected_platform_acceptance_requires_fresh_bodies(self):
+        from unittest.mock import Mock
+        engine=Mock();engine.submit.side_effect=[{'task_id':'search'},{'task_id':'read'}]
+        engine.wait.side_effect=[{'status':'success','result':{'items':[{'platform':'weixin','content_ref':'source'}],'coverage':{'returned_by_platform':{'weixin':1}}}}, {'status':'success','result':{'content':{'body_chars':1181}}}]
+        result=bootstrap.verify_reading(engine,['weixin'],'主题')
+        self.assertTrue(result['accepted']);self.assertEqual(result['requested_platforms'],['weixin'])
+        self.assertEqual(engine.submit.call_args_list[1].args,('read',{'content_ref':'source','refresh':True}))
+
+    def test_partial_platform_or_body_is_not_accepted(self):
+        from unittest.mock import Mock
+        engine=Mock();engine.submit.return_value={'task_id':'job'}
+        engine.wait.side_effect=[{'status':'partial','result':{'items':[{'platform':'weixin','content_ref':'source'}]}}, {'status':'partial','result':{'content':{'body_chars':100},'errors':[{'status':'content_unstable'}]}}]
+        result=bootstrap.verify_reading(engine,['weixin','zhihu'],'主题')
+        self.assertFalse(result['accepted']);self.assertEqual(result['reads'][0]['errors'][0]['status'],'content_unstable')
+
     def test_config_backup_and_no_rewrite(self):
         old=bootstrap.STATE
         with tempfile.TemporaryDirectory() as td:
