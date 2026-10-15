@@ -91,7 +91,7 @@ def wait_navigation(runner, session, tab, cancel, seconds=25):
     while time.monotonic() < deadline:
         if cancel and cancel.is_set():
             raise ReadError("cancelled", "任务已取消。")
-        code, out, err = runner.run(["browser", session, "tab", "list"], cancel, min(5, max(.1, deadline-time.monotonic())))
+        code, out, err = runner.run(["browser", session, "tab", "list"], cancel, max(.1, deadline-time.monotonic()))
         if code:
             raise classify_error(out+err, code)
         try:
@@ -119,11 +119,14 @@ def wait_selector(runner, session, tab, selector, cancel, seconds=12):
         login:/登录后查看|请登录后/.test(text),
         rate_limited:/访问过于频繁|请求过于频繁/.test(text)};
     })()""" % json.dumps(selector)
+    # The bridge itself allows 8 seconds to connect. A separate 6-second
+    # subprocess cap used to kill valid first probes before that deadline.
+    # Share the remaining host budget; synchronous probes normally return fast.
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
         if cancel and cancel.is_set():
             raise ReadError("cancelled", "任务已取消。")
-        code, out, err = runner.run(["browser", session, "eval", script, "--tab", tab], cancel, min(6, max(.1, deadline-time.monotonic())))
+        code, out, err = runner.run(["browser", session, "eval", script, "--tab", tab], cancel, max(.1, deadline-time.monotonic()))
         if code:
             # A normal page transition may destroy the old execution context.
             # No navigation/click is replayed; unknown outcomes are not retried.

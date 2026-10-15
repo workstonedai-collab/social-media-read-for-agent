@@ -13,6 +13,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / ".state"
+from social_read.runtime import command_env
+os.environ["PATH"] = command_env()["PATH"]
 SERVER = "social-media-read-for-agent"
 EXTENSION = "https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk"
 TOOLS = ["list_platforms", "connection_status", "search", "read_content", "read_comments", "get_task", "cancel_task"]
@@ -167,7 +169,7 @@ def main():
     p.add_argument('--platforms',nargs='+',choices=list(LOGIN),help='仅验收用户需要的平台；默认四个平台')
     a=p.parse_args();STATE.mkdir(exist_ok=True,mode=0o700)
     local=STATE/'opencli/node_modules/.bin/opencli'
-    executable=shutil.which('opencli') or (str(local) if local.exists() else None)
+    executable=str(local) if local.exists() else shutil.which('opencli')
     if not executable and (Path.home()/'.local/bin/opencli').exists():executable=str(Path.home()/'.local/bin/opencli')
     if a.bridge=='project':executable=str(local) if local.exists() else None
     result={'project':SERVER,'state_dir':str(STATE),'changes':[],'next_actions':[]}
@@ -195,7 +197,8 @@ def main():
         if not marker.exists():private_write(marker,json.dumps({'before':profiles}))
         command(['/usr/bin/open','-na','Google Chrome','--args','--user-data-dir='+str(STATE/'chrome-profile'),'--no-first-run',EXTENSION])
         result['changes'].append('opened_owned_chrome_profile')
-    clients=a.clients or [name for name,location in [('codex',Path.home()/'.codex'),('hermes',Path.home()/'.hermes')] if location.is_dir()]
+    clients=a.clients or [name for name,location in [('codex',Path(os.environ.get('CODEX_HOME',str(Path.home()/'.codex')))),('hermes',Path(os.environ.get('HERMES_HOME',str(Path.home()/'.hermes'))))] if location.is_dir()]
+    if a.apply and not clients:clients=['generic']
     result['clients']=clients
     result['configuration_targets']={}
     if a.apply:

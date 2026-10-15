@@ -4,12 +4,12 @@
 
 ## 安装与连接
 
-1. 阅读 README、docs/installation.md 和 THIRD_PARTY_NOTICES。先运行 `python3 bootstrap.py` 获取 JSON 检查结果。Python 核心要求 3.9+；推荐使用现有 Python 3.10–3.13，以便安装可选 RapidOCR。若缺 Python 或 Node 20.18.1+，用本机已有包管理器安装；遵守宿主 Agent 的权限和安装规则，不运行陌生一键脚本。
-2. 判断当前 Agent：Codex 选 `--clients codex`；Hermes 选 `--clients hermes`；用户要求两者则两者都选。运行 `python3 bootstrap.py --apply --clients codex hermes`，自动安装缺失的项目本地 OpenCLI、合并配置并保留备份。不要覆盖其他 MCP 或 Agent 设置。只有一个客户端时传对应选项。其他客户端运行 `--clients generic` 导出标准stdio配置，再按客户端规则合并；不要把导出说成已经修改客户端。配置遵循 CODEX_HOME/HERMES_HOME。
-3. 推荐运行同一命令加 `--install-ocr`，在项目私有虚拟环境安装 RapidOCR；不要改 Agent 自己的依赖。缺 3.10–3.13 时由 Agent 先解决；OCR 安装失败不影响其余读取。用户不接受额外下载时保留 macOS Vision。
-4. 若返回 `dedicated_browser_extension`，先向用户解释官方扩展能访问网站、页面调试及 Cookie，专用资料用于隔离日常浏览。用户同意后运行 `python3 bootstrap.py --open-browser` 打开项目自己的 Chrome 资料与官方商店页面。由 Agent 在宿主允许的浏览器操作中协助安装；浏览器授权、平台验证码由用户正常完成，不通过修改策略或注入 Cookie 绕过。重跑 `--apply`，会识别新出现的专用连接，用户不必找 context ID。出现多个新连接时让用户选一次专用窗口，不擅自选日常资料。
-5. 如果已有已保存的专用连接，直接复用，不新建资料，不反复安装扩展。打开需要登录的平台：`python3 bootstrap.py --open-login xiaohongshu`（也支持 weibo、zhihu、weixin）。请用户在浏览器页面扫码或输入账号密码。不要让用户把密码、Cookie、验证码发到对话，不把它们写进配置和日志。微信公众号的读取使用公开文章，不需要公众号后台账号。
-6. 用户完成登录后，运行 `python3 bootstrap.py --verify`。默认实际搜索并刷新阅读四平台各一条，只有全部取得正文才返回 `verification.accepted=true`。用户只需要部分平台时用 `--verify --platforms xiaohongshu`（可列多个）；成功只代表 requested_platforms，不要求用户一次登录全部账号。按 setup_progress 解释当前步骤，不让用户处理内部编号。账号身份检查通过不代表搜索会话可用。失败应说明具体平台和原因；验证码、限流与拒绝访问必须停止，不能通过换账号、伪造指纹或高频重试绕过。
+1. 阅读 README、docs/installation.md 和 THIRD_PARTY_NOTICES。优先用 `/bin/bash install.sh --clients codex --install-ocr`（按实际客户端换hermes或generic），自动取得项目独立Python/Node/OpenCLI和可选OCR，不要求用户先装Python/Node/Homebrew/uv。没有Git可下载源码压缩包。不要运行未经查看的远程一键脚本。
+2. 只配置当前需要的客户端，用户明确两边都需要才选codex hermes；遵循CODEX_HOME/HERMES_HOME，先备份合并，保留其他MCP与设置。generic只是导出，由Agent合并，不能冒称已经配置另一客户端。安装器首次需要网络，保留完整校验与错误状态，不跳过SHA256/TLS。
+3. 所有后续操作优先用 `/bin/bash run.sh setup ...` 或 `/bin/bash run.sh search/read/comments ...`，无需系统Python/Node。已有合适运行环境的开发者仍可使用bootstrap.py。OCR独立安装预热，不改Agent依赖。Chrome仍需存在，缺少时按宿主权限处理。安装锁或运行时冲突由Agent检查，不让用户盲删或手改文件。
+4. 若返回 `dedicated_browser_extension`，先向用户解释官方扩展能访问网站、页面调试及 Cookie，专用资料用于隔离日常浏览。用户同意后运行 `/bin/bash run.sh setup --open-browser` 打开项目自己的 Chrome 资料与官方商店页面。由 Agent 在宿主允许的浏览器操作中协助安装；浏览器授权、平台验证码由用户正常完成，不通过修改策略或注入 Cookie 绕过。重跑 `--apply`，会识别新出现的专用连接，用户不必找 context ID。出现多个新连接时让用户选一次专用窗口，不擅自选日常资料。
+5. 如果已有已保存的专用连接，直接复用，不新建资料，不反复安装扩展。打开需要登录的平台：`/bin/bash run.sh setup --open-login xiaohongshu`（也支持 weibo、zhihu、weixin）。请用户在浏览器页面扫码或输入账号密码。不要让用户把密码、Cookie、验证码发到对话，不把它们写进配置和日志。微信公众号的读取使用公开文章，不需要公众号后台账号。
+6. 用户完成登录后，运行 `/bin/bash run.sh setup --verify`。默认实际搜索并刷新阅读四平台各一条，只有全部取得正文才返回 `verification.accepted=true`。用户只需要部分平台时用 `--verify --platforms xiaohongshu`（可列多个）；成功只代表 requested_platforms，不要求用户一次登录全部账号。按 setup_progress 解释当前步骤，不让用户处理内部编号。账号身份检查通过不代表搜索会话可用。失败应说明具体平台和原因；验证码、限流与拒绝访问必须停止，不能通过换账号、伪造指纹或高频重试绕过。
 7. 最后必须用当前 Agent 的 MCP 工具调用 `list_platforms`、`search`、`get_task`、`read_content` 验收，核对实际版本、`runtime.loaded_revision` 与磁盘版本。命令行验收不能替代当前对话验收。新装服务的首次发现由客户端控制：使用宿主提供的刷新功能；没有刷新能力时，可在当前对话建立新的标准stdio连接，或先用同版CLI完成任务，用户无需为了继续读取重开对话或重复登录；必须说明旧MCP注册仍未更新。不要强杀已运行的 MCP 进程。旧连接到稳定入口也是一次迁移。核对实际工具返回版本，不能仅因改了配置就宣称已更新。
 
 ## 使用与更新

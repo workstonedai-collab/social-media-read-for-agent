@@ -228,6 +228,14 @@ class BodyReadinessTests(unittest.TestCase):
         with self.assertRaises(ReadError):wait_selector(runner,"owned","tab","#js_content",threading.Event(),2)
         self.assertEqual(runner.run.call_count,1)
 
+    def test_first_probe_keeps_bridge_connection_budget_within_total_deadline(self):
+        from social_read.browser_page import wait_selector
+        from unittest.mock import Mock
+        runner=Mock();runner.run.return_value=(0,'{"ready":true}',"")
+        wait_selector(runner,"owned","tab","section",threading.Event(),20)
+        budget=runner.run.call_args.args[2]
+        self.assertGreater(budget,8);self.assertLessEqual(budget,20)
+
     def test_ready_article_mentioning_verification_is_readable(self):
         from social_read.browser_page import wait_selector
         from unittest.mock import Mock

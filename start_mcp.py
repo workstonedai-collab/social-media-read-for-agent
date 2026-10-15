@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-os.environ["PATH"] = os.pathsep.join([str(ROOT / ".state/opencli/node_modules/.bin"), str(Path.home() / ".local/bin"), str(Path.home() / ".hermes/node/bin"), os.environ.get("PATH", "/usr/bin:/bin")])
+os.environ["PATH"] = os.pathsep.join([str(ROOT / ".state/runtime/node/bin"), str(ROOT / ".state/opencli/node_modules/.bin"), str(Path.home() / ".local/bin"), str(Path.home() / ".hermes/node/bin"), os.environ.get("PATH", "/usr/bin:/bin")])
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:

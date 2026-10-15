@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,8 +32,12 @@ jobs:
         run: node --check social_read/static/app.js
       - name: Fresh dependency installation and Agent configuration
         run: python scripts/verify_clean_install.py --output .state/clean-install.json
+      - name: Install without Python, Node or npm on the child PATH
+        run: python scripts/verify_clean_install.py --portable --output .state/portable-install.json
       - uses: actions/upload-artifact@v4
         with:
           name: clean-install-${{ matrix.os }}
-          path: .state/clean-install.json
+          path: |
+            .state/clean-install.json
+            .state/portable-install.json
           if-no-files-found: error

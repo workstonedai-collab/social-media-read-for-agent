@@ -10,13 +10,13 @@ import tempfile
 import time
 
 
-def run(args,cwd,timeout=300):
-    result=subprocess.run([str(a) for a in args],cwd=cwd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout)
+def run(args,cwd,timeout=300,env=None):
+    result=subprocess.run([str(a) for a in args],cwd=cwd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout,env=env)
     if result.returncode:raise RuntimeError(Path(str(args[0])).name+' failed: '+result.stderr[-800:]+result.stdout[-800:])
     return result.stdout
 
 
-def accept(root,work,install_ocr=False):
+def accept(root,work,install_ocr=False,portable=False):
     source=work/'fresh source with spaces';source.mkdir()
     paths=run(['git','ls-files','--cached','--others','--exclude-standard','-z'],root).split('\0')
     count=0
@@ -27,20 +27,33 @@ def accept(root,work,install_ocr=False):
         if path.is_file():
             dest=source/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest);count+=1
     assert not (source/'.state').exists()
-    venv=work/'empty-python';run([sys.executable,'-m','venv',venv],work)
-    python=venv/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
+    child_env=None
+    venv=work/'empty-python'
+    if not portable:
+        run([sys.executable,'-m','venv',venv],work)
+        python=venv/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
+    else:
+        tools=work/'base commands';tools.mkdir()
+        for name in ['uname','curl','tar','awk','mktemp','mkdir','chmod','cat','rm','mv','rmdir','shasum','sha256sum','gzip','sh','bash','env','ps','which','head','tail','sort','sed','cut','tr','wc','dirname']:
+            executable=shutil.which(name)
+            if executable:(tools/name).symlink_to(executable)
+        child_env=dict(os.environ,PATH=str(tools))
+        assert shutil.which('python3',path=child_env['PATH']) is None
+        assert shutil.which('node',path=child_env['PATH']) is None
+        assert shutil.which('npm',path=child_env['PATH']) is None
+        python=source/'.state/runtime/python/bin/python3'
     config=work/'isolated-client-configs';(config/'.codex').mkdir(parents=True);(config/'.hermes').mkdir()
     (config/'.codex/config.toml').write_text('model = "sentinel-preserved"\n[mcp_servers.existing]\ncommand = "unchanged"\n')
     (config/'.hermes/config.yaml').write_text('model:\n  default: sentinel-preserved\nmcp_servers:\n  existing:\n    command: unchanged\nplatform_toolsets:\n  cli: [existing]\n')
-    args=[python,source/'bootstrap.py','--apply','--bridge','project','--config-home',config,'--clients','codex','hermes','generic']
+    args=(['/bin/bash',source/'install.sh'] if portable else [python,source/'bootstrap.py','--apply','--bridge','project'])+['--config-home',config,'--clients','codex','hermes','generic']
     if install_ocr:args+=['--install-ocr']
-    first=json.loads(run(args,source,900))
+    first=json.loads(run(args,source,1800,env=child_env))
     assert first['opencli']=='1.8.6'
     assert first['selected_profile'] is None and first['status']=='needs_user_action'
     assert any(a['action']=='dedicated_browser_extension' for a in first['next_actions'])
     assert not (source/'.state/browser-profile.txt').exists()
     assert (source/'.state/opencli/node_modules/.bin/opencli').is_file()
-    repeat=json.loads(run(args,source,900))
+    repeat=json.loads(run(args,source,1800,env=child_env))
     # An already-present optional environment is not a new installation.
     assert not repeat['changes'],repeat['changes']
     assert 'model = "sentinel-preserved"' in (config/'.codex/config.toml').read_text()
@@ -49,7 +62,7 @@ def accept(root,work,install_ocr=False):
     for path in [config/'.codex/config.toml',config/'.hermes/config.yaml',source/'.state/mcp-config.json']:
         if os.name!='nt':assert path.stat().st_mode&0o777==0o600
     generic=json.loads((source/'.state/mcp-config.json').read_text())['mcpServers']['social-media-read-for-agent']
-    proc=subprocess.Popen([generic['command'],*generic['args'],'--mode','demo','mcp'],cwd=work,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    proc=subprocess.Popen([generic['command'],*generic['args'],'--mode','demo','mcp'],cwd=work,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=child_env)
     serial=0
     def rpc(method,params=None,notification=False):
         nonlocal serial
@@ -86,16 +99,16 @@ def accept(root,work,install_ocr=False):
         data=json.loads(run([runtime,source/'social_read/rapidocr_worker.py',source/'.state/blank.png'],source,90))
         assert data['status']=='no_text_detected'
         ocr={'installed':True,'warmup':json.loads((source/'.state/rapidocr-warmup.json').read_text())['status'],'blank_image_status':data['status']}
-    return {'status':'passed','version':platforms['version'],'source_files':count,'fresh_source':True,'fresh_python_venv':True,'existing_state_copied':False,'account_credentials_copied':False,'project_local_opencli':first['opencli'],'client_configs':['codex','hermes','generic'],'existing_config_values_preserved':True,'second_run_changes':repeat['changes'],'unowned_browser_adopted':False,'stopped_for':'official extension authorization and normal platform login','mcp_transport':'stable-stdio-gateway','mcp_tools':7,'demo_search_platforms':4,'demo_reads':4,'demo_comments':'success','ocr':ocr,'live_logged_in_read_tested':False,'os':sys.platform}
+    return {'status':'passed','version':platforms['version'],'source_files':count,'fresh_source':True,'fresh_python_venv':not portable,'downloaded_project_python':portable,'initial_path_has_python_node_npm':False if portable else None,'existing_state_copied':False,'account_credentials_copied':False,'project_local_opencli':first['opencli'],'client_configs':['codex','hermes','generic'],'existing_config_values_preserved':True,'second_run_changes':repeat['changes'],'unowned_browser_adopted':False,'stopped_for':'official extension authorization and normal platform login','mcp_transport':'stable-stdio-gateway','mcp_tools':7,'demo_search_platforms':4,'demo_reads':4,'demo_comments':'success','ocr':ocr,'live_logged_in_read_tested':False,'os':sys.platform}
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path);parser.add_argument('--work-dir',type=Path);parser.add_argument('--install-ocr',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path);parser.add_argument('--work-dir',type=Path);parser.add_argument('--install-ocr',action='store_true');parser.add_argument('--portable',action='store_true');args=parser.parse_args()
     root=Path(__file__).resolve().parent.parent
     if args.work_dir:
-        args.work_dir.mkdir(parents=True,exist_ok=True);result=accept(root,args.work_dir,args.install_ocr)
+        args.work_dir.mkdir(parents=True,exist_ok=True);result=accept(root,args.work_dir,args.install_ocr,args.portable)
     else:
-        with tempfile.TemporaryDirectory(prefix='social-read-clean-') as tmp:result=accept(root,Path(tmp),args.install_ocr)
+        with tempfile.TemporaryDirectory(prefix='social-read-clean-') as tmp:result=accept(root,Path(tmp),args.install_ocr,args.portable)
     if args.output:args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(result,ensure_ascii=False,indent=2))
 

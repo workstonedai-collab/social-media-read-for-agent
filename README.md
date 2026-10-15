@@ -10,7 +10,7 @@
 
 项目标识：`social-media-read-for-agent`。为已有 Agent 提供七个只读 MCP 工具，也可以通过命令行或本地网页使用。本项目无需额外的模型 API 密钥；你的 Agent 自身仍按原来的方式运行。
 
-当前是 **0.1.0a7 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+当前是 **0.1.0a8 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
 
 ## 适合用它做什么
 
@@ -65,13 +65,13 @@ flowchart LR
 
 ## 先看一个不需要账号的例子
 
-想先了解输出、不连接浏览器时，可让 Agent 在克隆的仓库中执行：
+想先了解输出、不连接浏览器时，可查看下方示例和演示截图。运行时已就绪（或本机已有Python）时，可让 Agent 执行：
 
 ```sh
-python3 scripts/demo_research.py
+/bin/bash run.sh demo
 ```
 
-不安装第三方包、不联网、不登录，也不需要密钥。它通过项目真实的任务引擎，以**完全虚构的演示数据**完成四平台搜索、四次阅读和一次有限评论，并输出 JSON；这不能证明真实平台已连接。
+运行时就绪后，不安装额外Python包、不联网、不登录，也不需要密钥。已有Python时也可直接运行 `python3 scripts/demo_research.py`。它通过项目真实的任务引擎，以**完全虚构的演示数据**完成四平台搜索、四次阅读和一次有限评论，并输出 JSON；这不能证明真实平台已连接。
 
 ```json
 {
@@ -100,23 +100,25 @@ python3 scripts/demo_research.py
 
 主要支持 **macOS + Google Chrome** 的自动浏览器设置；核心工具、依赖安装与离线协议检查也覆盖 Linux。Windows 的自动浏览器设置尚未验收。
 
-准备 Python 3.9+、Node 20.18.1+、Git 和 Chrome；本机图片 OCR 推荐 Python 3.10–3.13。缺少运行环境时由 Agent 使用已有包管理器安装，遵守宿主权限。然后由 Agent 执行：
+**不需要预先安装 Python、Node、npm、uv 或 Docker。** 取得仓库后，由 Agent 执行：
 
 ```sh
-git clone https://github.com/workstonedai-collab/social-media-read-for-agent.git
-cd social-media-read-for-agent
-python3 bootstrap.py
-python3 bootstrap.py --apply --clients codex --install-ocr
+/bin/bash install.sh --clients codex --install-ocr
 ```
 
-Hermes 将 `--clients codex` 换为 `--clients hermes`；需要两边时写 `--clients codex hermes`。其他 Agent 使用 `--clients generic` 生成标准配置，再由 Agent 合并到自己的客户端。
+Hermes 换成 `--clients hermes`；明确两边都需要时使用 `--clients codex hermes`。其他本地 Agent 使用 `--clients generic` 生成配置，再由 Agent 合并到自己的客户端。
 
-- OpenCLI 缺失时安装在项目 `.state/opencli/`，不改全局组件。
-- RapidOCR 使用独立环境，模型第一次加载的预热在安装时完成；不改 Agent 自己的依赖。
-- 客户端配置先备份，再合并本项目条目，保留其他设置。重复设置没有变化时不重写文件。
-- 从已保存的专用连接或刚创建的专用浏览器自动识别资料；不会擅自使用唯一但未确认的日常资料。
-- 没有连接时，由 Agent 执行 `python3 bootstrap.py --open-browser`，在项目独立 Chrome 资料里安装 [OpenCLI 官方扩展](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk)。扩展能访问网站、页面调试和 Cookie，需用户确认授权；本项目的七工具读取范围不能缩小扩展自身权限。
-- 平台登录在浏览器内完成，密码、验证码和 Cookie 不交给对话或写入项目配置。
+macOS 用户也可以下载项目压缩包、解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
+
+- 安装器按系统/处理器下载固定版本的独立 Python、Node，校验 SHA256 后才执行，保存在项目 `.state/runtime/`，不改系统 Python/Node、shell 设置或 Agent 自己的依赖。
+- 首次需要联网下载运行时和组件；后续重复安装复用它们。不是把运行时删掉，而是免去用户单独安装和管理；运行时解压约260 MB，OpenCLI 与可选 OCR 另需空间。
+- OpenCLI 和 RapidOCR 使用项目独立环境，保留其他客户端设置并先备份；重复设置没有变化时不重写配置。
+- 已保存的专用浏览器连接直接复用。没有连接时，由 Agent 执行 `/bin/bash run.sh setup --open-browser`，在项目独立 Chrome 资料里安装 [OpenCLI 官方扩展](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk)。扩展能访问网站、页面调试和 Cookie，需要用户正常确认授权。
+- 平台密码、验证码和 Cookie 不交给对话；用户直接在平台页面登录。安装器不会自动授权扩展或跳过平台验证。
+
+独立运行时支持 macOS Apple Silicon/Intel 与 Linux glibc x64/arm64；自动启动专用 Chrome 仍主要覆盖 macOS。Linux 桌面需由 Agent 引导浏览器连接；Windows 一键入口尚未提供。电脑需要已有 Chrome 和系统基础命令（bash、curl、tar、SHA256）；缺 Chrome 时由 Agent 按宿主权限处理。
+
+已有合适 Python/Node 的开发者仍可使用 `python3 bootstrap.py --apply --clients codex --install-ocr`。完整说明见 [安装与排障](docs/installation.md)。
 
 ## 日常使用与连接更新
 
@@ -150,9 +152,9 @@ MCP 客户端配置由安装器生成，入口是绝对路径 `start_mcp.py`，�
 宿主暂不能刷新时，Agent 可以立即使用同一版 CLI：
 
 ```sh
-python3 -m social_read search "个人知识管理工具" --limit 1
-python3 -m social_read read --content-ref CONTENT_REF
-python3 -m social_read comments --content-ref CONTENT_REF --limit 2 --replies-limit 1
+/bin/bash run.sh search "个人知识管理工具" --limit 1
+/bin/bash run.sh read --content-ref CONTENT_REF
+/bin/bash run.sh comments --content-ref CONTENT_REF --limit 2 --replies-limit 1
 ```
 
 这是真实的 CLI 备用路径，不应声称已替换客户端旧 MCP 注册。Hermes 显式工具筛选用原始名称：`-t social-media-read-for-agent`。
@@ -169,7 +171,7 @@ python3 -m social_read comments --content-ref CONTENT_REF --limit 2 --replies-li
 
 ## 数据、权限和许可证
 
-浏览器资料、临时访问参数、阅读历史、OCR缓存、模型与独立环境保存在忽略的 `.state/`，目录0700、文件0600；没有额外磁盘加密。本地网页仅监听127.0.0.1。切换社交账号应使用另一专用资料；同一资料内换账号不会自动清空缓存。
+新建的项目浏览器资料、临时访问参数、阅读历史、OCR缓存、模型与独立环境保存在忽略的 `.state/`（复用的已有专用 Chrome 资料仍由 Chrome 管理），目录0700、文件0600；没有额外磁盘加密。本地网页仅监听127.0.0.1。切换社交账号应使用另一专用资料；同一资料内换账号不会自动清空缓存。
 
 只暴露固定读取动作，不接受任意浏览器脚本、发布、点赞或关注。验证码、频率限制和拒绝访问会停止，不轮换账号或代理。网页、评论及OCR均是不可信资料，不能成为Agent执行指令。访问仍会产生平台浏览痕迹，不承诺零账号风险。
 
@@ -184,6 +186,6 @@ python3 scripts/verify_clean_install.py --output .state/clean-install.json
 
 第二条在新目录和独立Python环境中安装项目本地OpenCLI，生成隔离的Codex/Hermes/通用配置，检查重复安装、配置保留与七工具协议；不复制账号或现有项目状态，不会使用你的日常浏览器作为已授权资料。加 `--install-ocr` 可验收可选本地OCR。GitHub Actions在Linux、macOS运行账号无关检查。
 
-[项目定位与后续改进](docs/project-positioning.md) · [贡献与反馈](CONTRIBUTING.md) · [真实验收与失败记录](docs/validation.md) · [安装与排障](docs/installation.md) · [架构](docs/architecture.md) · [上游复用](docs/upstream.md)
+[贡献与反馈](CONTRIBUTING.md) · [真实验收与失败记录](docs/validation.md) · [安装与排障](docs/installation.md) · [架构](docs/architecture.md) · [上游复用](docs/upstream.md)
 
 提交问题时，请附平台、版本、实际失败状态及复现步骤，删除账号身份、Cookie、访问令牌和带签名的私有链接。七日稳定性、Windows浏览器设置、视频转写和更多媒体内容仍未完成。

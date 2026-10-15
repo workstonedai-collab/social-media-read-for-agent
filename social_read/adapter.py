@@ -33,7 +33,8 @@ def parse_json(text):
 class Runner:
     def __init__(self, workdir, executable=None, profile=None, timeout=60):
         self.workdir = Path(workdir)
-        self.executable = executable or shutil.which("opencli") or (str(Path(__file__).resolve().parent.parent / ".state/opencli/node_modules/.bin/opencli") if (Path(__file__).resolve().parent.parent / ".state/opencli/node_modules/.bin/opencli").is_file() else None)
+        from .runtime import opencli_executable
+        self.executable = executable or opencli_executable()
         self.profile = profile
         self.timeout = timeout
         if profile and (not re.fullmatch(r"[\w .-]{1,80}", profile) or profile.startswith("-")):
@@ -42,7 +43,8 @@ class Runner:
     def run(self, args, cancel=None, timeout=None):
         if not self.executable:
             raise ReadError("adapter_missing", "请先安装 OpenCLI，再连接浏览器扩展。")
-        env = os.environ.copy()
+        from .runtime import command_env
+        env = command_env()
         env["OPENCLI_BROWSER_CONNECT_TIMEOUT"] = "8"
         env["OPENCLI_BROWSER_COMMAND_TIMEOUT"] = str(self.timeout)
         if self.profile:

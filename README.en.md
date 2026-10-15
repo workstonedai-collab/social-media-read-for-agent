@@ -8,7 +8,7 @@ Give this repository to your local agent and follow its prompts to authorize the
 
 [![Install checks](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml/badge.svg)](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml)
 
-Package/repository identifier: `social-media-read-for-agent`. **0.1.0a7, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
+Package/repository identifier: `social-media-read-for-agent`. **0.1.0a8, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
 
 ## What it helps with
 
@@ -56,10 +56,10 @@ Start with only the platforms you need, then connect others later. Signing in to
 After cloning the repository:
 
 ```sh
-python3 scripts/demo_research.py
+/bin/bash run.sh demo
 ```
 
-No third-party Python packages, network, browser, account, or API key are needed. The real task engine performs four searches, four reads, and one comment read using **entirely fictional data**. This demonstrates the workflow and output format, not live platform access.
+Once the runtime is available, no additional Python packages, network, browser, account, or API key are needed. Developers with Python can also run `python3 scripts/demo_research.py` directly. The real task engine performs four searches, four reads, and one comment read using **entirely fictional data**. This demonstrates the workflow and output format, not live platform access.
 
 ```json
 {
@@ -88,20 +88,19 @@ Successful platforms remain available when another fails. Empty responses are no
 
 Automatic browser setup primarily targets **macOS + Google Chrome**. Core behavior and isolated dependency/configuration checks also run on Linux. Windows browser setup has not been accepted.
 
-Prerequisites: Python 3.9+, Node 20.18.1+, Git, and Chrome. Python 3.10–3.13 is recommended for optional local OCR. The agent should use existing system package managers to resolve missing prerequisites, subject to host permissions.
+**No preinstalled Python, Node, npm, uv, or Docker is required.** After obtaining this repository, the agent runs:
 
 ```sh
-git clone https://github.com/workstonedai-collab/social-media-read-for-agent.git
-cd social-media-read-for-agent
-python3 bootstrap.py
-python3 bootstrap.py --apply --clients codex --install-ocr
+/bin/bash install.sh --clients codex --install-ocr
 ```
 
-Use `--clients hermes` for Hermes or `--clients codex hermes` for both. `--clients generic` exports standard MCP stdio configuration for another local agent to merge itself. See [step-by-step installation](docs/installation.en.md).
+Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also unzip a source download and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
 
-Dependencies and OCR models live in project-local `.state/` environments, separate from the agent. Existing client settings are backed up and preserved; an unchanged second setup does not rewrite configuration. Saved dedicated browser connections are reused. A daily browser profile is not silently adopted.
+The installer downloads pinned standalone Python and Node distributions from their upstream release sites, verifies committed SHA256 checksums before execution, and keeps them in `.state/runtime/`. It does not modify system runtimes, shell settings, or the agent's dependencies. First setup needs network access; repeat setup reuses verified installations. Extracted runtimes use approximately 260 MB, with additional space for OpenCLI and optional OCR. This removes manual environment preparation, not the underlying runtimes.
 
-If a new browser is needed, the agent runs `python3 bootstrap.py --open-browser` and guides installation of the [official OpenCLI Chrome extension](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk). The extension can access websites, debugging, and cookies; explicit user authorization is required. The project's narrower read-only tools cannot narrow the extension's own permissions.
+OpenCLI and OCR remain project-local. Existing client settings are backed up and preserved. Reuse a saved dedicated browser; do not silently adopt a daily profile. To open a new dedicated Chrome, the agent uses `/bin/bash run.sh setup --open-browser` and guides installation of the [official OpenCLI extension](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk). Its website/debugging/cookie permissions require normal user authorization. Passwords and verification codes go only into platform pages.
+
+Runtime downloads cover macOS Apple Silicon/Intel and Linux glibc x64/arm64. Automatic dedicated-browser launch primarily targets macOS; Linux desktop browser connection needs agent guidance. Windows one-click setup is not provided. Chrome and basic system tools (bash, curl, tar, SHA256) are still needed. Developers with suitable Python/Node may keep using `bootstrap.py` directly. See [installation and troubleshooting](docs/installation.en.md).
 
 ## Daily tools and updates
 
@@ -122,9 +121,9 @@ Generated MCP configuration uses absolute paths to Python and `start_mcp.py`, in
 CLI fallback:
 
 ```sh
-python3 -m social_read search "个人知识管理工具" --limit 1
-python3 -m social_read read --content-ref CONTENT_REF
-python3 -m social_read comments --content-ref CONTENT_REF --limit 2 --replies-limit 1
+/bin/bash run.sh search "个人知识管理工具" --limit 1
+/bin/bash run.sh read --content-ref CONTENT_REF
+/bin/bash run.sh comments --content-ref CONTENT_REF --limit 2 --replies-limit 1
 ```
 
 For Hermes tool selection, use `-t social-media-read-for-agent`.
@@ -135,7 +134,7 @@ Auto mode prefers installed RapidOCR, otherwise macOS Vision. Choose explicitly 
 
 Limits: 18 images, 12 MB and 60M pixels each; 45 seconds per RapidOCR image or 25 seconds for Vision, with a 150-second batch budget. Incomplete positions remain explicit. Body and OCR checkpoints expire after 30 minutes. WeChat search records link to resolved originals, enabling repeat-read caching without merging articles by title. Full publication dates have tool-calculated age; missing dates are not inferred.
 
-Private browser state, access parameters, history, OCR caches, models, and environments remain in ignored `.state/` (directory 0700, files 0600; no additional disk encryption). The dashboard listens on 127.0.0.1. Switching social accounts should use another dedicated profile; switching within a profile does not automatically clear caches.
+New project browser profiles, access parameters, history, OCR caches, models, and environments remain in ignored `.state/` (an existing dedicated Chrome profile stays in Chrome-managed storage) (directory 0700, files 0600; no additional disk encryption). The dashboard listens on 127.0.0.1. Switching social accounts should use another dedicated profile; switching within a profile does not automatically clear caches.
 
 ## Safety, reuse, and contributing
 
@@ -150,6 +149,6 @@ python3 scripts/verify_clean_install.py --output .state/clean-install.json
 
 Clean-install verification uses fresh source/Python and isolated client configuration, without copying accounts or adopting an unconfirmed browser. CI does not sign in to social accounts. Add `--install-ocr` for optional local OCR acceptance.
 
-[Positioning and usability roadmap](docs/project-positioning.md) · [Contributing](CONTRIBUTING.md) · [Validation and failures](docs/validation.md) · [Architecture](docs/architecture.md) · [Upstream reuse](docs/upstream.md)
+[Contributing](CONTRIBUTING.md) · [Validation and failures](docs/validation.md) · [Architecture](docs/architecture.md) · [Upstream reuse](docs/upstream.md)
 
 Seven-day stability, new-machine signed-in onboarding, Windows browser setup, video transcription, and more platforms remain unverified or incomplete. When reporting a failure, include platform, version, safe error status, and reproduction steps; remove credentials, account identity, and signed private URLs.

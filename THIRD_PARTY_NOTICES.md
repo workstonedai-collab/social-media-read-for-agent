@@ -28,3 +28,10 @@ The wechat-article-to-markdown README declares MIT, but this revision does not c
 - Optional inference dependency `onnxruntime==1.23.2` is MIT (Microsoft); Pillow 12.3.0 uses its HPND/Pillow license. Other transitive dependencies retain their own installed package notices. No third-party wheel or model binary is redistributed in this repository; `--install-ocr` installs them into a separate private environment. Do not remove their installed license notices when redistributing an environment.
 - Our `rapidocr_worker.py`, geometry-based overlap ownership and backend integration are independently written MIT project code invoking the public API. No RapidOCR or PaddleOCR implementation source was copied.
 - Test images rendered with locally installed fonts remain private. The repository includes fixture-generation source and metric summaries, not system font files or raw social-media images. Platform screenshots are not relicensed by the OCR dependencies.
+
+
+## Downloaded standalone runtimes (optional installation path)
+
+`install.sh` is original project code. It downloads fixed Python3.11.17 distributions built by [Astral python-build-standalone](https://github.com/astral-sh/python-build-standalone/releases/tag/20261013) and official [Node.js22.23.3](https://nodejs.org/dist/v22.23.3/) binaries, using committed upstream SHA256 values in runtime-lock.tsv. No runtime binary is committed or bundled in the source release. The complete unpacked distributions, including their license/third-party files, remain in private .state/runtime; do not remove those notices when redistributing an installed environment.
+
+Python-build-standalone's build-system source is MPL-2.0; none of that implementation source is copied into this project. Its downloaded Python distribution contains CPython and other libraries under their respective bundled licenses and is not relicensed MIT. Node's distribution retains its own LICENSE, including third-party components; npm and its dependencies retain their notices. The project MIT license applies to our installer/runtime-routing source, not these independent distributions.
