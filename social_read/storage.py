@@ -3,6 +3,7 @@ import os
 import sqlite3
 import threading
 import uuid
+import time
 from pathlib import Path
 
 from .model import ReadError, digest, now, public_url, scrub
@@ -24,6 +25,9 @@ class Store:
                 ref TEXT PRIMARY KEY, platform TEXT NOT NULL, target TEXT NOT NULL,
                 data TEXT NOT NULL, raw TEXT, read_at TEXT
             );
+            CREATE TABLE IF NOT EXISTS comment_cursors (
+                id TEXT PRIMARY KEY, source TEXT NOT NULL, expires REAL NOT NULL, data TEXT NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS jobs (
                 id TEXT PRIMARY KEY, action TEXT NOT NULL, status TEXT NOT NULL,
                 created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
@@ -35,11 +39,13 @@ class Store:
 
     def recover(self):
         with self.lock:
-            for r in self.db.execute("SELECT id, owner_pid FROM jobs WHERE status IN ('running','queued')").fetchall():
+            for r in self.db.execute("SELECT id, owner_pid, result FROM jobs WHERE status IN ('running','queued')").fetchall():
                 try:
                     os.kill(r["owner_pid"], 0)
                 except ProcessLookupError:
-                    self.update_job(r["id"], "interrupted", {"message": "上次运行中断。已保留记录；请重新提交读取任务。"})
+                    result = json.loads(r["result"])
+                    result["message"] = "上次运行中断，已保留部分内容；可用原内容记录继续读取。"
+                    self.update_job(r["id"], "interrupted", result)
                 except (PermissionError, TypeError):
                     pass
 
@@ -74,6 +80,27 @@ class Store:
         if not r:
             raise ReadError("invalid_input", "未找到此内容记录，请重新搜索或提供原帖链接。")
         return {"platform": r["platform"], "target": r["target"], "data": json.loads(r["data"]), "read_at": r["read_at"]}
+
+    def save_comment_cursor(self, site, target, data):
+        token = "comments_" + uuid.uuid4().hex
+        source = digest(site + "|" + public_url(target))
+        encoded = json.dumps(data, ensure_ascii=False)
+        if len(encoded) > 500000:
+            return None
+        with self.lock:
+            self.db.execute("DELETE FROM comment_cursors WHERE expires < ?", (time.time(),))
+            self.db.execute("INSERT INTO comment_cursors VALUES (?,?,?,?)", (token, source, time.time()+1800, encoded))
+            self.db.commit()
+        return token
+
+    def comment_cursor(self, token, site, target):
+        if not isinstance(token, str) or len(token) != 41 or not token.startswith("comments_"):
+            raise ReadError("invalid_input", "评论续读标识无效，请使用上次返回的 next_cursor。")
+        with self.lock:
+            row = self.db.execute("SELECT * FROM comment_cursors WHERE id=?", (token,)).fetchone()
+        if not row or row["source"] != digest(site + "|" + public_url(target)) or row["expires"] < time.time():
+            raise ReadError("cursor_expired", "评论续读标识已过期或不属于这篇内容，请重新读取第一页。")
+        return json.loads(row["data"])
 
     def create_job(self, action, request):
         job_id = "task_" + uuid.uuid4().hex

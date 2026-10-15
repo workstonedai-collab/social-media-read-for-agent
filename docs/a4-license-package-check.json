@@ -1,0 +1,10 @@
+{
+  "wheel": "social_media_read_for_agent-0.1.0a4-py3-none-any.whl",
+  "third_party_files": [
+    "social_media_read_for_agent-0.1.0a4.dist-info/licenses/LICENSE",
+    "social_media_read_for_agent-0.1.0a4.dist-info/licenses/THIRD_PARTY_NOTICES.md",
+    "social_media_read_for_agent-0.1.0a4.dist-info/licenses/licenses/xiaohongshu-mcp-Apache-2.0.txt"
+  ],
+  "result": "passed",
+  "build_requirement": "setuptools>=77.0.3; PEP 639 license-files"
+}

@@ -44,6 +44,7 @@ def main():
         if name == "read":
             p.add_argument("--refresh", action="store_true")
         else:
+            p.add_argument("--cursor")
             p.add_argument("--limit", type=int, default=10)
             p.add_argument("--replies-limit", type=int, default=3)
     args = parser.parse_args()
@@ -78,7 +79,7 @@ def main():
                 action, req = "connection", {}
             else:
                 action, req = args.command, {k: v for k, v in {"platform": args.platform, "url": args.url, "content_ref": args.content_ref}.items() if v is not None}
-                req.update({"refresh": args.refresh} if action == "read" else {"limit": args.limit, "replies_limit": args.replies_limit})
+                req.update({"refresh": args.refresh} if action == "read" else {"limit": args.limit, "replies_limit": args.replies_limit, **({"cursor": args.cursor} if args.cursor else {})})
             submitted = engine.submit(action, req)
             job = engine.wait(submitted["task_id"], 300)
             print(json.dumps(job, ensure_ascii=False, indent=2))

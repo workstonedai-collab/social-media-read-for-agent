@@ -17,7 +17,7 @@ const getOnce = async path => {
     const raw = await response.text();
     if(raw.length>1500000) return {failure:'response_budget_exceeded'};
     try {
-      const data = JSON.parse(raw.replace(/"(id|root_comment_id|reply_comment_id|reply_to_comment_id|comment_id|user_id)"\\s*:\\s*(\\d{16,})(?=[,}\\s])/g,'"$1":"$2"'));
+      const data = JSON.parse(raw.replace(/"(id|max_id|since_id|root_comment_id|reply_comment_id|reply_to_comment_id|comment_id|user_id)"\\s*:\\s*(\\d{16,})(?=[,}\\s])/g,'"$1":"$2"'));
       if(data.error || data.error_code || data.ok===0) return {failure:(data.error?.code===40362 || data.error_code===40362)?'verification_required':'adapter_error'};
       return data;
     } catch {return {failure:'adapter_incompatible'};}
@@ -96,14 +96,49 @@ def read_zhihu_answer(runner,target,cancel):
         created_at:d.created_time,comments:d.comment_count,excerpt:d.excerpt || ''};
     })()""" % json.dumps(aid)
     with ReadPage(runner,target,cancel,"zh-answer") as page:
-        data=page.evaluate(script,20);check_failure(data)
+        data=page.evaluate(script,30)
+        if isinstance(data,dict) and data.get("failure") == "access_denied":
+            # No repeat of the denied API. The normal target page is already
+            # open: use only its visible, source-bound primary answer area.
+            page.check()
+            visible_script = "(async()=>{const aid=" + json.dumps(aid) + ";" + r"""
+              if(!location.pathname.replace(/\/$/,'').endsWith('/answer/'+aid))return {failure:'source_mismatch'};
+              const candidates=[...document.querySelectorAll('.AnswerItem')];
+              const root=candidates.find(e=>e.getAttribute('data-aid')===aid || new RegExp('"itemId"\\s*:\\s*"?'+aid+'"?(?=[,}])').test(e.getAttribute('data-zop') || '')) || document.querySelector('.QuestionAnswer-content .AnswerItem');
+              if(!root)return {failure:'access_denied'};
+              const area=root.querySelector('.RichContent-inner .RichText, .RichText');
+              if(!area || !area.getClientRects().length || !(area.innerText || '').trim())return {failure:'access_denied'};
+              const expand=root.querySelector('.ContentItem-expandButton');
+              if(expand && /展开|阅读全文/.test(expand.innerText || ''))expand.click();
+              let last='',same=0;
+              for(let i=0;i<12 && same<3;i++){
+                await new Promise(r=>setTimeout(r,400));
+                const current=area.innerHTML;same=current===last?same+1:0;last=current;
+              }
+              const more=root.querySelector('.ContentItem-expandButton');
+              return {title:document.querySelector('.QuestionHeader-title')?.innerText || '',author:root.querySelector('.AuthorInfo-name')?.innerText || '',
+                content:area.innerHTML,created_at:root.querySelector('.ContentItem-time')?.innerText || '',
+                visible_fallback:true,dom_stable:same>=3,collapsed:!!more?.getClientRects().length,
+                paywall:/开通会员|购买后|付费阅读|解锁全文/.test(root.innerText || '')};
+            })()"""
+            data=page.evaluate(visible_script,12)
+        check_failure(data)
     parser=BodyParser();parser.feed(data["content"])
     stamp=data.get("created_at")
     if isinstance(stamp,(int,float)):stamp=datetime.fromtimestamp(stamp,timezone.utc).isoformat()
     item=content_item("zhihu",{**data,"content":parser.text(),"created_at":stamp,"text_format":"plain"},target,"opencli-zhihu-answer-html")
     item["media"]=[{"type":"image","order":i+1,"url":u} for i,u in enumerate(parser.images)]
-    item["coverage"]={"text_source":"answer_api_content","local_truncation":False,"all_answers":False,"images_ocr":False}
+    item["coverage"]={"text_source":"answer_visible_dom" if data.get("visible_fallback") else "answer_api_content","local_truncation":False,"all_answers":False,"images_ocr":False}
+    if data.get("visible_fallback"):
+        item["coverage"].update(api_status="access_denied",dom_stable=data.get("dom_stable"),collapsed=data.get("collapsed"),paywall_detected=data.get("paywall"))
+        item["completeness"]="visible_body"
+        item["backend"]="opencli-zhihu-answer-visible"
+        item["date_semantics"]="visible_time; may be edited time"
+        if not data.get("dom_stable") or data.get("collapsed") or data.get("paywall"):
+            item["read_errors"]=[{"status":"restricted_or_collapsed","message":"只保留页面已提供的可见回答，付费、折叠或仍在变化的部分未确认。"}]
     item["notice"]="已取得该回答接口提供的正文，保留段落及图片链接，没有本地字符截断；付费或平台不可见部分不在读取范围。"
+    if data.get("visible_fallback"):
+        item["notice"]="回答接口拒绝访问，未重试接口；从已经打开的同一回答页面取得可见正文，完整性和时间含义需对照原页。"
     return item
 
 def read_zhihu_article(runner,target,cancel):

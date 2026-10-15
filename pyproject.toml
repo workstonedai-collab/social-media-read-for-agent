@@ -1,13 +1,14 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "social-media-read-for-agent"
-version = "0.1.0a3"
+version = "0.1.0a4"
 description = "Local read-only social research tools for existing agents"
 requires-python = ">=3.9"
 dependencies = []
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/*.txt"]
 
 [project.scripts]
 social-media-read-for-agent = "social_read.cli:main"
@@ -15,3 +16,7 @@ social-read = "social_read.cli:main"
 
 [tool.setuptools.package-data]
 social_read = ["static/*", "native/*.swift"]
+
+
+[tool.setuptools.packages.find]
+include = ["social_read*"]

@@ -5,7 +5,7 @@ from .browser_page import ReadPage
 from .images import enrich_images
 from .model import ReadError, content_item, validate_url
 
-def read_note(runner, target, cancel):
+def read_note(runner, target, cancel, context=None, progress=None):
     target = validate_url("xiaohongshu", target)
     note_id = urlsplit(target).path.rstrip("/").split("/")[-1]
     script = """(() => {
@@ -23,10 +23,11 @@ def read_note(runner, target, cancel):
       const title = clean(document.querySelector('#detail-title')) || note?.title || '';
       const content = clean(document.querySelector('#detail-desc')) || note?.desc || '';
       const author = clean(document.querySelector('.author-wrapper .username, .author-container .username, .username')) || note?.user?.nickname || '';
-      let images = [];
+      let images = [], image_ids = [];
       let order = 'page_dom_unverified';
       if (Array.isArray(note?.imageList) && note.imageList.length) {
         order = 'note_state_carousel';
+        image_ids = note.imageList.map(i=>String(i.fileId || i.file_id || ''));
         images = note.imageList.map(i => i.urlDefault || i.urlPre || i.url || i.infoList?.find(x=>x.imageScene==='WB_DFT')?.url || i.infoList?.[0]?.url || '');
       } else {
         const nodes = document.querySelectorAll('.note-slider .swiper-slide img, .note-slider-img, .carousel-image img, #noteContainer .media-container img');
@@ -34,7 +35,7 @@ def read_note(runner, target, cancel):
       }
       return {note_id:id, title, content, author, images:images.slice(0,40),
         reported_count:Array.isArray(note?.imageList)?note.imageList.length:images.length,
-        image_order:order, type:note?.type || (document.querySelector('video')?'video':'unknown'),
+        image_order:order, image_ids:image_ids.slice(0,40), type:note?.type || (document.querySelector('video')?'video':'unknown'),
         publish_time:clean(document.querySelector('.bottom-container .date, .note-content .date'))};
     })()""" % json.dumps(note_id)
     with ReadPage(runner, target, cancel, "xhs") as page:
@@ -50,6 +51,6 @@ def read_note(runner, target, cancel):
         caption = data.get("content") or ""
         item = content_item("xiaohongshu", {**data, "content": caption or "（此笔记未提供可见配文）"}, target, "opencli-note-images")
         item["note_type"] = data.get("type")
-        item = enrich_images(item, data.get("images", []), runner, cancel, data.get("image_order"), data.get("reported_count"))
+        item = enrich_images(item, data.get("images", []), runner, cancel, data.get("image_order"), data.get("reported_count"), context=context, progress=progress, image_ids=data.get("image_ids"))
         item["caption"] = caption
         return item

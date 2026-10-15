@@ -5,7 +5,7 @@ import uuid
 from urllib.parse import urlencode
 
 from .model import ReadError, classify_error, content_item, keyword, validate_url
-from .weixin_public import ArticleParser
+from .weixin_public import ArticleParser, article_item
 from .browser_page import wait_selector
 
 
@@ -66,34 +66,7 @@ def read_search_article(runner, query, title, cancel):
         except ReadError:
             check_page()
             raise
-        current = validate_url("weixin", command(["get", "url", "--tab", tab]), allow_index=False)
-        html = command(["get", "html", "--selector", ".rich_media_area_primary", "--max", "1500000", "--tab", tab])
-        if len(html) >= 1500000:
-            raise ReadError("content_unavailable", "文章区域超过读取预算，未把截断内容当作完整正文。")
-        parser = ArticleParser()
-        parser.feed(html)
-        article = parser.article(html)
-        canonical_script = """(() => {
-          const link = document.querySelector('link[rel="canonical"]');
-          const meta = document.querySelector('meta[property="og:url"]');
-          if (link && link.href) return {url:link.href};
-          if (meta && meta.content) return {url:meta.content};
-          for (const s of document.querySelectorAll('script:not([src])')) {
-            const m = (s.textContent || '').match(/(?:var\\s+)?msg_link\\s*=\\s*["']([^"']+)["']/);
-            if (m) return {url:m[1]};
-          }
-          return {url:location.href};
-        })()"""
-        canonical = json.JSONDecoder().raw_decode(command(["eval", canonical_script, "--tab", tab]))[0].get("url")
-        try:
-            current = validate_url("weixin", canonical, allow_index=False)
-        except ReadError:
-            pass
-        article["url"] = current
-        item = content_item("weixin", article, current, "opencli-sogou-click")
-        item["media"] = article["media"]
-        item["notice"] = "从搜索页正常打开原文，取得文章文字与图片链接；图片内文字未识别，完整性仍需核对原文。"
-        return item
+        return extract_article(command,session,tab)
     except (ValueError, TypeError, AttributeError):
         raise ReadError("adapter_incompatible", "文章读取组件的返回格式发生变化。")
     finally:
@@ -102,3 +75,56 @@ def read_search_article(runner, query, title, cancel):
                 runner.run(["browser", session, "tab", "close", tab], timeout=5)
             except ReadError:
                 pass
+
+
+def extract_article(command, session, tab):
+    stable_script = """(async()=>{
+      let last='', same=0;const deadline=Date.now()+10000;
+      while(Date.now()<deadline){
+        const el=document.querySelector('#js_content');
+        const text=el?.textContent || '';
+        const signature=text.length+'|'+el?.querySelectorAll('img').length+'|'+text.slice(-160);
+        same=text.trim() && signature===last?same+1:0;last=signature;
+        if(same>=3)return {stable:true};
+        await new Promise(r=>setTimeout(r,400));
+      }
+      return {stable:false};
+    })()"""
+    state=json.JSONDecoder().raw_decode(command(['eval',stable_script,'--tab',tab],15))[0]
+    current=validate_url('weixin',command(['get','url','--tab',tab]),allow_index=False)
+    html=command(['get','html','--selector','.rich_media_area_primary','--max','1500000','--tab',tab])
+    if len(html)>=1500000:
+        raise ReadError('content_unavailable','文章区域超过读取预算，未将截断内容当作全文。')
+    parser=ArticleParser();parser.feed(html);article=parser.article(html)
+    metadata_script="""(() => {
+      const link=document.querySelector('link[rel="canonical"]');
+      const meta=document.querySelector('meta[property="og:url"]');
+      let url=link?.href || meta?.content || location.href, timestamp=null;
+      for(const s of document.querySelectorAll('script:not([src])')){
+        const source=s.textContent || '';
+        const m=source.match(/(?:var\\s+)?msg_link\\s*=\\s*["']([^"']+)["']/);
+        if(m && !link && !meta)url=m[1];
+        const t=source.match(/(?:var\\s+)?(?:ct|create_time)\\s*[:=]\\s*["']?(\\d{10})\\b/);
+        if(t)timestamp=Number(t[1]);
+      }
+      return {url,timestamp,article_identity:{biz:typeof window.biz==='string'?window.biz:null,mid:typeof window.mid==='string'?window.mid:null,idx:typeof window.idx==='string'?window.idx:null},restricted:!!document.querySelector('.paywall, #js_pay_content, .js_expand_btn, #js_content .read-more')};
+    })()"""
+    meta=json.JSONDecoder().raw_decode(command(['eval',metadata_script,'--tab',tab]))[0]
+    try:
+        current=validate_url('weixin',meta.get('url'),allow_index=False)
+    except ReadError:pass
+    if not article.get('publish_time') and isinstance(meta.get('timestamp'),(int,float)):
+        from datetime import datetime,timezone,timedelta
+        article['publish_time']=datetime.fromtimestamp(meta['timestamp'],timezone(timedelta(hours=8))).isoformat()
+        article['publish_time_source']='page_script_timestamp'
+    article['url']=current
+    article['article_identity']=meta.get('article_identity')
+    return article_item(article,current,'opencli-visible-article',state.get('stable'),bool(meta.get('restricted')))
+
+
+def read_article(runner, target, cancel):
+    from .browser_page import ReadPage
+    target=validate_url('weixin',target,allow_index=False)
+    with ReadPage(runner,target,cancel,'weixin') as page:
+        page.wait('#js_content',15)
+        return extract_article(page.command,page.session,page.tab)

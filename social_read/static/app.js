@@ -54,7 +54,7 @@ async function run(action,request){
   const submitted=await api('/api/tasks',{action,request});active=submitted.task_id;
   $('result-status').textContent='正在读取，已完成的结果会保留。';
   let job;
-  while(active){job=await api('/api/tasks/'+active);if(!['queued','running'].includes(job.status))break;if(action==='search'&&job.result?.items?.length)renderResults(job.result.items);await new Promise(r=>setTimeout(r,900));}
+  while(active){job=await api('/api/tasks/'+active);if(!['queued','running'].includes(job.status))break;if(action==='search'&&job.result?.items?.length)renderResults(job.result.items);if(action==='read'&&job.result?.content)renderContent(job.result.content);await new Promise(r=>setTimeout(r,900));}
   if(!job)return null;
   showErrors(job.result?.errors);$('result-status').textContent=statusNames[job.status]||job.status;
   if(job.status==='cancelled')message('任务已取消，已完成结果保留。');
@@ -80,12 +80,14 @@ function renderComments(result,box,source){
   row.append(node('p',c.text||c.content||''));section.append(row);
  }
  if(!result.items?.length)section.append(node('p','此次未取得可见评论，请到原帖核对。','hint'));
+ if(result.next_cursor&&source?.content_ref){const more=node('button','继续下一批评论','quiet');more.onclick=async()=>{more.disabled=true;const job=await run('comments',{content_ref:source.content_ref,limit:coverage.requested_top_level||5,replies_limit:coverage.replies_per_root_limit??2,cursor:result.next_cursor});if(job&&['success','partial'].includes(job.status))renderComments(job.result,box,source);else more.disabled=false;};section.append(more);}
  box.querySelector('#comments-view')?.remove();box.append(section);
 }
 function renderContent(content){
  currentRef=content.content_ref;$('refresh').hidden=!currentRef;
  const box=$('content');box.replaceChildren(node('span',labels[content.platform]||content.platform,'badge'),node('h3',content.title),node('p',(content.author||'作者未提供')+' · '+stamp(content.published_at_raw),'meta'),node('div',content.notice||'请核对正文范围。','message'));
  box.append(node('p','取得 '+(content.body_chars??Array.from(content.body||'').length)+' 个文字字符 · '+(content.media_count??content.media?.length??0)+' 个图片链接','meta'));
+ if(content.coverage?.ocr_unread){const resume=node('button','补读缺失图片','quiet');resume.onclick=()=>read({content_ref:content.content_ref});box.append(resume);}
  if(content.cache?.used)box.append(node('p','使用本机缓存 · 获取于 '+stamp(content.fetched_at),'meta'));
  if(mode==='live')box.append(originalButton(content,'到原帖核对'));
  if(content.image_ocr?.length){
@@ -112,7 +114,7 @@ function renderContent(content){
  box.append(comments);if(content.platform==='weixin')box.append(node('p','公众号留言查看暂未支持。','hint'));
 }
 async function read(request){const job=await run('read',request);if(job?.result?.content){renderContent(job.result.content);if(window.innerWidth<760)$('reader-title').scrollIntoView({behavior:'smooth'});}}
-async function history(){try{const data=await api('/api/history');$('history').replaceChildren();for(const job of data.jobs||[]){const row=node('div',undefined,'history-row');row.append(node('span',({search:'搜索',read:'阅读',comments:'评论查看',connection:'连接检查'})[job.action]||job.action),node('span',statusNames[job.status]||job.status,'badge'),node('span',(job.result?.content?.title||job.request?.query||'')+' · '+(job.request?.platform?labels[job.request.platform]:(job.request?.platforms||[]).map(s=>labels[s]).join('、'))+' · '+stamp(job.created_at),'meta'));const button=node('button','查看记录','quiet');button.onclick=()=>{showErrors(job.result?.errors);if(job.action==='search')renderResults(job.result?.items);if(job.result?.content)renderContent(job.result.content);if(job.action==='comments'){const box=$('content');box.replaceChildren(node('span',labels[job.result?.platform]||'评论记录','badge'));if(mode==='live'&&job.request?.content_ref)box.append(originalButton({content_ref:job.request.content_ref},'到原帖核对'));renderComments(job.result||{},box);}if(job.result?.connection)message(job.result.connection.message);$('result-status').textContent='历史记录 · '+stamp(job.updated_at||job.created_at);};row.append(button);$('history').append(row);}if(!data.jobs?.length)$('history').append(node('p','暂无任务，开始搜索后会保存在这里。','hint'));}catch(e){message('任务记录暂不可用，请确认本机服务正在运行。',true);}}
+async function history(){try{const data=await api('/api/history');$('history').replaceChildren();for(const job of data.jobs||[]){const row=node('div',undefined,'history-row');row.append(node('span',({search:'搜索',read:'阅读',comments:'评论查看',connection:'连接检查'})[job.action]||job.action),node('span',statusNames[job.status]||job.status,'badge'),node('span',(job.result?.content?.title||job.request?.query||'')+' · '+(job.request?.platform?labels[job.request.platform]:(job.request?.platforms||[]).map(s=>labels[s]).join('、'))+' · '+stamp(job.created_at),'meta'));const button=node('button','查看记录','quiet');button.onclick=()=>{showErrors(job.result?.errors);if(job.action==='search')renderResults(job.result?.items);if(job.result?.content)renderContent(job.result.content);if(job.action==='comments'){const box=$('content');box.replaceChildren(node('span',labels[job.result?.platform]||'评论记录','badge'));if(mode==='live'&&job.request?.content_ref)box.append(originalButton({content_ref:job.request.content_ref},'到原帖核对'));renderComments(job.result||{},box,{content_ref:job.request?.content_ref});}if(job.result?.connection)message(job.result.connection.message);$('result-status').textContent='历史记录 · '+stamp(job.updated_at||job.created_at);};row.append(button);$('history').append(row);}if(!data.jobs?.length)$('history').append(node('p','暂无任务，开始搜索后会保存在这里。','hint'));}catch(e){message('任务记录暂不可用，请确认本机服务正在运行。',true);}}
 $('search-form').onsubmit=async e=>{e.preventDefault();const platforms=Array.from($('platforms').querySelectorAll('input:checked')).map(x=>x.value);if(!platforms.length){message('请选择至少一个平台。');return;}const job=await run('search',{platforms,query:$('query').value,limit:5});if(job)renderResults(job.result?.items);};
 $('read-form').onsubmit=e=>{e.preventDefault();read({platform:$('direct-platform').value,url:$('url').value});};
 $('check').onclick=async()=>{const job=await run('connection',{});if(job?.result?.connection){message(job.result.connection.message);const identities=job.result.platforms||[];for(const i of identities){const n=node('div',(labels[i.platform]||i.platform)+'：'+(i.message||i.status),'message');$('errors').append(n);}}};

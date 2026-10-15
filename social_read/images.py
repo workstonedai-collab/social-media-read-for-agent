@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.error import URLError, HTTPError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, build_opener, HTTPRedirectHandler
-from .model import ReadError, digest, scrub
+from .model import ReadError, digest, scrub, public_url
 
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_IMAGES = 18
@@ -60,7 +60,10 @@ def download_image(url, path, cancel, deadline=None):
                     dest.write(chunk)
             if not size:
                 raise ReadError("image_decode_failed", "图片为空。")
-    except (URLError, HTTPError, OSError, ValueError):
+    except HTTPError as exc:
+        code = "image_rate_limited" if exc.code == 429 else "image_access_denied" if exc.code in (401, 403) else "image_unavailable"
+        raise ReadError(code, "图片来源暂不可访问，已保留其他图片，未重复请求。")
+    except (URLError, OSError, ValueError):
         raise ReadError("image_unavailable", "本次未取得图片，配文及其他已读图片保留。")
 
 def run_local(args, cancel, timeout):
@@ -100,7 +103,7 @@ class LocalOCR:
         self.root.mkdir(mode=0o700, exist_ok=True)
         self.root.chmod(0o700)
 
-    def binary(self, cancel):
+    def binary(self, cancel, deadline=None):
         if platform.system() != "Darwin" or not shutil.which("swiftc"):
             raise ReadError("ocr_unavailable", "图片识别目前需要 macOS Vision 与 Swift 编译工具。")
         source = Path(__file__).parent / "native/vision_ocr.swift"
@@ -109,7 +112,7 @@ class LocalOCR:
         if not binary.exists():
             with tempfile.TemporaryDirectory(dir=str(self.root)) as temp:
                 candidate = Path(temp) / "vision"
-                run_local([shutil.which("swiftc"), "-O", str(source), "-o", str(candidate)], cancel, 60)
+                run_local([shutil.which("swiftc"), "-O", str(source), "-o", str(candidate)], cancel, min(60, remaining(deadline)))
                 candidate.chmod(0o700)
                 os.replace(candidate, binary)
         return binary
@@ -131,10 +134,12 @@ class LocalOCR:
                     return result
         except (OSError, ValueError, TypeError, KeyError):
             pass
-        binary = self.binary(cancel)
+        remaining(deadline)
+        binary = self.binary(cancel, deadline)
         with tempfile.TemporaryDirectory(dir=str(self.root)) as temp:
             path = Path(temp) / "image"
-            download_image(url, path, cancel)
+            remaining(deadline)
+            download_image(url, path, cancel, deadline)
             sha = hashlib.sha256(path.read_bytes()).hexdigest()
             cached = self.root / (CACHE_VERSION + "-" + sha + ".json")
             result = None
@@ -145,7 +150,7 @@ class LocalOCR:
                 except (OSError, ValueError):
                     pass
             if result is None:
-                seconds = min(25, max(1, deadline - time.monotonic())) if deadline else 25
+                seconds = min(25, remaining(deadline))
                 value = json.loads(run_local([str(binary), str(path)], cancel, seconds))
                 lines = value.get("lines", [])
                 if not isinstance(lines, list) or len(lines) > 5000:
@@ -167,66 +172,119 @@ class LocalOCR:
                 index.chmod(0o600)
             return result
 
-def enrich_images(item, images, runner, cancel, order_source, reported_count=None):
+def remaining(deadline):
+    seconds = deadline - time.monotonic() if deadline else 60
+    if seconds <= 0:
+        raise ReadError("image_timeout", "本次图片读取时间预算已用完，已完成图片保留。")
+    return seconds
+
+
+def atomic_json(path, value):
+    """Private, atomic checkpoints; a cancelled read cannot corrupt the last one."""
+    fd, name = tempfile.mkstemp(dir=str(path.parent))
+    try:
+        with os.fdopen(fd, "w") as stream:
+            json.dump(value, stream, ensure_ascii=False)
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def enrich_images(item, images, runner, cancel, order_source, reported_count=None, context=None, progress=None, image_ids=None):
     caption = item["body"]
     item["caption"] = caption
-    item["image_ocr"] = []
     item["media"] = []
-    errors = []
-    started = time.monotonic()
-    deadline = started + 150
+    deadline = time.monotonic() + 150
     ocr = LocalOCR(runner.workdir)
-    unique = []
-    seen = set()
-    for raw in images:
+    unique, identities, seen = [], [], set()
+    for position, raw in enumerate(images[:40]):
         try:
             url = image_url(raw)
             if url not in seen:
-                unique.append(url); seen.add(url)
-        except ReadError as exc:
-            # Preserve rejected positions as an explicit unread slot.
+                unique.append(url)
+                ident = image_ids[position] if order_source == "note_state_carousel" and isinstance(image_ids, list) and position < len(image_ids) else None
+                identities.append("state:" + ident if isinstance(ident, str) and 0 < len(ident) <= 500 else "url:" + url)
+                seen.add(url)
+        except ReadError:
             unique.append(None)
+            identities.append("rejected:" + str(position))
+    # Bind progress to the exact note and ordered image manifest. Never reuse an
+    # image by its position alone; edited/reordered notes get a new checkpoint.
+    note_identity = urlsplit(item["_target"]).path.rstrip("/").split("/")[-1]
+    manifest = digest(note_identity + "|" + json.dumps(identities))
+    checkpoint = ocr.root / ("note-" + manifest + ".json")
+    previous = {}
+    try:
+        saved = json.loads(checkpoint.read_text())
+        if saved.get("manifest") == manifest and 0 <= time.time() - saved["at"] < 1800:
+            previous = {r["order"]: r for r in saved["images"] if r.get("status") in {"success", "no_text_detected"}}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    expected = max(len(unique), reported_count or 0)
+    rows = [{"order": i + 1, "source": "note_image", "order_source": order_source,
+             "status": "pending", "text": "", "text_chars": 0} for i in range(min(expected, 40))]
+    errors, reused, processed = [], 0, 0
     total_text = 0
-    for index, url in enumerate(unique):
-        row = {"order": index + 1, "source": "note_image", "order_source": order_source}
+
+    def publish():
+        succeeded = sum(r["status"] in {"success", "no_text_detected"} for r in rows)
+        parts = ["【笔记配文】\n" + caption]
+        parts += ["【图片 %s · 本机 OCR，需核对识别错误】\n%s" % (r["order"], r["text"]) for r in rows if r.get("text")]
+        item["body"] = scrub("\n\n".join(parts))
+        item["body_chars"] = len(item["body"])
+        item["body_sha256"] = digest(item["body"])
+        item["image_ocr"] = [dict(r) for r in rows]
+        item["image_ocr_chars"] = sum(r.get("text_chars", 0) for r in rows)
+        item["coverage"] = {"caption": "read", "image_count": expected, "discovered_images": len(unique),
+            "ocr_attempted": processed, "ocr_succeeded": succeeded, "ocr_unread": expected - succeeded,
+            "image_order": order_source, "images_all_processed": bool(expected) and succeeded == expected,
+            "video_transcription": False, "ocr_accuracy_verified": False,
+            "images_reused": reused, "images_processed_this_run": processed,
+            "unread_orders": [r["order"] for r in rows if r["status"] not in {"success", "no_text_detected"}],
+            "undiscovered_image_count": max(0, expected - len(unique)),
+            "images_from_download_cache": sum(r.get("image_download_cache_used", False) for r in rows)}
+        item["read_errors"] = list(errors)
+        item["notice"] = ("已处理 %s/%s 张图片；成功结果逐张保存，未读图片可继续补读。OCR 可能错字，版面含义及视频未识别。" % (succeeded, expected)) if expected else "已读配文，未发现可识别图片。"
+        atomic_json(checkpoint, {"manifest": manifest, "at": time.time(), "images": rows})
+        if progress:
+            progress(item)
+
+    # Restore before publishing so even an immediate cancellation keeps successes.
+    for i, url in enumerate(unique):
         if url:
-            item["media"].append({"type": "image", "order": index + 1, "url": url})
-        if index >= MAX_IMAGES or time.monotonic() > deadline or total_text >= 80000:
-            row.update(status="not_read_budget", text="", text_chars=0)
+            item["media"].append({"type": "image", "order": i + 1, "url": url})
+        if i + 1 in previous:
+            rows[i].update(previous[i + 1], checkpoint_reused=True)
+            reused += 1
+            total_text += rows[i].get("text_chars", 0)
+    publish()
+    blocked = None
+    for index, row in enumerate(rows):
+        if cancel and cancel.is_set():
+            raise ReadError("cancelled", "任务已取消，逐张完成的图片已保存，可再次读取补齐。")
+        if row.get("checkpoint_reused"):
+            continue
+        url = unique[index] if index < len(unique) else None
+        if blocked:
+            row.update(status="not_read_access_stop", message="图片来源要求停止，未继续请求。")
+        elif index >= MAX_IMAGES or time.monotonic() >= deadline or total_text >= 80000:
+            row.update(status="not_read_budget")
         elif not url:
-            row.update(status="image_url_rejected", text="", text_chars=0)
+            row.update(status="image_url_rejected" if index < len(unique) else "image_not_discovered")
         else:
             try:
+                processed += 1
                 recognized = ocr.read(url, cancel, deadline)
-                row.update({k:v for k,v in recognized.items() if k != "lines"})
+                row.update({k: v for k, v in recognized.items() if k != "lines"})
                 total_text += row.get("text_chars", 0)
             except ReadError as exc:
                 if exc.code == "cancelled":
+                    publish()
                     raise
-                row.update(status=exc.code, text="", text_chars=0, message=exc.message)
+                row.update(status=exc.code, message=exc.message)
                 errors.append({"image_order": index + 1, **exc.result()})
-        item["image_ocr"].append(row)
-    attempted = sum(r["status"] not in {"not_read_budget", "image_url_rejected"} for r in item["image_ocr"])
-    succeeded = sum(r["status"] in {"success", "no_text_detected"} for r in item["image_ocr"])
-    text_parts = ["【笔记配文】\n" + caption]
-    for row in item["image_ocr"]:
-        if row.get("text"):
-            text_parts.append("【图片 %s · 本机 OCR，需核对识别错误】\n%s" % (row["order"], row["text"]))
-    item["body"] = scrub("\n\n".join(text_parts))
-    item["body_chars"] = len(item["body"])
-    item["body_sha256"] = digest(item["body"])
-    item["image_ocr_chars"] = sum(r.get("text_chars", 0) for r in item["image_ocr"])
-    expected = max(len(unique), reported_count or 0)
-    item["coverage"] = {"caption": "read", "image_count": expected, "discovered_images": len(unique),
-                        "ocr_attempted": attempted, "ocr_succeeded": succeeded,
-                        "ocr_unread": expected - succeeded, "image_order": order_source,
-                        "images_all_processed": bool(expected) and succeeded == expected,
-                        "video_transcription": False, "ocr_accuracy_verified": False, "images_from_download_cache": sum(r.get("image_download_cache_used", False) for r in item["image_ocr"])}
-    item["read_errors"] = errors
-    if expected and succeeded < expected:
-        item["notice"] = "已读配文及部分图片；还有 %s 张图片未识别。OCR 可能错字，不能视为完整读懂图文。" % (expected - succeeded)
-    elif expected:
-        item["notice"] = "已取得配文与 %s 张图片的本机 OCR；图片逐张分开并保留顺序。OCR 可能错字，版面关系及视频未识别。" % expected
-    else:
-        item["notice"] = "已取得配文，本次没有发现可读取的图片；不能据此判断原帖没有图片。"
+                if exc.code in {"image_access_denied", "image_rate_limited"}:
+                    blocked = exc.code
+        publish()
     return item

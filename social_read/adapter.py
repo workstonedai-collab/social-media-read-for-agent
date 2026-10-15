@@ -188,6 +188,9 @@ class OpenCLIAdapter:
         if site == "xiaohongshu":
             from .xiaohongshu_search import search_notes
             return search_notes(self.runner, query, limit, cancel)
+        if site == "zhihu":
+            from .zhihu_search import search_zhihu
+            return search_zhihu(self.runner, query, limit, cancel)
         if site == "weixin":
             from .weixin_public import search_public_articles
             try:
@@ -198,6 +201,12 @@ class OpenCLIAdapter:
                     raise
         data = self.runner.call(site, "search", [query, "--limit", str(limit)], cancel)
         return [search_item(site, r, query, self.name) for r in rows(data)]
+
+    def read_with_progress(self, site, target, cancel, context, progress):
+        if site == "xiaohongshu":
+            from .xiaohongshu_read import read_note
+            return read_note(self.runner, target, cancel, context=context, progress=progress)
+        return self.read_with_context(site, target, cancel, context)
 
     def read_with_context(self, site, target, cancel, context):
         if site == "weixin" and urlsplit(target).hostname == "weixin.sogou.com" and context.get("query"):
@@ -256,18 +265,22 @@ class OpenCLIAdapter:
             index_url = target
             target = self.runner.resolve_weixin(target, cancel)
         if site == "weixin":
-            from .weixin_public import read_public_article
+            from .weixin_public import read_public_article, article_item
             try:
                 article = read_public_article(target, cancel)
-                item = content_item(site, article, target, "public-http")
-                item["media"] = article["media"]
-                item["notice"] = "已取得公开文章文字和图片链接；图片内文字未识别，完整性需对照原文。"
+                item = article_item(article, target, "public-http")
                 if index_url:
                     item["search_source_url"] = index_url
                 return item
             except ReadError as exc:
                 if exc.code not in {"public_article_unavailable", "source_resolution_required"}:
                     raise
+                if getattr(self.runner, "profile", None):
+                    from .weixin_browser import read_article
+                    item = read_article(self.runner, target, cancel)
+                    if index_url:
+                        item["search_source_url"] = index_url
+                    return item
         with tempfile.TemporaryDirectory(prefix="article-", dir=str(self.runner.workdir)) as temp:
             raw = self.runner.call(site, "download", ["--url", target, "--output", temp, "--download-images", "false"], cancel)
             files = list(Path(temp).rglob("*.md"))
@@ -281,13 +294,13 @@ class OpenCLIAdapter:
                 item["search_source_url"] = index_url
             return item
 
-    def comments(self, site, target, limit, cancel, replies_limit=3):
+    def comments(self, site, target, limit, cancel, replies_limit=3, cursor=None):
         if site == "weixin":
             raise ReadError("unsupported", "公众号留言读取尚未支持。")
         if site == "xiaohongshu" and not parse_qs(urlsplit(target).query).get("xsec_token"):
             raise ReadError("access_context_required", "请从搜索结果打开小红书评论。")
         from .comments import read_comments
-        return read_comments(self.runner, site, target, limit, replies_limit, cancel)
+        return read_comments(self.runner, site, target, limit, replies_limit, cancel, cursor)
 
 
 class DemoAdapter:
@@ -303,7 +316,7 @@ class DemoAdapter:
         item["notice"] = "离线演示，内容完全虚构；不代表真实平台读取成功。"
         return item
 
-    def comments(self, site, target, limit, cancel, replies_limit=3):
+    def comments(self, site, target, limit, cancel, replies_limit=3, cursor=None):
         if site == "weixin":
             raise ReadError("unsupported", "公众号留言暂不支持。")
         validate_url(site, target)

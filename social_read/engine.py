@@ -9,6 +9,7 @@ from pathlib import Path
 from .adapter import DemoAdapter, OpenCLIAdapter, Runner
 from .model import PLATFORMS, ReadError, bounded_int, digest, keyword, now, platform, scrub, validate_url
 from .storage import Store
+from . import __version__
 
 TERMINAL = {"success", "partial", "failed", "cancelled", "interrupted"}
 
@@ -31,12 +32,12 @@ class Engine:
         self.closed = False
 
     def capabilities(self):
-        return {"mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；具体回答与文章可取有限评论；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
+        return {"version": __version__, "mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；具体回答与文章可取有限评论；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
 
     def _validate(self, action, request):
         if action not in {"search", "read", "comments", "connection"} or not isinstance(request, dict):
             raise ReadError("invalid_input", "不支持的读取任务。")
-        allowed = {"search": {"platforms", "query", "limit"}, "read": {"platform", "url", "content_ref", "refresh"}, "comments": {"platform", "url", "content_ref", "limit", "replies_limit"}, "connection": set()}[action]
+        allowed = {"search": {"platforms", "query", "limit"}, "read": {"platform", "url", "content_ref", "refresh"}, "comments": {"platform", "url", "content_ref", "limit", "replies_limit", "cursor"}, "connection": set()}[action]
         if set(request) - allowed:
             raise ReadError("invalid_input", "任务包含不支持的参数。")
         if self.mode == "live" and action != "connection" and not self.profile:
@@ -64,6 +65,8 @@ class Engine:
             if action == "comments":
                 r["limit"] = bounded_int(r.get("limit", 10), maximum=20)
                 r["replies_limit"] = bounded_int(r.get("replies_limit", 3), minimum=0, maximum=5)
+                if r.get("cursor") is not None:
+                    r["_cursor"] = self.store.comment_cursor(r["cursor"], r["platform"], r["_target"])
             else:
                 if "refresh" in r and not isinstance(r["refresh"], bool):
                     raise ReadError("invalid_input", "刷新参数须为布尔值。")
@@ -133,7 +136,7 @@ class Engine:
                 lock.release()
 
     def _work(self, job_id, action, r, event):
-        result = {"mode": self.mode, "items": [], "errors": [], "fetched_at": now()}
+        result = {"version": __version__, "mode": self.mode, "items": [], "errors": [], "fetched_at": now()}
         status = "success"
         try:
             if event.is_set():
@@ -154,7 +157,10 @@ class Engine:
                     except ReadError as e:
                         if e.code == "cancelled":
                             raise
-                        result["errors"].append({"platform": site, **e.result()})
+                        if e.code == "search_empty_confirmed":
+                            result.setdefault("platform_outcomes", {})[site] = "confirmed_empty"
+                        else:
+                            result["errors"].append({"platform": site, **e.result()})
                     self.store.update_job(job_id, "running", result)
                 failures = result["errors"]
                 status = "partial" if failures and result["items"] else "failed" if failures else "success"
@@ -164,10 +170,17 @@ class Engine:
                 age = None
                 if cached and cached["read_at"]:
                     age = (datetime.now(timezone.utc) - datetime.fromisoformat(cached["read_at"])).total_seconds()
-                if age is not None and age < 1800 and not r["refresh"] and (r["platform"] != "xiaohongshu" or "image_ocr" in cached["data"] or self.mode == "demo"):
+                xhs_incomplete = bool(cached and r["platform"] == "xiaohongshu" and cached["data"].get("coverage", {}).get("ocr_unread", 0))
+                if age is not None and age < 1800 and not r["refresh"] and not xhs_incomplete and (r["platform"] != "xiaohongshu" or "image_ocr" in cached["data"] or self.mode == "demo"):
                     result["content"] = {**cached["data"], "cache": {"used": True, "age_seconds": round(age)}}
                 else:
+                    def progress(item):
+                        result["content"] = self.store.save_item(r["platform"], item, read=True)
+                        result["progress"] = {"stage": "image_ocr", "completed": item.get("coverage", {}).get("ocr_succeeded", 0), "total": item.get("coverage", {}).get("image_count", 0)}
+                        self.store.update_job(job_id, "running", result)
                     def fetch_content():
+                        if hasattr(self.adapter, "read_with_progress"):
+                            return self.adapter.read_with_progress(r["platform"], r["_target"], event, cached["data"] if cached else {}, progress)
                         if hasattr(self.adapter, "read_with_context"):
                             return self.adapter.read_with_context(r["platform"], r["_target"], event, cached["data"] if cached else {})
                         return self.adapter.read(r["platform"], r["_target"], event)
@@ -181,7 +194,11 @@ class Engine:
                     result["errors"].extend({"platform": r["platform"], **e} for e in answer_errors)
                     status = "partial"
             elif action == "comments":
-                result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event, replies_limit=r["replies_limit"])))
+                result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event, replies_limit=r["replies_limit"], **({"cursor": r["_cursor"]} if "_cursor" in r else {}))))
+                continuation = result.pop("_continuation", None)
+                result["next_cursor"] = self.store.save_comment_cursor(r["platform"], r["_target"], continuation) if continuation else None
+                result["coverage"]["continued"] = "_cursor" in r
+                result["coverage"]["sort"] = "platform_default" if r["platform"] == "xiaohongshu" else "score" if r["platform"] == "zhihu" else "platform_flow_0"
                 if result.get("errors"):
                     status = "partial" if result.get("items") else "failed"
                 result["source_url"] = scrub(r["_target"])

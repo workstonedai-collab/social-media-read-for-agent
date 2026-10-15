@@ -1,0 +1,16 @@
+{
+  "kind": "controlled denied API result; actual normal page DOM read",
+  "body_chars": 234,
+  "coverage": {
+    "text_source": "answer_visible_dom",
+    "local_truncation": false,
+    "all_answers": false,
+    "images_ocr": false,
+    "api_status": "access_denied",
+    "dom_stable": true,
+    "collapsed": false,
+    "paywall_detected": false
+  },
+  "title": "打造个人终身知识体系，最佳的笔记软件是什么？",
+  "body_sha256": "2ac7f4970946e74bc3f02705966c30613bd5794bdaff2aae5178fc0c8fa0bca9"
+}

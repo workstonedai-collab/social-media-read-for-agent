@@ -1,0 +1,136 @@
+{
+  "client": "hermes-retest",
+  "version": "0.1.0a4",
+  "generated_at": "2026-10-15T04:28:51.620614+00:00",
+  "basis": "actual native-client tool results; no database time-window inference",
+  "mcp_calls": 7,
+  "jobs": [
+    {
+      "task_id": "task_06dc43f9ee9240c2b98ce47605e94416",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T04:26:00.258991+00:00",
+      "updated_at": "2026-10-15T04:26:02.268051+00:00",
+      "platform": "zhihu",
+      "content_ref": "content_aaced30ffc3619329bcd4266",
+      "title": "打造个人终身知识体系，最佳的笔记软件是什么？",
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 234,
+      "body_sha256": "2ac7f4970946e74bc3f02705966c30613bd5794bdaff2aae5178fc0c8fa0bca9",
+      "published_at_raw": "2026-04-25T01:12:28+00:00",
+      "published_at_source": null,
+      "coverage": {
+        "text_source": "answer_api_content",
+        "local_truncation": false,
+        "all_answers": false,
+        "images_ocr": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    },
+    {
+      "task_id": "task_ef518231fdd34139836ad4fec469724b",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T04:26:04.428702+00:00",
+      "updated_at": "2026-10-15T04:26:10.014142+00:00",
+      "platform": "zhihu",
+      "content_ref": null,
+      "title": null,
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "coverage": {
+        "requested_top_level": 1,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 1,
+        "returned_replies": 1,
+        "returned_rows": 2,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 1,
+        "root_end_reached": false,
+        "stop_reason": "root_sample_limit",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0,
+        "continued": false,
+        "sort": "score"
+      },
+      "errors": [],
+      "next_cursor_available": true,
+      "comment_ids": [
+        "11474119057",
+        "11507289635"
+      ]
+    },
+    {
+      "task_id": "task_ed501bac0aeb45f5bc575b10c39b697a",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T04:26:12.186940+00:00",
+      "updated_at": "2026-10-15T04:26:17.654967+00:00",
+      "platform": "zhihu",
+      "content_ref": null,
+      "title": null,
+      "source_url": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "coverage": {
+        "requested_top_level": 1,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 1,
+        "returned_replies": 2,
+        "returned_rows": 3,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 1,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0,
+        "continued": true,
+        "sort": "score"
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "comment_ids": [
+        "11469379089",
+        "11469845690",
+        "11507319888"
+      ]
+    }
+  ],
+  "continuation_checks": [
+    {
+      "source": "https://www.zhihu.com/question/12834969454/answer/2031299531585873699",
+      "batches": 2,
+      "overlapping_ids": [],
+      "unique_rows": 5
+    }
+  ],
+  "totals": {
+    "jobs": 3,
+    "statuses": {
+      "success": 3
+    },
+    "read_successes": 1,
+    "searches": 0
+  }
+}

@@ -32,3 +32,17 @@
 OCR 使用 macOS 原生 Vision 的 VNRecognizeTextRequest，中文与英文识别在本机执行，无外部 OCR 服务或模型密钥。参考 Apple 官方文档 https://developer.apple.com/documentation/vision/vnrecognizetextrequest 。本机识别程序自行实现，未引入其他 OCR 项目的源码或模型。
 
 核查 OpenCLI 的小红书图片轮播 state、微博长文端点与知乎 legacy 评论逻辑；另核查其上游问题 https://github.com/jackwener/OpenCLI/issues/2303 及 MediaCrawler 的评论接口说明，借鉴根评论与子回复分开的读取方式，自行实现有界同源读取。没有引入其签名算法、额外账号、验证码绕过或大规模抓取。OpenCLI 固定选择器等待在 body 未出现时的 MutationObserver 错误已复现，改用本项目内部有界就绪检查。
+
+
+## 0.1.0a4 图片恢复、评论续读与公众号正文
+
+实际改编 `xpzouying/xiaohongshu-mcp` 的评论停止判断和有界加载设计，固定版本 `7797fd375aba02dcd33afe143f6bee13e5870859`。Apache-2.0 全文和来源/修改说明见 `../licenses/xiaohongshu-mcp-Apache-2.0.txt` 与 `../THIRD_PARTY_NOTICES.md`；评论模块标注 Apache-2.0。未引入上游 Go 运行时、登录或写操作。
+
+图片恢复参考 Crawlee/Scrapy 的持久化任务与完成标记范式，本项目自行实现私有原子检查点和 SQLite 评论游标，没有新增爬虫框架运行依赖。MediaCrawler 当前使用非商业学习许可，其代码未复制或安装。
+
+重新核对 `jackwener/wechat-article-to-markdown` 版本 `50b7e63c11a880c991815e4bae6a4a9fb161785a`：README 声明 MIT，仓库未提供独立 LICENSE。本轮不复制其代码，公众号解析器继续自行实现。吸收的公开格式需求包括 #js_content、懒加载图片、代码块、发布时间、来源元数据；不用独立 Camoufox 替换已有专用浏览器。
+
+RapidOCR/PaddleOCR 保留为后续识别质量对照候选，尚未安装或引入模型。MCP Proxy 也尚未作为正式依赖；本轮优先交付读取恢复和正文/评论行为。
+
+
+搜索真实复测后，小红书补充标题链接文字回退，知乎改为本项目固定内部脚本读取正常搜索卡片，以避免上游接口403被误报登录。知乎回答接口拒绝时只读取已打开目标页的可见区域，不重发该接口。以上是本项目自行实现，未复制其他项目源码。

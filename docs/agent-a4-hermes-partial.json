@@ -1,0 +1,211 @@
+{
+  "client": "hermes-partial",
+  "version": "0.1.0a4",
+  "generated_at": "2026-10-15T04:28:51.611071+00:00",
+  "basis": "actual native-client tool results; no database time-window inference",
+  "mcp_calls": 11,
+  "jobs": [
+    {
+      "task_id": "task_af77d0d96c3f4250aea8ee4b948e97c5",
+      "action": "search",
+      "status": "partial",
+      "created_at": "2026-10-15T04:14:13.703236+00:00",
+      "updated_at": "2026-10-15T04:14:35.240934+00:00",
+      "platform": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu",
+          "weibo",
+          "zhihu",
+          "weixin"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false,
+        "returned_by_platform": {
+          "xiaohongshu": 0,
+          "weibo": 2,
+          "zhihu": 0,
+          "weixin": 2
+        }
+      },
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "empty",
+          "message": "组件本次未返回结果，不能据此判断平台没有相关内容。"
+        },
+        {
+          "platform": "zhihu",
+          "status": "login_required",
+          "message": "请在选定浏览器中登录此平台，然后重新检查连接。",
+          "retryable": false
+        }
+      ],
+      "next_cursor_available": false
+    },
+    {
+      "task_id": "task_ba81277ee1ca44829640c30e80a4d2a6",
+      "action": "search",
+      "status": "failed",
+      "created_at": "2026-10-15T04:14:45.872406+00:00",
+      "updated_at": "2026-10-15T04:15:02.236551+00:00",
+      "platform": [
+        "xiaohongshu"
+      ],
+      "content_ref": null,
+      "title": null,
+      "source_url": null,
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "coverage": {
+        "requested_platforms": [
+          "xiaohongshu"
+        ],
+        "max_results_per_platform": 2,
+        "all_content": false,
+        "returned_by_platform": {
+          "xiaohongshu": 0
+        }
+      },
+      "errors": [
+        {
+          "platform": "xiaohongshu",
+          "status": "empty",
+          "message": "组件本次未返回结果，不能据此判断平台没有相关内容。"
+        }
+      ],
+      "next_cursor_available": false
+    },
+    {
+      "task_id": "task_a6e9fc8ddc704a46828176434b70a4bb",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T04:14:43.351507+00:00",
+      "updated_at": "2026-10-15T04:14:48.386472+00:00",
+      "platform": "weibo",
+      "content_ref": "content_0f9c7481be65a6ab18999f36",
+      "title": "【笔记软件的神话与现实：PKM真的让我们更聪明了吗？】近期关于Obsidian等个人知识管理（PKM）工具到底贡献了什么的讨论，戳破了大众长久以来的幻觉。怀疑者…",
+      "source_url": "https://weibo.com/1402400261/RbNovDGuE?refer_flag=1001030103_",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 518,
+      "body_sha256": "ca2e99d2911454e1aac2eaa2283af515e554caac19fa05dafc1a5236c360bf98",
+      "published_at_raw": "Tue Aug 04 08:57:12 +0800 2026",
+      "published_at_source": null,
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    },
+    {
+      "task_id": "task_1240e2d7bacc4e8ebf588dad407345ac",
+      "action": "read",
+      "status": "success",
+      "created_at": "2026-10-15T04:14:43.357716+00:00",
+      "updated_at": "2026-10-15T04:14:59.936764+00:00",
+      "platform": "weixin",
+      "content_ref": "content_55942410c58143cc94ad3c43",
+      "title": "浅析个人知识管理中工具的祛魅与实用价值内容的澄清",
+      "source_url": "https://mp.weixin.qq.com/s?src=11&timestamp=1792037693&ver=7027&new=1",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": 4478,
+      "body_sha256": "c8871ca8d9b0b23b5f2c24fbbb888f4d19bda6ee66314ae97a00968a3ced5210",
+      "published_at_raw": "2023年10月14日 16:00",
+      "published_at_source": "visible_publish_time",
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "images": []
+    },
+    {
+      "task_id": "task_71771fa1a6fb40489e4c7d26a3e1a142",
+      "action": "comments",
+      "status": "success",
+      "created_at": "2026-10-15T04:15:10.221564+00:00",
+      "updated_at": "2026-10-15T04:15:15.430245+00:00",
+      "platform": "weibo",
+      "content_ref": "content_0f9c7481be65a6ab18999f36",
+      "title": null,
+      "source_url": "https://weibo.com/1402400261/RbNovDGuE?refer_flag=1001030103_",
+      "source_link_kind": null,
+      "article_identity": null,
+      "body_chars": null,
+      "body_sha256": null,
+      "published_at_raw": null,
+      "published_at_source": null,
+      "coverage": {
+        "requested_top_level": 3,
+        "replies_per_root_limit": 2,
+        "returned_top_level": 0,
+        "returned_replies": 0,
+        "returned_rows": 0,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 1,
+        "reply_requests": 0,
+        "root_end_reached": true,
+        "stop_reason": "root_page_end",
+        "backend": "page_context_comments",
+        "reply_roots_not_expanded": 0,
+        "continued": false,
+        "sort": "platform_flow_0"
+      },
+      "errors": [],
+      "next_cursor_available": false,
+      "comment_ids": []
+    }
+  ],
+  "continuation_checks": [
+    {
+      "source": "content_0f9c7481be65a6ab18999f36",
+      "batches": 1,
+      "overlapping_ids": [],
+      "unique_rows": 0
+    }
+  ],
+  "totals": {
+    "jobs": 5,
+    "statuses": {
+      "partial": 1,
+      "failed": 1,
+      "success": 3
+    },
+    "read_successes": 2,
+    "searches": 2
+  }
+}

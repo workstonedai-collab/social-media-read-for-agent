@@ -153,7 +153,7 @@ class ImageCacheTests(unittest.TestCase):
         from social_read.images import LocalOCR
         with tempfile.TemporaryDirectory() as td:
             ocr=LocalOCR(td)
-            def download(url,path,cancel):Path(path).write_bytes(b"same-image-bytes")
+            def download(url,path,cancel,deadline=None):Path(path).write_bytes(b"same-image-bytes")
             response=json.dumps({"status":"success","lines":[{"text":"真实图中文字"}],"width":100,"height":100})
             with patch.object(ocr,"binary",return_value=Path("/native/ocr")),patch("social_read.images.download_image",side_effect=download) as get,patch("social_read.images.run_local",return_value=response):
                 first=ocr.read(IMAGE,threading.Event())

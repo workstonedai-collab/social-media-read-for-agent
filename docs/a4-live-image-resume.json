@@ -1,0 +1,57 @@
+{
+  "kind": "controlled live cancellation and resume; real images, deliberate cancellation",
+  "cancel_requested": true,
+  "interrupted": {
+    "task_id": "task_aabace9c4d534ace9d5a6f92db49f606",
+    "status": "cancelled",
+    "coverage": {
+      "caption": "read",
+      "image_count": 9,
+      "discovered_images": 9,
+      "ocr_attempted": 2,
+      "ocr_succeeded": 1,
+      "ocr_unread": 8,
+      "image_order": "note_state_carousel",
+      "images_all_processed": false,
+      "video_transcription": false,
+      "ocr_accuracy_verified": false,
+      "images_reused": 0,
+      "images_processed_this_run": 2,
+      "unread_orders": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "undiscovered_image_count": 0,
+      "images_from_download_cache": 0
+    },
+    "body_sha256": "c9f2ee3c353b219d35f6fe7a4eb400f8f4baf582607d6a74ea298816c244ed6d"
+  },
+  "resumed": {
+    "task_id": "task_614aa0b36e5143ebba782757d12b38cb",
+    "status": "success",
+    "coverage": {
+      "caption": "read",
+      "image_count": 9,
+      "discovered_images": 9,
+      "ocr_attempted": 8,
+      "ocr_succeeded": 9,
+      "ocr_unread": 0,
+      "image_order": "note_state_carousel",
+      "images_all_processed": true,
+      "video_transcription": false,
+      "ocr_accuracy_verified": false,
+      "images_reused": 1,
+      "images_processed_this_run": 8,
+      "unread_orders": [],
+      "undiscovered_image_count": 0,
+      "images_from_download_cache": 0
+    },
+    "body_sha256": "b19ca97c75ad6a0d522d42cbdd41ef06a477e27c77c03306028b81198c00f317"
+  }
+}
