@@ -9,7 +9,7 @@ const { Client } = await import(pathToFileURL(join(sdk, 'client/index.js')));
 const { StdioClientTransport } = await import(pathToFileURL(join(sdk, 'client/stdio.js')));
 const state = await mkdtemp(join(tmpdir(), 'social-read-mcp-'));
 const client = new Client({name:'social-read-validation', version:'1.0.0'}, {capabilities:{}});
-const transport = new StdioClientTransport({command:process.env.PYTHON || 'python3', args:['-m','social_read','--mode','demo','--state-dir',state,'mcp'], cwd:resolve('.'), stderr:'pipe'});
+const transport = new StdioClientTransport({command:process.env.PYTHON || 'python3', args:[resolve('start_mcp.py'),'--mode','demo','--state-dir',state,'mcp'], cwd:resolve('.'), stderr:'pipe'});
 const value = result => { assert.equal(result.isError, false); return JSON.parse(result.content[0].text); };
 const terminal = new Set(['success','partial','failed','cancelled','interrupted']);
 async function task(name, args) {
@@ -23,6 +23,8 @@ async function task(name, args) {
 }
 try {
   await client.connect(transport);
+  const runtime=value(await client.callTool({name:'list_platforms',arguments:{}}));
+  assert.equal(runtime.runtime.connection,'stable-stdio-gateway');
   const listed = await client.listTools();
   assert.equal(listed.tools.length,7);
   assert.ok(listed.tools.every(t=>t.annotations.readOnlyHint));

@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+import tempfile
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / ".state"
@@ -34,8 +35,8 @@ def private_write(path, text):
         backups = STATE / "setup-backups"; backups.mkdir(parents=True,exist_ok=True,mode=0o700)
         backup = backups / (path.name + "-" + str(time.time_ns()))
         backup.write_text(old); backup.chmod(0o600)
-    temporary = path.with_name(path.name + ".social-read-tmp")
-    fd = os.open(str(temporary),os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+    fd, name = tempfile.mkstemp(prefix='.'+path.name+'.social-read-',dir=str(path.parent))
+    temporary = Path(name)
     try:
         with os.fdopen(fd,"w") as out:out.write(text)
         os.replace(temporary,path)
@@ -76,13 +77,30 @@ def discover_profile(profiles, saved, baseline=None):
     return None
 
 
-def configure_hermes(path, python):
-    runtime=Path.home()/".hermes/hermes-agent/venv/bin/python"
-    if not runtime.exists():raise RuntimeError("hermes_runtime_missing")
+def yaml_runtime(isolated=False):
+    """Use an existing YAML parser or install it privately, never in the Agent env."""
+    candidates=[Path(sys.executable),STATE/'setup-env/bin/python',STATE/'rapidocr-env/bin/python']
+    if not isolated:candidates.append(Path.home()/".hermes/hermes-agent/venv/bin/python")
+    for runtime in candidates:
+        if runtime.is_file():
+            try:
+                command([str(runtime),'-c','import yaml'],10)
+                return str(runtime)
+            except (RuntimeError,subprocess.TimeoutExpired):pass
+    environment=STATE/'setup-env'
+    runtime=environment/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
+    if not runtime.exists():command([sys.executable,'-m','venv',str(environment)],120)
+    command([str(runtime),'-m','pip','install','PyYAML==6.0.3'],180)
+    return str(runtime)
+
+
+def configure_hermes(path, python, isolated=False):
+    runtime=yaml_runtime(isolated)
     # Reuse Hermes' YAML parser, preserving settings semantically, no secret output.
     script='''import json,sys,yaml
 from pathlib import Path
 p=Path(sys.argv[1]);d=yaml.safe_load(p.read_text()) if p.exists() else {}
+if d is None:d={}
 if not isinstance(d,dict):raise ValueError('invalid_config')
 r=json.loads(sys.stdin.read());servers=d.setdefault('mcp_servers',{})
 if not isinstance(servers,dict):raise ValueError('invalid_servers')
@@ -99,8 +117,8 @@ print(yaml.safe_dump(d,allow_unicode=True,sort_keys=False),end='')
 
 
 def install_ocr():
-    python=next((str(p) for p in [Path(sys.executable),Path.home()/'.hermes/hermes-agent/venv/bin/python',Path(shutil.which('python3.11') or '/nonexistent'),Path(shutil.which('python3.12') or '/nonexistent')] if p.is_file() and command([str(p),'-c','import sys;print(sys.version_info >= (3,10))']).strip()=='True'),None)
-    if not python:raise RuntimeError('ocr_python_310_required')
+    python=next((str(p) for p in [Path(sys.executable),Path.home()/'.hermes/hermes-agent/venv/bin/python',*[Path(shutil.which(name) or '/nonexistent') for name in ['python3.11','python3.12','python3.13','python3.10']]] if p.is_file() and command([str(p),'-c','import sys;print((3,10) <= sys.version_info < (3,14))']).strip()=='True'),None)
+    if not python:raise RuntimeError('ocr_python_310_to_313_required')
     env=STATE/'rapidocr-env'; executable=env/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     if not executable.exists():command([python,'-m','venv',str(env)],120)
     command([str(executable),'-m','pip','install','-r',str(ROOT/'requirements-ocr.txt')],600)
@@ -123,13 +141,16 @@ print(json.dumps({'rapidocr':m.version('rapidocr'),'onnxruntime':m.version('onnx
 def main():
     os.umask(0o077)
     p=argparse.ArgumentParser(description='Agent 自动设置；默认只检查，--apply 合并配置并安装缺失的 OpenCLI。')
-    p.add_argument('--apply',action='store_true');p.add_argument('--clients',nargs='+',choices=['codex','hermes'],default=None)
+    p.add_argument('--apply',action='store_true');p.add_argument('--clients',nargs='+',choices=['codex','hermes','generic'],default=None)
     p.add_argument('--profile');p.add_argument('--open-browser',action='store_true');p.add_argument('--open-login',choices=list(LOGIN));p.add_argument('--install-ocr',action='store_true')
+    p.add_argument('--config-home',type=Path,help='隔离配置目录；默认使用当前用户/客户端配置位置')
+    p.add_argument('--bridge',choices=['auto','project'],default='auto',help='project强制安装并使用本项目OpenCLI')
     p.add_argument('--verify',action='store_true');p.add_argument('--query',default='个人知识管理工具')
     a=p.parse_args();STATE.mkdir(exist_ok=True,mode=0o700)
     local=STATE/'opencli/node_modules/.bin/opencli'
     executable=shutil.which('opencli') or (str(local) if local.exists() else None)
     if not executable and (Path.home()/'.local/bin/opencli').exists():executable=str(Path.home()/'.local/bin/opencli')
+    if a.bridge=='project':executable=str(local) if local.exists() else None
     result={'project':SERVER,'state_dir':str(STATE),'changes':[],'next_actions':[]}
     if not executable and a.apply:
         npm=shutil.which('npm');node=shutil.which('node')
@@ -157,14 +178,26 @@ def main():
         result['changes'].append('opened_owned_chrome_profile')
     clients=a.clients or [name for name,location in [('codex',Path.home()/'.codex'),('hermes',Path.home()/'.hermes')] if location.is_dir()]
     result['clients']=clients
+    result['configuration_targets']={}
     if a.apply:
         for client in clients:
-            path=Path.home()/('.codex/config.toml' if client=='codex' else '.hermes/config.yaml')
-            changed=private_write(path,merge_codex(path.read_text() if path.exists() else '',sys.executable)) if client=='codex' else configure_hermes(path,sys.executable)
+            if client=='generic':
+                path=STATE/'mcp-config.json'
+                changed=private_write(path,json.dumps({'mcpServers':{SERVER:{'command':sys.executable,'args':[str(ROOT/'start_mcp.py')]}}},indent=2)+'\n')
+            else:
+                if a.config_home:
+                    path=a.config_home/('.codex/config.toml' if client=='codex' else '.hermes/config.yaml')
+                else:
+                    base=Path(os.environ.get('CODEX_HOME',str(Path.home()/'.codex'))) if client=='codex' else Path(os.environ.get('HERMES_HOME',str(Path.home()/'.hermes')))
+                    path=base/('config.toml' if client=='codex' else 'config.yaml')
+                changed=private_write(path,merge_codex(path.read_text() if path.exists() else '',sys.executable)) if client=='codex' else configure_hermes(path,sys.executable,isolated=bool(a.config_home))
+            result['configuration_targets'][client]=str(path)
             if changed:result['changes'].append('configured_'+client)
     if a.install_ocr:
         if not a.apply:raise RuntimeError('use_apply_to_install_ocr')
-        install_ocr();result['changes'].append('installed_optional_rapidocr')
+        before=(STATE/'rapidocr-lock.json').read_text() if (STATE/'rapidocr-lock.json').exists() else None
+        install_ocr()
+        if before!=(STATE/'rapidocr-lock.json').read_text():result['changes'].append('installed_optional_rapidocr')
     if a.open_login:
         if not selected or not executable:raise RuntimeError('dedicated_profile_required')
         env=dict(os.environ,OPENCLI_PROFILE=selected,OPENCLI_WINDOW='foreground')

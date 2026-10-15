@@ -155,7 +155,7 @@ class ImageCacheTests(unittest.TestCase):
             ocr=LocalOCR(td)
             def download(url,path,cancel,deadline=None):Path(path).write_bytes(b"same-image-bytes")
             response=json.dumps({"status":"success","lines":[{"text":"真实图中文字"}],"width":100,"height":100})
-            with patch.object(ocr,"binary",return_value=Path("/native/ocr")),patch("social_read.images.download_image",side_effect=download) as get,patch("social_read.images.run_local",return_value=response):
+            with patch.object(ocr,"command",return_value=["/native/ocr"]),patch("social_read.images.download_image",side_effect=download) as get,patch("social_read.images.run_local",return_value=response):
                 first=ocr.read(IMAGE,threading.Event())
                 second=ocr.read(IMAGE,threading.Event())
                 self.assertEqual(get.call_count,1)

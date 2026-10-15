@@ -8,3 +8,9 @@ build/
 .DS_Store
 .env*
 !*.example
+
+node_modules/
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.log

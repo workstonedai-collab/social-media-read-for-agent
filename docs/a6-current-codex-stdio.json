@@ -1,0 +1,126 @@
+{
+  "version": "0.1.0a6",
+  "caller": "current Codex conversation",
+  "connection": "new persistent standard MCP stdio session owned by this conversation",
+  "same_conversation": true,
+  "old_client_registered_alias_replaced": false,
+  "mode": "live",
+  "jobs": [
+    {
+      "task_id": "task_af506b9c8f44453389cf538ddb11f156",
+      "action": "search",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": [
+        "xiaohongshu",
+        "weibo",
+        "zhihu",
+        "weixin"
+      ],
+      "returned_by_platform": {
+        "xiaohongshu": 1,
+        "weibo": 1,
+        "zhihu": 1,
+        "weixin": 1
+      },
+      "image_backends": [],
+      "errors": []
+    },
+    {
+      "task_id": "task_037f81d2edbd45d686c83708ac928d8c",
+      "action": "read",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": "xiaohongshu",
+      "body_chars": 1104,
+      "image_backends": [
+        "rapidocr-onnx-local"
+      ],
+      "coverage": {
+        "caption": "read",
+        "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+        "image_count": 9,
+        "discovered_images": 9,
+        "ocr_attempted": 0,
+        "ocr_succeeded": 9,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 9,
+        "images_processed_this_run": 0,
+        "unread_orders": [],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "cache": {
+        "used": true,
+        "age_seconds": 1397
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_5195a87e3b9945ef92e476aa03afbfdd",
+      "action": "read",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": "weibo",
+      "body_chars": 308,
+      "image_backends": [],
+      "coverage": {
+        "long_text": true,
+        "long_text_expanded": true,
+        "text_status": "expanded",
+        "all_media_read": false
+      },
+      "cache": {
+        "used": true,
+        "age_seconds": 1754
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_54769da5947547ed9551c044be57db36",
+      "action": "read",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": "zhihu",
+      "body_chars": 234,
+      "image_backends": [],
+      "coverage": {
+        "text_source": "answer_api_content",
+        "local_truncation": false,
+        "all_answers": false,
+        "images_ocr": false
+      },
+      "cache": {
+        "used": false
+      },
+      "errors": []
+    },
+    {
+      "task_id": "task_c0509c7fd6574ceb9cdb74557f5b53b5",
+      "action": "read",
+      "status": "success",
+      "version": "0.1.0a6",
+      "platform": "weixin",
+      "body_chars": 1181,
+      "image_backends": [],
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "cache": {
+        "used": false
+      },
+      "errors": []
+    }
+  ]
+}

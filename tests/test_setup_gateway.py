@@ -139,9 +139,10 @@ class GatewayTests(unittest.TestCase):
                     job=tool('get_task',{'task_id':task['task_id']})
                     if job['status']=='success':break
                     time.sleep(.01)
-                p=root/'social_read/__init__.py';p.write_text(p.read_text().replace('0.1.0a5','0.1.0a5.test'))
+                version=first['version']
+                p=root/'social_read/__init__.py';p.write_text(p.read_text().replace(version,version+'.test'))
                 second=tool('list_platforms')
-                self.assertEqual(proc.pid,pid);self.assertEqual(second['version'],'0.1.0a5.test')
+                self.assertEqual(proc.pid,pid);self.assertEqual(second['version'],version+'.test')
                 self.assertNotEqual(first['runtime']['loaded_revision'],second['runtime']['loaded_revision'])
                 self.assertEqual(second['runtime']['reloads'],1)
                 self.assertEqual(tool('get_task',{'task_id':task['task_id']})['status'],'success')

@@ -1,61 +1,63 @@
 # social-media-read-for-agent
 
-给现有 Agent 使用的本地社交媒体读取工具。覆盖小红书、微博、知乎和微信公众号的搜索与阅读，提供中文网页、命令行和标准 MCP stdio 接口。
+让本地 Agent 搜索、阅读中国社交媒体。支持 **小红书、微博、知乎、微信公众号**，提供七个只读 MCP 工具、命令行和本地网页。
 
-**当前为 0.1.0a5 本地试用版。** 已在本机专用 Chrome 资料和真实账号上验证文字阅读、小红书逐图 OCR、微博长文展开、知乎文章与有限评论回复；Codex 和 Hermes 均已实际调用。图片和评论支持继续读取；公众号保留正文结构与日期来源。仍会遇到页面加载、网络图片下载和平台访问差异，失败与部分结果都会保留。七日稳定性、新机器及完整媒体验收未完成。
+[![Install checks](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml/badge.svg)](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml)
 
-## 直接交给 Agent
+**Read Chinese social platforms with your own local agent and browser session.** Agent-led setup for Codex and Hermes; standard MCP stdio configuration for other local agents. Search and read only. No model API key required by this project.
 
-把本仓库地址交给本地 Codex 或 Hermes，告诉它：**“按 AGENTS.md 自动安装配置，涉及浏览器授权和平台登录时引导我，最后用当前对话搜索并阅读验收。”**
+当前是 **0.1.0a6 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
 
-Agent 有 `bootstrap.py` 自动设置入口：检查依赖、安装缺失的项目本地 OpenCLI、备份合并客户端配置、发现专用浏览器、按需安装 RapidOCR，再实际搜索与阅读。不用用户找 context ID、搬 Cookie 或手改 MCP 配置。首次仍需确认 Chrome 官方扩展权限及正常平台登录。详见 [首次使用](docs/onboarding.md)。当前没有浏览器脱离平台规则的无限访问能力。
+## 把仓库交给 Agent
 
-a5 增加 RapidOCR 3.9.2 本地识别与长图分片，并保留 macOS Vision。默认 auto 优先使用已安装并完成记录的 RapidOCR，未安装时 macOS 沿用 Vision；两个引擎的图片和正文缓存隔离。另增加稳定 MCP 入口，空闲时自动加载读取代码更新；初次接入和旧版迁移由客户端刷新一次。比较方法和真实结果见 [OCR 对比](docs/ocr-comparison.md)，验收范围见 [验证记录](docs/validation.md)。
+复制这一段给支持本地执行的 Codex、Hermes 或其他 Agent：
 
-## 现在可以做什么
+> 请安装并配置 https://github.com/workstonedai-collab/social-media-read-for-agent 。先阅读仓库 AGENTS.md 和安装说明，自动检查运行环境、安装项目独立依赖、配置你自己的读取入口。使用专用浏览器资料；需要我确认扩展授权或在平台扫码/输入密码时再引导我。不要索取 Cookie 或让我手改配置。完成后用当前对话实际搜索、阅读，并报告可用平台与限制。
 
-- 一次选择四个平台搜索，保留平台、来源、时间与内容记录标识；明确各平台返回条数和部分失败。
-- 阅读搜索结果或完整原帖链接。小红书日期估计与页面原始日期分开，不把 ID 推算日期当作官方发布日期。
-- 小红书按笔记轮播列表提取图片，使用本机 RapidOCR 或 macOS Vision 识别中文和英文；逐张保留文字、顺序、图片指纹及失败原因；中途取消或失败后可补读未完成图片，成功图片先保存。无法取得轮播列表时标记 DOM 顺序未经确认。
-- 微博记录长文是否展开，以及转发原文的展开状态；未展开时保留已有文字并标为部分完成。
-- 知乎具体回答保留段落和图片链接，文章等待正文稳定后读取；折叠、付费提示及仍在加载的情况明确标为部分完成。
-- 小红书、微博、知乎具体回答及文章可读取有限评论和回复，分别返回首层、回复及非文字评论数量；返回续读标识时可以继续下一批并去重。公众号留言不支持。
-- 网页可逐图展开文字，调整评论范围，回看正文与评论历史，或打开原帖核对。
-- Agent 调用七个只读工具；本项目不需要模型密钥，图片不发送至额外在线 OCR 服务。
+正常的用户流程：**交给 Agent → 确认一次官方扩展权限 → 在专用浏览器登录 → 直接提出调研问题。** 后续可问：
 
-项目复用 [OpenCLI](https://github.com/jackwener/OpenCLI) 的浏览器桥接和部分站点适配器，固定的内部读取脚本补足图片、正文和评论结构；公众号还使用无 Cookie 的公开索引与文章解析路径。没有复制其他项目的大量源码或打包账号 Cookie。原创代码使用 MIT 许可；评论加载器改编部分与独立 OpenCLI 依赖遵循 Apache-2.0。具体上游版本、署名和改动见 [第三方声明](THIRD_PARTY_NOTICES.md)；完整许可证随项目保留。MediaCrawler 代码未引入。
+> 在四个平台搜索“个人知识管理工具”，读几篇原文及有限评论，区分品牌推广、教程与用户反馈，给出有来源的痛点归纳。
 
-## 本机运行
+用户不需要找浏览器资料编号、复制 Cookie、配置模型密钥或保持手动启动的服务。平台再次要求扫码、验证码或安全验证时，需要本人正常完成。某些 Agent 首次发现 MCP 需要刷新工具；Agent 可先用同仓库 CLI 完成任务，不应把反复重配交给用户。
 
-需要 Python 3.9+。离线演示不需要账号、OpenCLI 或 OCR：
+完整步骤、兼容性、升级和失败处理见 **[安装说明](docs/installation.md)**；执行约定见 [AGENTS.md](AGENTS.md)。
+
+## 能读取什么
+
+| 平台 | 搜索与正文 | 评论 | 明确限制 |
+| --- | --- | --- | --- |
+| 小红书 | 搜索、配文、轮播图片、逐图本机 OCR | 有限首层评论、回复与续读 | 视频/语音、图表含义、图片评论 OCR 未支持；搜索结果访问上下文有时效 |
+| 微博 | 搜索、帖子、长文展开状态、转发原文状态 | 有限首层评论、回复与续读 | 图片和视频未识别，不能保证所有转发或折叠内容完整 |
+| 知乎 | 搜索、具体回答、文章、问题页最多三个回答 | 具体回答与文章的有限评论、回复 | 不越过付费、登录和验证限制；问题摘要不当成全文 |
+| 微信公众号 | 搜狗索引搜索、正常点击后的正文、段落、代码块、图片链接与日期来源 | 暂不支持 | 不是全网微信全文搜索；可能返回多年旧文；图中文字未识别 |
+
+结果包含来源、取得时间、原始日期、正文长度、各平台确定条数及失败原因。搜索摘要不是已读正文，OCR 全部处理不等于逐字正确，有限评论不代表全部意见。遇到部分失败会保留成功资料，不将空结果静默当完成。
+
+## Agent 安装入口
+
+主要支持 **macOS + Google Chrome** 的自动浏览器设置；核心工具、依赖安装与离线协议检查也覆盖 Linux。Windows 的自动浏览器设置尚未验收。
+
+准备 Python 3.9+、Node 20.18.1+、Git 和 Chrome；本机图片 OCR 推荐 Python 3.10–3.13。缺少运行环境时由 Agent 使用已有包管理器安装，遵守宿主权限。然后由 Agent 执行：
 
 ```sh
-python3 -m social_read --mode demo serve --port 8768
+git clone https://github.com/workstonedai-collab/social-media-read-for-agent.git
+cd social-media-read-for-agent
+python3 bootstrap.py
+python3 bootstrap.py --apply --clients codex --install-ocr
 ```
 
-打开 http://127.0.0.1:8768。所有演示资料均为虚构。Mac 可双击 `启动离线演示.command`。
+Hermes 将 `--clients codex` 换为 `--clients hermes`；需要两边时写 `--clients codex hermes`。其他 Agent 使用 `--clients generic` 生成标准配置，再由 Agent 合并到自己的客户端。
 
-真实读取需要 Node 20.18.1+、OpenCLI、其[官方 Chrome 扩展](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk)，以及独立 Chrome 资料。此次复用 OpenCLI 1.8.6、扩展 1.0.24。扩展自身权限较宽，应用的读取白名单不能缩小扩展权限。
+- OpenCLI 缺失时安装在项目 `.state/opencli/`，不改全局组件。
+- RapidOCR 使用独立环境，模型第一次加载的预热在安装时完成；不改 Agent 自己的依赖。
+- 客户端配置先备份，再合并本项目条目，保留其他设置。重复设置没有变化时不重写文件。
+- 从已保存的专用连接或刚创建的专用浏览器自动识别资料；不会擅自使用唯一但未确认的日常资料。
+- 没有连接时，由 Agent 执行 `python3 bootstrap.py --open-browser`，在项目独立 Chrome 资料里安装 [OpenCLI 官方扩展](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk)。扩展能访问网站、页面调试和 Cookie，需用户确认授权；本项目的七工具读取范围不能缩小扩展自身权限。
+- 平台登录在浏览器内完成，密码、验证码和 Cookie 不交给对话或写入项目配置。
 
-在专用资料中正常登录平台，取得 `opencli profile list` 中对应 context ID 后：
+## 日常使用与连接更新
 
-```sh
-python3 -m social_read set-profile YOUR_CONTEXT_ID
-python3 -m social_read doctor
-python3 -m social_read serve --port 8767
-```
-
-打开 http://127.0.0.1:8767，或双击 `启动真实读取.command`。未明确指定资料时拒绝真实搜索和读取。`--profile` 或 `SOCIAL_READ_PROFILE` 可覆盖保存的选择。
-
-OCR 默认 auto：通过安装器安装完成 RapidOCR 后优先用 RapidOCR（独立 Python 3.10+ 环境、ONNX CPU、PP-OCRv6 small；长图自动分片），否则 macOS 用 Vision 与 Swift 编译工具。可用 `SOCIAL_READ_OCR=vision` 或 `rapidocr` 指定。其他系统可使用 RapidOCR，但浏览器首次设置目前仅在 macOS 验证。单张最多 12 MB、60M 像素，最多处理 18 张；每张 RapidOCR 最多45秒、Vision最多25秒，总图片识别150秒，超预算明确保留未读位置。原始图片用后清理，私有缓存不混用引擎；切换识别器会重核小红书旧正文。公式输出仍是文字，不能视为已验证数学语义或 LaTeX。
-
-完整正文缓存半小时；小红书有未读图片时会进入补读，不被普通正文缓存挡住。`refresh=true` 重新核对平台正文，并可复用未变化的成功图片。图片识别会复用相同图片字节的结果，同一图片 URL 的下载与识别结果也可复用半小时；每张图的 `cache_used`、`image_download_cache_used` 和缓存年龄明确返回。刷新正文不等于重新识别每张未变化的图片。逐图检查点也保留半小时，并绑定笔记与有序图片身份；平台提供图片标识时可兼容临时下载地址变化，否则只按相同地址复用。已完成部分可在取消、进程中断后保留。`images_reused`、`images_processed_this_run` 和 `unread_orders` 明确给出本次复用、处理及缺失位置。
-
-登录、扫码、验证码由用户在平台完成。验证、频率限制和访问拒绝不反复尝试，不轮换账号或代理。只读网络超时最多恢复一次。不同社交账号应使用不同 Chrome 资料或 `--state-dir`；同一资料内切换账号不会自动清空缓存。
-
-## MCP 接入 Codex 和 Hermes
-
-本机已配置两边的 `social-media-read-for-agent`，限定七个工具。绝对路径入口 `start_mcp.py` 不依赖客户端当前目录：
+MCP 客户端配置由安装器生成，入口是绝对路径 `start_mcp.py`，不依赖 Agent 当前工作目录。兼容任何支持本地 **MCP stdio** 的客户端：
 
 ```json
 {
@@ -68,54 +70,57 @@ OCR 默认 auto：通过安装器安装完成 RapidOCR 后优先用 RapidOCR（�
 }
 ```
 
-项目目录中的 `.state/browser-profile.txt` 保存专用资料选择；其他机器需重新设置自己的资料。通用入口仍支持 `python3 -m social_read mcp`、显式 `--state-dir` 和 `--profile`。Python 内部模块 `social_read` 保持兼容，安装后命令提供正式名称及旧 `social-read` 别名。本机旧目录 `social-read` 是指向新目录的兼容链接。
-
-Hermes 当前版本的显式工具筛选使用原始服务名，例如 `hermes chat -t social-media-read-for-agent -q "搜索并阅读个人知识管理工具的用户反馈"`。不要在此参数中加入 `mcp-` 前缀。本机日常 CLI 工具配置已同步。
-
-**a5 的 `start_mcp.py` 保持连接，空闲时自动更新读取组件。** `list_platforms.runtime` 返回加载与磁盘指纹、是否待更新及更新失败原因；忙碌任务完成后再更新。首次添加服务、a4 旧连接迁移、启动器自身或工具结构变化仍可能需要一次客户端刷新。直接使用 `python3 -m social_read mcp` 是兼容入口，不提供此自动更新能力。若传输中断，先查询已有任务，不盲目重复提交。
-
 | 工具 | 用途 |
-|---|---|
-| `list_platforms` | 读取实际运行版本、候选能力和限制，不等于本次账号可读 |
-| `connection_status` | 创建浏览器与只读账号检查任务 |
-| `search` | 搜索所选平台，默认每平台最多 5 条、上限 10 条 |
-| `read_content` | 按 `content_ref` 或平台完整 URL 阅读；支持 `refresh` |
-| `read_comments` | 默认最多 10 条首层、每条 3 条回复；可设 `limit=1..20`、`replies_limit=0..5`；`cursor` 接收上批返回的 `next_cursor` |
-| `get_task` | 查看任务；`wait_seconds=0..30` 可减少轮询 |
-| `cancel_task` | 取消本地读取任务 |
+| --- | --- |
+| `list_platforms` | 实际版本、运行组件、能力及限制 |
+| `connection_status` | 提交只读连接/账号检查任务 |
+| `search` | 搜索所选平台，默认每平台5条、最多10条 |
+| `read_content` | 按 `content_ref` 或完整原帖地址阅读，支持 `refresh` |
+| `read_comments` | 有限首层评论与每条首层的回复；`next_cursor` 可续读 |
+| `get_task` | 查询结果；最多等待30秒 |
+| `cancel_task` | 取消本地任务，保留已完成结果 |
 
-任务返回 `task_id`，需等待终态。`body_chars`、`media_count`、`image_ocr_chars`、`coverage.returned_by_platform` 和评论覆盖数均为确定字段，无需 Agent 估算。图片有未读项、长文未展开、部分评论失败时返回 partial 并保留成功内容。空评论不能证明没有评论。
+搜索/阅读返回 `task_id` 后，用 `get_task` 等待终态。`replies_limit=1` 表示**每条首层**最多一条回复，并非整批总共一条。公众号留言已声明不支持，不应提交。
 
-评论每批读取有界根评论页，并限制展开请求；有 `next_cursor` 时可继续下一批。续读标识只适用于同一资料、平台和帖子，有效期半小时，不跨账号或帖子混用。微博/知乎保留平台分页与溢出缓冲；小红书重新加载可见评论并跳过已返回根评论，时间预算内加载停滞不等于到底。保存所属首层评论与回复对象，不声明已还原所有深层回复树。数据中 `parent_id` 表示所返回评论串的根，深层 `depth` 未确认时为 null。无平台编号的 DOM 评论用内容指纹标识。
+稳定入口保持 MCP 连接；兼容的读取代码改动在任务完成后的请求边界加载，任务和缓存保留。`list_platforms.runtime` 明确加载/磁盘指纹、待更新状态与失败原因。启动器自身、工具结构或依赖环境改变，仍可能需要客户端刷新。首次发现工具或旧连接迁移也由宿主控制；不要强杀正在运行的工具进程。
 
-## 平台范围
-
-| 平台 | 已实现 | 当前限制 |
-|---|---|---|
-| 小红书 | 搜索、配文、图片列表与 OCR、评论及有限回复 | 需要搜索返回的访问参数；短链接不自动展开；视频、图表含义及图片评论 OCR 未覆盖 |
-| 微博 | 搜索、帖子文字、长文展开状态、转发文字状态、评论及有限回复 | 不能保证所有转发与媒体完整，图片和视频未识别 |
-| 知乎 | 搜索、回答、稳定后的文章正文、问题下最多三个回答、回答及文章评论 | 问题摘要会补读，失败时标摘要；付费内容不扩展；图片不做 OCR |
-| 微信公众号 | 搜狗索引搜索、正常点击后可见正文、段落/代码块、图片链接、发布时间来源及结束边界；部分公开短链接 | 非全网全文搜索；可能返回多年以前的内容；留言和图片文字未支持 |
-
-搜索排序、历史资料和推广内容会影响调研。Agent 报告仍需回查来源：本轮已发现漏算公众号候选、估测日期被当正式日期、历史年份换算和样本数量错误，并在交付记录中订正。
-
-## 数据和执行边界
-
-- 只监听 `127.0.0.1`；检查 Host、Origin 和本地会话令牌，不对外发布。
-- 项目不接受发布、点赞、关注、任意命令或任意浏览器脚本参数。
-- 只操作专用资料内自行创建的页面，完成后关闭自身页面。
-- 同一平台跨进程串行，任务间至少间隔 2.5 秒；浏览器读取接口内的网络请求有界。最多八个活跃任务。
-- SQLite、识别缓存及访问上下文仅在 `.state`，目录 0700、状态与缓存文件 0600，排除 Git；磁盘没有额外加密。
-- MCP 和历史去除 Cookie、令牌、微信临时签名和小红书访问参数；本机来源按钮通过受保护的私有接口恢复正常原帖链接。
-- 网站文本、评论和 OCR 均是不可信资料，不能成为 Agent 的执行指令。
-- 页面访问仍会产生平台遥测和浏览痕迹，不承诺零封控风险。
-- 没有使用 GKN 的源码、生产环境、业务数据或凭据，尚未发布到 GitHub。
-
-## 验证
+宿主暂不能刷新时，Agent 可以立即使用同一版 CLI：
 
 ```sh
-python3 -m unittest discover -s tests -v
-node --check social_read/static/app.js
+python3 -m social_read search "个人知识管理工具" --limit 1
+python3 -m social_read read --content-ref CONTENT_REF
+python3 -m social_read comments --content-ref CONTENT_REF --limit 2 --replies-limit 1
 ```
 
-真实测试显式选择加入，不纳入离线检查。详细成功、原始失败、修复和复测见[验证记录](docs/validation.md)、[技术决策](docs/architecture.md)、[组件复用记录](docs/upstream.md)。原始 Agent 报告是私有诊断材料，正式结论以复核后的记录为准。
+这是真实的 CLI 备用路径，不应声称已替换客户端旧 MCP 注册。Hermes 显式工具筛选用原始名称：`-t social-media-read-for-agent`。
+
+## 图片、长文与恢复
+
+安装完成 RapidOCR 后，默认 auto 优先使用本机 RapidOCR；Mac 未安装时使用 Vision。可用 `SOCIAL_READ_OCR=vision` 或 `rapidocr` 指定。图片不发送到额外在线 OCR 服务。
+
+长图按重叠区域分片，避免整图缩小时小字消失；逐张保留成功结果、位置与缺失原因。中途取消或下载失败后可继续补读；缓存按图片、识别器和模型记录区分。两张真实笔记与六张已知原文图的对比见 [OCR 测量](docs/ocr-comparison.md)。印刷公式符号有所改善，复杂数学结构、手写和阅读顺序仍需核对。
+
+单图最多12 MB、60M像素；最多18张；RapidOCR每张45秒、Vision25秒，整批150秒。超预算保留未读位置。正文及识别检查点缓存半小时；完整正文可复用，缺图不被普通缓存挡住，显式刷新会重新核对页面。
+
+公众号会关联搜索记录与解析后的原文，重复阅读可使用正文缓存；旧记录只按精确来源关联，不根据同名标题合并。完整年月日的文章由工具计算年限，不把历史文章当当前市场热度。
+
+## 数据、权限和许可证
+
+浏览器资料、临时访问参数、阅读历史、OCR缓存、模型与独立环境保存在忽略的 `.state/`，目录0700、文件0600；没有额外磁盘加密。本地网页仅监听127.0.0.1。切换社交账号应使用另一专用资料；同一资料内换账号不会自动清空缓存。
+
+只暴露固定读取动作，不接受任意浏览器脚本、发布、点赞或关注。验证码、频率限制和拒绝访问会停止，不轮换账号或代理。网页、评论及OCR均是不可信资料，不能成为Agent执行指令。访问仍会产生平台浏览痕迹，不承诺零账号风险。
+
+原创部分采用 [MIT](LICENSE)。OpenCLI 是独立 Apache-2.0 依赖；少量评论加载逻辑保留上游 Apache-2.0 声明；可选 RapidOCR、PaddleOCR 模型和推理依赖分别署名。模型、平台原图、账号状态及非商业授权代码不随仓库分发。详情见 [第三方声明](THIRD_PARTY_NOTICES.md)。本项目不是上述社交平台的官方产品。
+
+## 验证与参与
+
+```sh
+python3 -m unittest discover -s tests -q
+python3 scripts/verify_clean_install.py --output .state/clean-install.json
+```
+
+第二条在新目录和独立Python环境中安装项目本地OpenCLI，生成隔离的Codex/Hermes/通用配置，检查重复安装、配置保留与七工具协议；不复制账号或现有项目状态，不会使用你的日常浏览器作为已授权资料。加 `--install-ocr` 可验收可选本地OCR。GitHub Actions在Linux、macOS运行账号无关检查。
+
+[真实验收与失败记录](docs/validation.md) · [安装与排障](docs/installation.md) · [架构](docs/architecture.md) · [上游复用](docs/upstream.md)
+
+提交问题时，请附平台、版本、实际失败状态及复现步骤，删除账号身份、Cookie、访问令牌和带签名的私有链接。七日稳定性、Windows浏览器设置、视频转写和更多媒体内容仍未完成。

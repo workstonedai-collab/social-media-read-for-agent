@@ -69,7 +69,7 @@ class RecoveryTests(unittest.TestCase):
             ocr=LocalOCR(td);deadline=time.monotonic()+10
             def download(url,path,cancel,stop):
                 self.assertEqual(stop,deadline);Path(path).write_bytes(b'pixels')
-            with patch.object(ocr,'binary',return_value=Path('/ocr')),patch('social_read.images.download_image',side_effect=download),patch('social_read.images.run_local',return_value=json.dumps({'status':'success','lines':[]})):
+            with patch.object(ocr,'command',return_value=['/ocr']),patch('social_read.images.download_image',side_effect=download),patch('social_read.images.run_local',return_value=json.dumps({'status':'success','lines':[]})):
                 ocr.read(IMAGE+'1',threading.Event(),deadline)
 
     def test_xhs_partial_cache_requests_recovery(self):
