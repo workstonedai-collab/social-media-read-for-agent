@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "managed_python": "3.11.17",
+  "optional_rapidocr_installed": true,
+  "warmup": "success",
+  "blank_image_status": "no_text_detected",
+  "account_state_copied": false
+}

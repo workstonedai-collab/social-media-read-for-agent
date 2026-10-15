@@ -14,6 +14,8 @@ python3 scripts/verify_clean_install.py --portable --output .state/portable-inst
 
 项目持续集成在 macOS/Linux 运行行为检查、可重现演示、隔离配置与独立安装；实际结果以 [GitHub Actions](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml) 为准。CI没有社交账号，不执行平台登录。
 
+独立Python上的RapidOCR安装、模型预热及空白图片no_text_detected检查也通过；不需要系统Swift工具链来使用该OCR路径。见 [可选OCR验收](a8-portable-ocr.json)。
+
 ## 真实平台读取
 
 已有专用浏览器及用户正常登录后，本机 Codex 和 Hermes 均实际搜索、读取过四个平台。上一版本的同主题样本中，两客户端各取得小红书1104、微博1121、知乎234、公众号1181字符；小红书9/9图片处理完成，其中最终刷新使用检查点。详见 [a7当前Codex回执](a7-current-codex.json) 与 [a7 Hermes回执](a7-hermes-final.json)。处理完成不等于OCR逐字准确或全部媒体已读。

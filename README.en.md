@@ -152,3 +152,6 @@ Clean-install verification uses fresh source/Python and isolated client configur
 [Contributing](CONTRIBUTING.md) · [Validation and failures](docs/validation.md) · [Architecture](docs/architecture.md) · [Upstream reuse](docs/upstream.md)
 
 Seven-day stability, new-machine signed-in onboarding, Windows browser setup, video transcription, and more platforms remain unverified or incomplete. When reporting a failure, include platform, version, safe error status, and reproduction steps; remove credentials, account identity, and signed private URLs.
+
+
+[Report a problem](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=feature_request.yml)

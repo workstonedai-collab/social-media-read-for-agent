@@ -189,3 +189,6 @@ python3 scripts/verify_clean_install.py --output .state/clean-install.json
 [贡献与反馈](CONTRIBUTING.md) · [真实验收与失败记录](docs/validation.md) · [安装与排障](docs/installation.md) · [架构](docs/architecture.md) · [上游复用](docs/upstream.md)
 
 提交问题时，请附平台、版本、实际失败状态及复现步骤，删除账号身份、Cookie、访问令牌和带签名的私有链接。七日稳定性、Windows浏览器设置、视频转写和更多媒体内容仍未完成。
+
+
+[报告使用问题](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=bug_report.yml) · [提出功能建议](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=feature_request.yml)

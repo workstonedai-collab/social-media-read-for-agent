@@ -1,0 +1,17 @@
+name: 功能建议 / Feature suggestion
+description: 说说希望 Agent 帮你完成什么，以及现在卡在哪里。
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 你希望解决什么实际问题？
+      description: 可以描述使用场景，无需写技术方案。请勿包含账号、私有链接或个人隐私。
+    validations:
+      required: true
+  - type: textarea
+    id: expectation
+    attributes:
+      label: 理想的操作过程和结果
+      description: 例如希望把链接交给 Agent 后直接读到哪些内容、减少哪些手工步骤。
+    validations:
+      required: true

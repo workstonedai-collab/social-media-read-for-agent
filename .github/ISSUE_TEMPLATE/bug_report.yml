@@ -1,0 +1,27 @@
+name: 使用问题 / Reading or setup problem
+description: 报告安装、搜索、正文、图片或评论读取问题。
+body:
+  - type: markdown
+    attributes:
+      value: 请勿上传 Cookie、密码、验证码、浏览器资料、真实调研全文或带签名的私有链接。只提供脱敏的错误状态与步骤。
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 哪个步骤或平台？
+      options: [安装与连接, 小红书, 微博, 知乎, 微信公众号, 其他]
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 系统、Agent 与项目版本
+      placeholder: 例如 macOS、Codex、0.1.0a8；不知道版本可让 Agent 查看 list_platforms。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤与明确错误状态
+      description: 说明做了什么、希望发生什么、实际发生什么。不要粘贴原始完整日志。
+    validations:
+      required: true
