@@ -2,6 +2,8 @@
 
 [English](installation.en.md) · [返回项目介绍](../README.md)
 
+第一次使用也可照 [完整引导](first-use.md) 开始；已有连接可直接复制 [任务模板](trial-tasks.md)。遇到问题用 [反馈卡片](trial-feedback.md) 描述卡住的步骤即可。
+
 ## 给普通用户
 
 把仓库地址交给支持本地执行的 Agent，让它读 AGENTS.md 并完成安装。你不需要先安装 Python、Node、npm 或 Docker，不需要找浏览器资料编号、复制 Cookie 或手改配置。macOS 也可下载源码压缩包、解压后双击“安装.command”，然后回到 Agent 继续。
@@ -23,9 +25,11 @@
 
 不需要先安装系统 Python/Node，也不需要 Homebrew、uv、Docker 或管理员权限。安装器使用系统基础工具 bash、curl、tar、awk 与 SHA256，从固定官方发布下载独立运行时，按 runtime-lock.tsv 校验后执行。运行时、OpenCLI、配置备份和可选 OCR 都在忽略的 .state 中；不会修改 shell 配置、系统运行时和 Agent 的依赖。
 
-固定 Python 3.11.17（Astral python-build-standalone 构建20261013）、Node22.23.3、OpenCLI1.8.6。运行时解压约260 MB；组件及可选 OCR 需要额外空间。首次需要联网，后续可复用运行时。下载校验失败直接停止；已有目录与固定版本冲突时不覆盖，由 Agent 处理。下载、解压中断会清理本次临时文件，已完成组件保留。安装锁阻止同时安装；异常退出留下锁时由 Agent 先核对是否仍有安装进程，不让用户盲删。
+固定 Python 3.11.17（Astral python-build-standalone 构建20261013）、Node22.23.3、OpenCLI1.8.6。运行时解压约260 MB；组件及可选 OCR 需要额外空间。首次需要联网，后续可复用运行时。 下载只使用登记的官方源，始终保留TLS及SHA256/SRI校验。安装器会复用已有环境代理或macOS静态网络代理；公开软件包连接失败时检测官方源直连，运行时最多三次续传尝试，仅作用于本次下载子进程，不改系统代理或社媒读取路径。代理明确拒绝访问或证书校验失败时不自动换路。下载校验失败直接停止；已有目录与固定版本冲突时不覆盖，由 Agent 处理。下载中断会保留私有缓存中的.part文件，按HTTP Range继续传输；完整文件仍须匹配固定SHA256才解压执行。只清理本次解压临时目录，已完成组件保留。安装锁阻止同时安装；异常退出留下锁时由 Agent 先核对是否仍有安装进程，不让用户盲删。
 
 独立运行时提供 macOS Apple Silicon/Intel、Linux glibc x64/arm64；Windows和Linux musl不在此入口范围。自动创建专用Chrome主要覆盖macOS，其他Linux桌面需Agent引导连接。Chrome仍需存在；缺少时按宿主权限处理。双击文件可能需要macOS正常确认，不修改安全策略或强制移除隔离标记。
+
+读取组件按仓库 `dependencies/opencli/package-lock.json` 固定依赖版本与完整性，使用 `npm ci`；不执行依赖安装脚本，不下载可选原生加速包，不写全局npm或shell设置。依赖缓存保存在本项目私有目录；安装中断后，Agent重跑同一入口即可复用已完成的运行时和下载缓存。
 
 安装器只配置请求的客户端，遵循 CODEX_HOME/HERMES_HOME，先备份再合并，保留其他设置。没有检测到客户端时输出通用配置；generic导出不代表已修改任何客户端。没有本地执行或stdio能力的云聊天不能直接访问本机浏览器。
 
@@ -92,7 +96,8 @@ run.sh会使用项目解释器及Node，即使Agent的启动环境没有这些�
 
 | 状态 | Agent处理 |
 | --- | --- |
-| 下载失败/校验失败 | 保留已完成组件，核对官方来源与网络后有界重试；不关闭TLS或跳过校验 |
+| 下载失败/校验失败 | 查看返回的stage/reason及私有log_file；保留已完成组件，核对官方来源与网络；不关闭TLS或跳过校验 |
+| 安装等待中 | Agent读取.state/setup-progress.json或私有setup-logs确认当前步骤；首次组件较大可能需数分钟，不让用户重新安装Python/Node |
 | 已有安装锁 | 先核对本次项目安装进程；仍在运行则等待，不能删除别的进程的锁 |
 | dedicated_browser_extension | Agent在专用Chrome操作官方商店添加，用户只确认最终权限；等待并自动识别连接 |
 | login_pending | 用户已暂缓登录；不访问对应平台，先用其他能力，之后从此步骤恢复 |
@@ -105,6 +110,8 @@ run.sh会使用项目解释器及Node，即使Agent的启动环境没有这些�
 | source_mismatch | 当前页面与目标关键词/笔记不符，停止，避免返回错帖 |
 | source_context_changed | 重新搜索取得新上下文，不猜另一篇同名文章 |
 | 公众号留言unsupported | 不提交或重试，本版只支持文章正文 |
+
+下载路径默认auto。仅安装Agent排障时可用 `SOCIAL_READ_DOWNLOAD_ROUTE=proxy` 保持已有代理，或 `direct` 对公开软件下载明确直连；不修改持久配置，也不用于社交平台访问。不要在日志或反馈中粘贴代理凭据。
 
 ## 自行验证与反馈
 

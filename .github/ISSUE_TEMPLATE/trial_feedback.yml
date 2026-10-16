@@ -1,0 +1,37 @@
+name: 试用反馈 / Trial feedback
+description: 告诉我们从哪里看到项目、完成了什么、哪一步需要额外操作。
+title: "[试用反馈] "
+body:
+  - type: markdown
+    attributes:
+      value: 感谢试用。不要上传账号、Cookie、密码、验证码、签名链接或完整原始日志。只提供脱敏步骤；暂时无法登录可写“等待本人登录”。
+  - type: input
+    id: source
+    attributes:
+      label: 从哪里看到项目？
+      placeholder: 例如 V2EX、B站、朋友推荐；不确定可留空。
+  - type: input
+    id: environment
+    attributes:
+      label: 系统与 Agent
+      placeholder: 例如 macOS、Codex、0.1.0a11；不知道版本可留空。
+  - type: textarea
+    id: goal
+    attributes:
+      label: 你想完成什么任务？
+    validations:
+      required: true
+  - type: dropdown
+    id: progress
+    attributes:
+      label: 做到哪一步？
+      options: [还没安装, 安装完成, 浏览器已连接, 搜索成功, 读到正文, 完成一次调研, 等待本人授权或登录]
+    validations:
+      required: true
+  - type: textarea
+    id: experience
+    attributes:
+      label: 哪一步需要自己折腾？下次还想用来做什么？
+      description: 可写大约耗时、人工协助次数或脱敏错误状态，不粘贴完整日志。
+    validations:
+      required: true

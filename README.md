@@ -4,13 +4,13 @@
 
 **把账号登录好，其余交给 Agent：跨平台搜索、读原文和图片、查评论，留下可回查的来源。**
 
-**中文** · [English](README.en.md) · [安装与排障](docs/installation.md) · [实际验证](docs/validation.md)
+**中文** · [English](README.en.md) · [安装与排障](docs/installation.md) · [首次使用教程](docs/first-use.md) · [任务模板](docs/trial-tasks.md) · [试用反馈](docs/trial-feedback.md) · [实际验证](docs/validation.md)
 
 [![Install checks](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml/badge.svg)](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml)
 
 项目标识：`social-media-read-for-agent`。为已有 Agent 提供七个只读 MCP 工具，也可以通过命令行或本地网页使用。本项目无需额外的模型 API 密钥；你的 Agent 自身仍按原来的方式运行。
 
-当前是 **0.1.0a10 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+当前是 **0.1.0a11 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
 
 ## 适合用它做什么
 
@@ -39,6 +39,14 @@ flowchart LR
 用户不需要找浏览器资料编号、复制 Cookie、配置模型密钥或保持手动启动的服务。Agent 可等待授权后的新连接并自动打开登录页。暂时无法登录时保留进度，先使用其他平台；不必从头安装。平台再次要求扫码、验证码或安全验证时，需要本人正常完成。某些 Agent 首次发现 MCP 需要刷新工具；Agent 可先用同仓库 CLI 完成任务，不应把反复重配交给用户。
 
 完整步骤、兼容性、升级和失败处理见 **[安装说明](docs/installation.md)**；执行约定见 [AGENTS.md](AGENTS.md)。
+
+## 看一次真实执行
+
+[![当前 Codex 真实任务回执脱敏回放](docs/assets/live-demo-poster.png)](docs/assets/live-demo.mp4)
+
+这是已有专用账号上的真实工具任务回执回放，等待经过压缩，不是平台页面录屏或首次扫码登录录像。搜索、取得正文、图中文字和有限评论分别记录，首次失败及修复复测也分别保留。具体数量、日期与未验证边界见 [本版回执](docs/a11-validation.json)。视频内不含账号、原帖全文或签名链接。
+
+第一次使用可以照 [完整教程](docs/first-use.md) 开始，或复制 [三个短任务](docs/trial-tasks.md)。遇到卡点直接填写 [简短反馈卡片](docs/trial-feedback.md)，不必先整理完整日志。
 
 <details>
 <summary>查看实际运行的界面演示（完全虚构数据）</summary>
@@ -108,7 +116,7 @@ flowchart LR
 
 Hermes 换成 `--clients hermes`；明确两边都需要时使用 `--clients codex hermes`。其他本地 Agent 使用 `--clients generic` 生成配置，再由 Agent 合并到自己的客户端。
 
-macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a10/social-media-read-for-agent-v0.1.0a10.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
+macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a11/social-media-read-for-agent-v0.1.0a11.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
 
 - 安装器按系统/处理器下载固定版本的独立 Python、Node，校验 SHA256 后才执行，保存在项目 `.state/runtime/`，不改系统 Python/Node、shell 设置或 Agent 自己的依赖。
 - 首次需要联网下载运行时和组件；后续重复安装复用它们。不是把运行时删掉，而是免去用户单独安装和管理；运行时解压约260 MB，OpenCLI 与可选 OCR 另需空间。

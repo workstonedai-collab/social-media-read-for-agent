@@ -1,0 +1,213 @@
+{
+  "version": "0.1.0a11",
+  "date": "2026-10-16",
+  "code_commit": "01c51f8e31997cb26579edb0f99a0888231f3d28",
+  "behavior_checks": {
+    "passed": 151
+  },
+  "current_codex": {
+    "date": "2026-10-16",
+    "timezone": "Asia/Shanghai",
+    "version": "0.1.0a11",
+    "client": "当前 Codex 原生 MCP",
+    "kind": "真实任务回执脱敏回放；非平台页面录屏，等待已压缩",
+    "runtime": {
+      "connection": "stable-stdio-gateway",
+      "loaded_revision": "b7ed3fdd9daf50ca",
+      "disk_revision": "b7ed3fdd9daf50ca",
+      "update_pending": false,
+      "reloads": 4,
+      "update_error": null
+    },
+    "search_returned": {
+      "xiaohongshu": 1,
+      "weibo": 1,
+      "zhihu": 1,
+      "weixin": 1
+    },
+    "reads_succeeded": 4,
+    "reads_requested": 4,
+    "reads": {
+      "xiaohongshu": {
+        "status": "success",
+        "body_chars": 548,
+        "navigation": null,
+        "note_type": "video"
+      },
+      "weibo": {
+        "status": "success",
+        "body_chars": 399,
+        "navigation": null,
+        "note_type": null
+      },
+      "zhihu": {
+        "status": "success",
+        "body_chars": 234,
+        "navigation": null,
+        "note_type": null
+      },
+      "weixin": {
+        "status": "success",
+        "body_chars": 1181,
+        "navigation": {
+          "page_attempts": 1,
+          "article_clicks": 1,
+          "activation": "validated_link_dom_click",
+          "article_navigation_seconds": 4.868
+        },
+        "note_type": null
+      }
+    },
+    "additional_image_note": {
+      "status": "success",
+      "images_discovered": 6,
+      "ocr_succeeded": 6,
+      "ocr_unread": 0,
+      "ocr_text_chars": 6243,
+      "ocr_accuracy_verified": false,
+      "video_transcription": false,
+      "images_reused": 0
+    },
+    "comments": {
+      "xiaohongshu": {
+        "returned_top_level": 2,
+        "returned_replies": 1,
+        "all_comments": false,
+        "all_replies": false,
+        "stop_reason": "root_sample_limit"
+      },
+      "weibo": {
+        "returned_top_level": 2,
+        "returned_replies": 1,
+        "all_comments": false,
+        "all_replies": false,
+        "stop_reason": "root_sample_limit"
+      },
+      "zhihu": {
+        "returned_top_level": 2,
+        "returned_replies": 2,
+        "all_comments": false,
+        "all_replies": false,
+        "stop_reason": "root_page_end"
+      }
+    },
+    "ocr_summary": "6 / 6 张",
+    "comment_summary": "三平台有限样本",
+    "source_scope": "首个小红书结果为视频笔记，只读配文与封面OCR；另读一篇六图图文。公众号样本为2019年旧文。微博包含品牌推广，知乎包含作者自荐。",
+    "first_failures": {
+      "previous_a10": "公众号导航超时，图文5/6；不覆盖原记录",
+      "a11_initial_search": "小红书page_extract超时，首批搜索部分完成；首次失败保留",
+      "a11_diagnostic": "同一小红书页面的结果在原等待预算后到达；保留失败，修复后重新验收"
+    },
+    "hermes": {
+      "mcp_connection": "passed",
+      "tools_discovered": 7,
+      "agent_research": "deferred_by_user",
+      "reason": "本机模型认证不可用；没有进入完整调研，不将工具发现写成端到端通过"
+    },
+    "conclusion": "本轮有限样本验证当前Codex的真实工具调用，不证明七日稳定、全部评论、OCR逐字准确或全新操作系统首次登录。"
+  },
+  "installation": {
+    "date": "2026-10-16",
+    "version": "0.1.0a11",
+    "code_commit": "01c51f8e31997cb26579edb0f99a0888231f3d28",
+    "ci": {
+      "run_id": 38851054777,
+      "url": "https://github.com/workstonedai-collab/social-media-read-for-agent/actions/runs/38851054777",
+      "macos": "passed",
+      "ubuntu": "passed",
+      "child_path_without_python_node_npm": true,
+      "fresh_dependencies_and_sentinel_config_preserved": true,
+      "credentials_copied": false,
+      "platform_login_in_ci": false
+    },
+    "local_first_candidate": {
+      "status": "passed",
+      "fresh_directory": true,
+      "empty_dependency_cache": true,
+      "ocr_install_and_warmup": "passed",
+      "second_run_changes": []
+    },
+    "local_final_resumable": {
+      "status": "passed",
+      "version": "0.1.0a11",
+      "fresh_source": true,
+      "initial_path_has_python_node_npm": false,
+      "account_credentials_copied": false,
+      "existing_config_values_preserved": true,
+      "second_run_changes": [],
+      "mcp_tools": 7,
+      "demo_reads": 4,
+      "ocr": {
+        "installed": true,
+        "warmup": "success",
+        "blank_image_status": "no_text_detected"
+      },
+      "live_logged_in_read_tested": false
+    },
+    "first_failure_preserved": {
+      "stage": "python_download",
+      "status": "runtime_download_failed",
+      "context": "续传修复前的候选安装；不是平台登录问题"
+    },
+    "first_user_login": "未验收全新操作系统或空白资料首次登录；真实读取使用已有专用账号",
+    "hermes_agent_research": "用户选择稍后补验；七工具发现已通过",
+    "runtime_transfer_history": [
+      {
+        "component": "python",
+        "route": "auto",
+        "attempt": 1,
+        "curl_exit": 35,
+        "tls_verification_enabled": true
+      },
+      {
+        "component": "python",
+        "route": "direct",
+        "attempt": 2,
+        "curl_exit": 28,
+        "tls_verification_enabled": true
+      },
+      {
+        "component": "python",
+        "route": "auto",
+        "attempt": 3,
+        "curl_exit": 0,
+        "tls_verification_enabled": true
+      },
+      {
+        "component": "node",
+        "route": "auto",
+        "attempt": 1,
+        "curl_exit": 0,
+        "tls_verification_enabled": true
+      }
+    ],
+    "runtime_archive_checksum_before_execution": true,
+    "runtime_partial_files_retained_during_recovery": true,
+    "ci_artifact_checks": [
+      {
+        "os": "darwin",
+        "status": "passed",
+        "version": "0.1.0a11",
+        "initial_path_has_python_node_npm": false,
+        "existing_config_values_preserved": true,
+        "second_run_changes": [],
+        "mcp_tools": 7,
+        "demo_reads": 4,
+        "live_logged_in_read_tested": false
+      },
+      {
+        "os": "linux",
+        "status": "passed",
+        "version": "0.1.0a11",
+        "initial_path_has_python_node_npm": false,
+        "existing_config_values_preserved": true,
+        "second_run_changes": [],
+        "mcp_tools": 7,
+        "demo_reads": 4,
+        "live_logged_in_read_tested": false
+      }
+    ]
+  },
+  "first_user_flow": "本轮未在空白资料完成新用户首次登录；不把已有账号读取或CI写成此项通过。"
+}

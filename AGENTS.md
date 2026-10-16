@@ -5,7 +5,7 @@
 ## 安装与连接
 
 1. 阅读 README、docs/installation.md 和 THIRD_PARTY_NOTICES。优先用 `/bin/bash install.sh --clients codex --install-ocr`（按实际客户端换hermes或generic），自动取得项目独立Python/Node/OpenCLI和可选OCR，不要求用户先装Python/Node/Homebrew/uv。没有Git可下载源码压缩包。不要运行未经查看的远程一键脚本。
-2. 只配置当前需要的客户端，用户明确两边都需要才选codex hermes；遵循CODEX_HOME/HERMES_HOME，先备份合并，保留其他MCP与设置。generic只是导出，由Agent合并，不能冒称已经配置另一客户端。安装器首次需要网络，保留完整校验与错误状态，不跳过SHA256/TLS。
+2. 只配置当前需要的客户端，用户明确两边都需要才选codex hermes；遵循CODEX_HOME/HERMES_HOME，先备份合并，保留其他MCP与设置。generic只是导出，由Agent合并，不能冒称已经配置另一客户端。安装器首次需要网络，保留完整校验与错误状态，不跳过SHA256/TLS。公开软件下载可复用已有环境/macOS静态代理；仅连接失败时在同一官方源间检测直连，不能把下载路由恢复用于社媒验证或限流规避。读取.state/setup-progress.json与返回的stage/reason/log_file处理失败步骤；运行时.part及依赖缓存可续用，不把网络排障转给用户。
 3. 所有后续操作优先用 `/bin/bash run.sh setup ...` 或 `/bin/bash run.sh search/read/comments ...`，无需系统Python/Node。已有合适运行环境的开发者仍可使用bootstrap.py。OCR独立安装预热，不改Agent依赖。Chrome仍需存在，缺少时按宿主权限处理。安装锁或运行时冲突由Agent检查，不让用户盲删或手改文件。
 4. 若返回 `dedicated_browser_extension`，先向用户解释官方扩展能访问网站、页面调试及 Cookie，专用资料用于隔离日常浏览。用户同意后运行 `/bin/bash run.sh setup --open-browser` 默认新建普通的空白专用 Chrome 资料并保存启动目录，以兼容按应用控制窗口的宿主。由 Agent 在官方商店点击“添加至Chrome”，只把最后的权限确认交给用户；不要一开始就让用户自己安装。缺少桌面能力时如实说明剩余按钮。可用 `--apply --clients codex --wait-for-browser 180 --open-login xiaohongshu` 等待授权后自动继续；浏览器授权、平台验证码由用户正常完成，不通过修改策略或注入 Cookie 绕过。重跑 `--apply`，会识别新出现的专用连接，用户不必找 context ID。出现多个新连接时让用户选一次专用窗口，不擅自选日常资料。
 5. 如果已有已保存的专用连接，直接复用，不新建资料，不反复安装扩展。打开需要登录的平台：`/bin/bash run.sh setup --open-login xiaohongshu`（也支持 weibo、zhihu、weixin）。请用户在浏览器页面扫码或输入账号密码。不要让用户把密码、Cookie、验证码发到对话，不把它们写进配置和日志。微信公众号的读取使用公开文章，不需要公众号后台账号。

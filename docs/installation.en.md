@@ -68,3 +68,11 @@ python3 scripts/verify_clean_install.py --portable --output .state/portable-inst
 ```
 
 Portable acceptance starts from fresh source with no Python/Node/npm visible on the child PATH, preserves configuration sentinels and calls seven tools using fictional data. It copies no accounts or browser state. Live day receipts remain private in .state/stability; repeats on one date do not add days. The command does not create schedules or upload records. Report platform/version/safe status and redacted reproduction, never credentials, browser profiles, original bodies or signed private URLs.
+
+## Download recovery in a11
+
+Public runtime downloads keep HTTPS and SHA256 verification. Existing environment proxies and static macOS HTTPS proxy settings are reused. Runtime archives preserve partial bytes and resume by HTTP Range, with at most three bounded attempts and a full SHA256 check before execution. Connection failures can fall back to the same official origin directly; HTTP denial and certificate-verification failures do not trigger an automatic route switch. This only affects public dependency downloads, not platform requests or system network settings.
+
+OpenCLI dependencies use the committed npm lockfile and SRI via `npm ci`, with installation scripts and optional native add-ons disabled. The project preserves completed runtimes and a private dependency cache. Setup errors expose a stable `stage`, `reason`, and private `log_file`, rather than a truncated command. An agent can inspect `.state/setup-progress.json` while waiting and rerun the same installer after handling the failed step. The user should not need to reinstall Python or Node manually.
+
+`SOCIAL_READ_DOWNLOAD_ROUTE=proxy|direct|auto` is an optional download-only diagnostic setting for installation agents. Do not paste proxy credentials into feedback. Use [the short feedback card](trial-feedback.md) or the repository issue chooser.
