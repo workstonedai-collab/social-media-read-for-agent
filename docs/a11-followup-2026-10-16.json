@@ -1,0 +1,380 @@
+{
+  "version": "0.1.0a11",
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "source_commit": "fc1bd0e324cee73110ae640558579be9d3ec5b15",
+  "browser_scope": "已有 Social Read 专用账号；不访问待登录新资料，不切换账号",
+  "daily_registered_sample": {
+    "query": "个人知识管理工具",
+    "results": [
+      {
+        "platform": "xiaohongshu",
+        "search": {
+          "status": "success",
+          "returned": 1,
+          "error_statuses": [],
+          "navigation": [
+            {
+              "status": "ready",
+              "seconds": 7.997,
+              "search_entry": "same_origin_navigation",
+              "page_attempts": 1,
+              "dispatch_status": "acknowledged"
+            }
+          ]
+        },
+        "read": {
+          "status": "success",
+          "body_chars": 548,
+          "cache_used": false,
+          "coverage": {
+            "caption": "read",
+            "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+            "image_count": 1,
+            "discovered_images": 1,
+            "ocr_attempted": 1,
+            "ocr_succeeded": 1,
+            "ocr_unread": 0,
+            "image_order": "note_state_carousel",
+            "images_all_processed": true,
+            "video_transcription": false,
+            "ocr_accuracy_verified": false,
+            "images_reused": 0,
+            "images_processed_this_run": 1,
+            "unread_orders": [],
+            "undiscovered_image_count": 0,
+            "images_from_download_cache": 0
+          },
+          "navigation": null,
+          "note_type": "video",
+          "error_statuses": []
+        },
+        "comments": {
+          "status": "success",
+          "coverage": {
+            "requested_top_level": 2,
+            "replies_per_root_limit": 1,
+            "returned_top_level": 2,
+            "returned_replies": 1,
+            "returned_rows": 3,
+            "non_text_rows": 0,
+            "all_comments": false,
+            "all_replies": false,
+            "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+            "root_pages": 0,
+            "reply_requests": 0,
+            "root_end_reached": null,
+            "stop_reason": "root_sample_limit",
+            "backend": "note_dom_host_steps",
+            "reply_roots_not_expanded": 0,
+            "loading": {
+              "page_attempts": 1,
+              "search_entry": "same_origin_navigation",
+              "seconds": 6.447,
+              "wait_driver": "host",
+              "optional_caption_required": false
+            },
+            "continued": false,
+            "sort": "platform_default"
+          },
+          "error_statuses": []
+        }
+      },
+      {
+        "platform": "weixin",
+        "search": {
+          "status": "success",
+          "returned": 1,
+          "error_statuses": [],
+          "navigation": []
+        },
+        "read": {
+          "status": "success",
+          "body_chars": 1181,
+          "cache_used": false,
+          "coverage": {
+            "visible_body": true,
+            "body_closed": true,
+            "body_stable": true,
+            "local_truncation": false,
+            "paid_or_collapsed": false,
+            "code_block_count": 0,
+            "image_text_read": false,
+            "all_article_content": false
+          },
+          "navigation": {
+            "page_attempts": 1,
+            "article_clicks": 1,
+            "activation": "validated_link_dom_click",
+            "article_navigation_seconds": 5.476
+          },
+          "note_type": null,
+          "error_statuses": []
+        },
+        "comments": {
+          "status": "unsupported"
+        }
+      },
+      {
+        "platform": "weibo",
+        "search": {
+          "status": "success",
+          "returned": 1,
+          "error_statuses": [],
+          "navigation": []
+        },
+        "read": {
+          "status": "success",
+          "body_chars": 399,
+          "cache_used": false,
+          "coverage": {
+            "long_text": true,
+            "long_text_expanded": true,
+            "text_status": "expanded",
+            "all_media_read": false
+          },
+          "navigation": null,
+          "note_type": null,
+          "error_statuses": []
+        },
+        "comments": {
+          "status": "success",
+          "coverage": {
+            "requested_top_level": 2,
+            "replies_per_root_limit": 1,
+            "returned_top_level": 2,
+            "returned_replies": 1,
+            "returned_rows": 3,
+            "non_text_rows": 0,
+            "all_comments": false,
+            "all_replies": false,
+            "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+            "root_pages": 1,
+            "reply_requests": 1,
+            "root_end_reached": false,
+            "stop_reason": "root_sample_limit",
+            "backend": "page_context_comments",
+            "reply_roots_not_expanded": 0,
+            "continued": false,
+            "sort": "platform_flow_0"
+          },
+          "error_statuses": []
+        }
+      },
+      {
+        "platform": "zhihu",
+        "search": {
+          "status": "success",
+          "returned": 1,
+          "error_statuses": [],
+          "navigation": []
+        },
+        "read": {
+          "status": "success",
+          "body_chars": 234,
+          "cache_used": false,
+          "coverage": {
+            "text_source": "answer_api_content",
+            "local_truncation": false,
+            "all_answers": false,
+            "images_ocr": false
+          },
+          "navigation": null,
+          "note_type": null,
+          "error_statuses": []
+        },
+        "comments": {
+          "status": "failed",
+          "coverage": null,
+          "error_statuses": [
+            "access_denied"
+          ]
+        }
+      }
+    ],
+    "all_requested_reads_passed": true,
+    "all_requested_comments_passed": false,
+    "platform_access_stop": "知乎评论返回 access_denied 后停止该平台，本轮未重试；未据此推断具体封控或登录原因"
+  },
+  "image_resume": {
+    "client": "当前 Codex 原生 MCP",
+    "test_kind": "主动取消真实多图读取后继续；非自然网络故障",
+    "cancelled": {
+      "status": "cancelled",
+      "body_chars": 5476,
+      "cache_used": null,
+      "coverage": {
+        "caption": "read",
+        "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+        "image_count": 6,
+        "discovered_images": 6,
+        "ocr_attempted": 5,
+        "ocr_succeeded": 4,
+        "ocr_unread": 2,
+        "image_order": "note_state_carousel",
+        "images_all_processed": false,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 0,
+        "images_processed_this_run": 5,
+        "unread_orders": [
+          5,
+          6
+        ],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "navigation": null,
+      "note_type": "normal",
+      "error_statuses": [
+        "cancelled"
+      ]
+    },
+    "resumed": {
+      "status": "success",
+      "body_chars": 7321,
+      "cache_used": false,
+      "coverage": {
+        "caption": "read",
+        "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+        "image_count": 6,
+        "discovered_images": 6,
+        "ocr_attempted": 2,
+        "ocr_succeeded": 6,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 4,
+        "images_processed_this_run": 2,
+        "unread_orders": [],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "navigation": null,
+      "note_type": "normal",
+      "error_statuses": []
+    },
+    "assertion": "继续时复用4张成功结果，只处理缺失2张，最终6/6；OCR未做逐字人工校验"
+  },
+  "varied_keyword_sample": {
+    "client": "当前 Codex 原生 MCP",
+    "query": "AI笔记工具",
+    "search": {
+      "status": "success",
+      "returned_by_platform": {
+        "xiaohongshu": 2,
+        "weixin": 2
+      },
+      "xiaohongshu_navigation": {
+        "status": "ready",
+        "seconds": 6.904,
+        "search_entry": "same_origin_navigation",
+        "page_attempts": 1,
+        "dispatch_status": "acknowledged"
+      }
+    },
+    "xiaohongshu_read": {
+      "status": "success",
+      "body_chars": 4221,
+      "cache_used": false,
+      "coverage": {
+        "caption": "read",
+        "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+        "image_count": 5,
+        "discovered_images": 5,
+        "ocr_attempted": 5,
+        "ocr_succeeded": 5,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 0,
+        "images_processed_this_run": 5,
+        "unread_orders": [],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "navigation": null,
+      "note_type": "normal",
+      "error_statuses": []
+    },
+    "weixin_read": {
+      "status": "success",
+      "body_chars": 4000,
+      "cache_used": false,
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "navigation": {
+        "page_attempts": 1,
+        "article_clicks": 1,
+        "activation": "validated_link_dom_click",
+        "article_navigation_seconds": 4.125
+      },
+      "note_type": null,
+      "error_statuses": []
+    },
+    "xiaohongshu_comments": {
+      "status": "success",
+      "coverage": {
+        "requested_top_level": 2,
+        "replies_per_root_limit": 1,
+        "returned_top_level": 2,
+        "returned_replies": 1,
+        "returned_rows": 3,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 0,
+        "reply_requests": 0,
+        "root_end_reached": true,
+        "stop_reason": "root_sample_limit",
+        "backend": "note_dom_host_steps",
+        "reply_roots_not_expanded": 0,
+        "loading": {
+          "page_attempts": 1,
+          "search_entry": "same_origin_navigation",
+          "seconds": 4.676,
+          "wait_driver": "host",
+          "optional_caption_required": false
+        },
+        "continued": false,
+        "sort": "platform_default"
+      },
+      "error_statuses": []
+    }
+  },
+  "cross_date_scope": {
+    "observed_dates": [
+      "2026-10-15",
+      "2026-10-16"
+    ],
+    "distinct_observed_days": 2,
+    "versions_by_date": {
+      "2026-10-15": "0.1.0a8",
+      "2026-10-16": "0.1.0a11"
+    },
+    "dates_all_requested_reads_passed": [
+      "2026-10-16"
+    ],
+    "dates_all_requested_comments_passed": [],
+    "same_day_targeted_checks_add_days": false,
+    "seven_day_validation_complete": false
+  },
+  "deferred": [
+    "Hermes完整调研",
+    "空白资料首次登录"
+  ],
+  "conclusion": "重点路径本轮未复现新的超时；知乎评论失败保持可见。有限样本不能证明长期稳定、全部评论或OCR逐字准确。"
+}
