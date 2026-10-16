@@ -66,6 +66,15 @@ def finish(raw,site,limit,replies_limit):
 def read_comments(runner,site,target,limit,replies_limit,cancel,cursor=None):
     target=validate_url(site,target)
     if site=="xiaohongshu":return xhs_comments(runner,target,limit,replies_limit,cancel,cursor)
+    if site=="zhihu" and "/answer/" in urlsplit(target).path:
+        from .zhihu_comments import read_visible_comments
+        return read_visible_comments(runner,target,limit,replies_limit,cancel,cursor)
+    return read_api_comments(runner,site,target,limit,replies_limit,cancel,cursor)
+
+
+def read_api_comments(runner,site,target,limit,replies_limit,cancel,cursor=None):
+    """Existing bounded API reader for Weibo and Zhihu articles, not fallback."""
+    target=validate_url(site,target)
     p=urlsplit(target);ident=p.path.rstrip("/").split("/")[-1]
     if site=="zhihu" and "/answer/" not in p.path and not p.path.startswith("/p/"):
         raise ReadError("unsupported","知乎问题页包含多条回答，请先选择具体回答或文章再读取评论。")

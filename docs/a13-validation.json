@@ -1,0 +1,83 @@
+{
+  "version": "0.1.0a13",
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "client": "当前Codex原生MCP",
+  "scope": "已保存专用资料中的具体知乎回答评论，一次有限真实验收",
+  "runtime": {
+    "loaded_revision": "5f910ed5a0f0244b",
+    "disk_revision": "5f910ed5a0f0244b",
+    "update_pending": false,
+    "update_error": null
+  },
+  "behavior_checks_passed": 176,
+  "live_acceptance": {
+    "attempts": 1,
+    "status": "success",
+    "coverage": {
+      "requested_top_level": 2,
+      "replies_per_root_limit": 1,
+      "returned_top_level": 2,
+      "returned_replies": 1,
+      "returned_rows": 3,
+      "non_text_rows": 0,
+      "all_comments": false,
+      "all_replies": false,
+      "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+      "root_pages": 1,
+      "reply_requests": 0,
+      "root_end_reached": null,
+      "stop_reason": "root_sample_limit",
+      "backend": "zhihu_answer_visible_dom",
+      "reply_roots_not_expanded": 1,
+      "sort": "platform_default",
+      "visible_replies_only": true,
+      "loading": {
+        "page_attempts": 1,
+        "comment_panel_clicks": 1,
+        "scroll_actions": 0,
+        "reply_expansions": 0,
+        "direct_api_requests": 0,
+        "dom_probes": 7,
+        "seconds": 14.219,
+        "wait_driver": "host"
+      },
+      "continued": false
+    },
+    "error_statuses": [],
+    "same_answer_as_prior_api_denial": true,
+    "returned_rows_match_prior_normal_page_dom": true,
+    "reply_parent_ids_match_returned_roots": true
+  },
+  "path_difference": {
+    "previous": "工具在页面中自行构造评论API地址、排序和分页，并解析返回JSON。",
+    "current": "核对正常回答页和回答身份，点击该回答自身的评论按钮一次，由平台页面完成加载，再提取已渲染的评论与父子关系。",
+    "network_boundary": "direct_api_requests=0仅表示工具没有构造评论接口请求；平台页面自身仍会联网。未抓取或推断其请求头、签名或内部风控机制。",
+    "reply_boundary": "仅取已渲染回复，不点击展开更多回复；本样本有1条首层评论的回复未展开。"
+  },
+  "failure_behavior": [
+    "来源不匹配时停止",
+    "验证、登录、限流、拒绝时停止",
+    "未知点击结果不重放",
+    "不回退到旧评论接口",
+    "中断保留已取得行并明确部分完成",
+    "旧接口游标不能用于网页路径"
+  ],
+  "remaining_scope": {
+    "zhihu_article_comments": "保留原有接口路径；未验证文章网页评论读取",
+    "all_comments": false,
+    "all_replies": false,
+    "seven_day_stability": false,
+    "hermes": "deferred",
+    "new_profile_login": "deferred"
+  },
+  "daily_validation": {
+    "existing_observed_dates": [
+      "2026-10-15",
+      "2026-10-16"
+    ],
+    "same_day_targeted_acceptance_adds_date": false,
+    "other_platform_visits_this_turn": 0
+  },
+  "privacy": "正常网页结构、来源链接和任务原文只保存在私有状态，公开仅保留脱敏结果。"
+}

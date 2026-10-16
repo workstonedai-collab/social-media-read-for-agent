@@ -7,7 +7,7 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from social_read.comments import read_comments, finish
+from social_read.comments import read_api_comments as read_comments, finish
 from social_read.adapter import DemoAdapter
 from social_read.engine import Engine
 from social_read.model import ReadError, request_diagnostics

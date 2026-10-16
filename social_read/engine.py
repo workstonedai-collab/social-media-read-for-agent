@@ -32,7 +32,7 @@ class Engine:
         self.closed = False
 
     def capabilities(self):
-        return {"version": __version__, "mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；具体回答与文章可取有限评论；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
+        return {"version": __version__, "mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；回答评论走正常网页，仅取可见回复；文章评论仍用既有接口；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
 
     def _validate(self, action, request):
         if action not in {"search", "read", "comments", "connection"} or not isinstance(request, dict):
@@ -209,7 +209,7 @@ class Engine:
                 continuation = result.pop("_continuation", None)
                 result["next_cursor"] = self.store.save_comment_cursor(r["platform"], r["_target"], continuation) if continuation else None
                 result["coverage"]["continued"] = "_cursor" in r
-                result["coverage"]["sort"] = "platform_default" if r["platform"] == "xiaohongshu" else "score" if r["platform"] == "zhihu" else "platform_flow_0"
+                result["coverage"].setdefault("sort", "platform_default" if r["platform"] == "xiaohongshu" else "score" if r["platform"] == "zhihu" else "platform_flow_0")
                 if result.get("errors"):
                     status = "partial" if result.get("items") else "failed"
                 result["source_url"] = scrub(r["_target"])

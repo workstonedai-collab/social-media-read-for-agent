@@ -8,7 +8,9 @@ Give this repository to your local agent and follow its prompts to authorize the
 
 [![Install checks](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml/badge.svg)](https://github.com/workstonedai-collab/social-media-read-for-agent/actions/workflows/verify.yml)
 
-Package/repository identifier: `social-media-read-for-agent`. **0.1.0a12, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
+Package/repository identifier: `social-media-read-for-agent`. **0.1.0a13, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
+
+Zhihu answer comments now use the normal webpage panel and return bounded, rendered comments and visible replies. Article comments retain the existing API reader. Denials do not trigger an API fallback. See the [bounded live validation](docs/a13-validation.json).
 
 ## A real run, with explicit coverage
 
@@ -100,7 +102,7 @@ Automatic browser setup primarily targets **macOS + Google Chrome**. Core behavi
 /bin/bash install.sh --clients codex --install-ocr
 ```
 
-Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also [download the source installer ZIP](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a12/social-media-read-for-agent-v0.1.0a12.zip), unzip it, and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
+Use `--clients hermes` for Hermes, or `--clients codex hermes` when both are requested. `--clients generic` exports standard configuration for another local agent to merge itself. macOS users can also [download the source installer ZIP](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a13/social-media-read-for-agent-v0.1.0a13.zip), unzip it, and double-click **安装.command**, then return to their agent for extension authorization and sign-in. Git is optional when using a source archive.
 
 The installer downloads pinned standalone Python and Node distributions from their upstream release sites, verifies committed SHA256 checksums before execution, and keeps them in `.state/runtime/`. It does not modify system runtimes, shell settings, or the agent's dependencies. First setup needs network access; repeat setup reuses verified installations. Extracted runtimes use approximately 260 MB, with additional space for OpenCLI and optional OCR. This removes manual environment preparation, not the underlying runtimes.
 
