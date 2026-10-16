@@ -15,6 +15,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / ".state"
 from social_read.runtime import command_env
+from social_read.install_support import SetupError, download_env, install_command, install_opencli, opencli_dependencies_ready
 os.environ["PATH"] = command_env()["PATH"]
 SERVER = "social-media-read-for-agent"
 EXTENSION_ID = "ildkmabpimmkaediidaifkhjpohdnifk"
@@ -199,7 +200,7 @@ def install_ocr():
     env=STATE/'rapidocr-env'; executable=env/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     if not executable.exists():command([python,'-m','venv',str(env)],120)
     progress('正在准备可选本机图片识别；首次需要下载组件和模型。')
-    command([str(executable),'-m','pip','install','-r',str(ROOT/'requirements-ocr.txt')],600)
+    install_command([str(executable),'-m','pip','install','--disable-pip-version-check','--timeout','20','--retries','1','--cache-dir',str(STATE/'download-cache/pip'),'-r',str(ROOT/'requirements-ocr.txt')],STATE,'ocr_dependencies',600,download_env('ocr','https://pypi.org/simple/rapidocr/',STATE))
     script='''import rapidocr,hashlib,importlib.metadata as m,json
 from pathlib import Path
 p=Path(rapidocr.__file__).parent
@@ -267,13 +268,13 @@ def main():
     if not executable and (Path.home()/'.local/bin/opencli').exists():executable=str(Path.home()/'.local/bin/opencli')
     if a.bridge=='project':executable=str(local) if local.exists() else None
     result={'project':SERVER,'state_dir':str(STATE),'changes':[],'next_actions':[]}
-    if not executable and a.apply:
+    if a.apply and (not executable or (a.bridge=='project' and not opencli_dependencies_ready(ROOT,STATE))):
         npm=shutil.which('npm');node=shutil.which('node')
         if not npm or not node:raise RuntimeError('node_20_18_required_install_node_then_rerun')
         version=tuple(map(int,command([node,'--version']).strip().lstrip('v').split('.')))
         if version<(20,18,1):raise RuntimeError('node_20_18_required')
         progress('正在安装项目专用读取组件；不会修改 Agent 自己的环境。')
-        command([npm,'install','--prefix',str(STATE/'opencli'),'--no-audit','--no-fund','@jackwener/opencli@1.8.6'],300)
+        install_opencli(ROOT,STATE,npm)
         executable=str(local);result['changes'].append('installed_project_local_opencli')
     result['opencli']=command([executable,'--version']).strip() if executable else 'missing'
     profiles=connected_profiles(executable) if executable else []
@@ -362,4 +363,5 @@ def main():
 if __name__=='__main__':
     try:raise SystemExit(main())
     except (RuntimeError,OSError,subprocess.TimeoutExpired) as e:
-        print(json.dumps({'status':'setup_incomplete','reason':str(e).splitlines()[0][:180],'message':'已完成配置保留，请由 Agent 处理原因后重跑；不要索取 Cookie 或在对话收集密码。'},ensure_ascii=False));raise SystemExit(1)
+        detail=e.result() if isinstance(e,SetupError) else {'reason':str(e).splitlines()[0][:180]}
+        print(json.dumps({'status':'setup_incomplete',**detail,'message':'已完成配置保留，请由 Agent 处理失败步骤后重跑；用户无需重装全部环境，不要索取 Cookie 或在对话收集密码。'},ensure_ascii=False));raise SystemExit(1)

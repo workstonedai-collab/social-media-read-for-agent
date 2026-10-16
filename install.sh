@@ -39,6 +39,45 @@ cleanup() { [ -z "$STAGING" ] || rm -rf -- "$STAGING"; rmdir "$LOCK" 2>/dev/null
 trap 'installer_exit=$?; cleanup; exit "$installer_exit"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+download_runtime() {
+  local kind="$1" url="$2" archive="$3" code=0 route="${SOCIAL_READ_DOWNLOAD_ROUTE:-auto}" proxy='' network attempt active_route
+  # Bash 3.2 treats expansion of an empty array as unbound under set -u.
+  local proxy_args=(--retry-delay 1)
+  case "$route" in auto|direct|proxy) ;; *) echo '无效下载路径选项。' >&2; exit 2 ;; esac
+  # curl does not read macOS network settings. Reuse only an existing static
+  # HTTPS proxy; never guess local ports or modify system/network settings.
+  if [ "$route" != direct ] && [ -z "${https_proxy:-${HTTPS_PROXY:-${ALL_PROXY:-${all_proxy:-}}}}" ] && [ "$OS" = darwin ] && [ -x /usr/sbin/scutil ]; then
+    network="$(/usr/sbin/scutil --proxy)"
+    if [ "$(printf '%s' "$network" | awk '$1=="HTTPSEnable" {print $3}')" = 1 ]; then
+      proxy="$(printf '%s' "$network" | awk '$1=="HTTPSProxy" {print $3}')"
+      local port="$(printf '%s' "$network" | awk '$1=="HTTPSPort" {print $3}')"
+      if [[ "$proxy" =~ ^[a-zA-Z0-9.-]+$ ]] && [[ "$port" =~ ^[0-9]+$ ]]; then proxy_args=(--proxy "http://$proxy:$port"); fi
+    fi
+  fi
+  [ "$route" != direct ] || proxy_args=(--noproxy '*')
+  for attempt in 1 2 3; do
+    code=0
+    active_route="$route"
+    local active_args=("${proxy_args[@]}")
+    if [ "$route" = auto ] && [ "$attempt" = 2 ]; then active_args=(--noproxy '*'); active_route=direct; fi
+    printf '{"stage":"%s_download","status":"running","attempt":%s}\n' "$kind" "$attempt" > "$STATE/setup-progress.json"
+    # A partial archive survives both this process and route changes. curl
+    # resumes by Range; execution still requires the full committed checksum.
+    curl --fail --location --proto '=https' --proto-redir '=https' --connect-timeout 10 --max-time 300 --speed-limit 4096 --speed-time 30 --continue-at - --silent --show-error "${active_args[@]}" "$url" -o "$archive" || code=$?
+    printf '{"component":"%s","route":"%s","attempt":%s,"curl_exit":%s,"tls_verification_enabled":true}\n' "$kind" "$active_route" "$attempt" "$code" >> "$STATE/runtime-downloads.jsonl"
+    [ "$code" != 0 ] || break
+    # HTTP denial and certificate errors stop. A server declining Range may
+    # restart this one public download, never any browser/platform operation.
+    if [ "$code" = 33 ]; then rm -f -- "$archive";
+    elif ! [[ "$code" =~ ^(5|6|7|18|28|35|52|55|56)$ ]]; then break; fi
+    if [ "$attempt" != 3 ]; then echo "${kind} 公开下载中断，将续传已取得部分（${attempt}/3）；用户无需重新设置。" >&2; fi
+  done
+  if [ "$code" != 0 ]; then
+    printf '{"stage":"%s_download","status":"failed","reason":"runtime_download_failed"}\n' "$kind" > "$STATE/setup-progress.json"
+    printf '{"status":"setup_incomplete","stage":"%s_download","reason":"runtime_download_failed","curl_exit":%s,"resume":"rerun_install_preserves_completed_steps"}\n' "$kind" "$code"
+    exit "$code"
+  fi
+}
 install_runtime() {
   local kind="$1" key record version url checksum installed actual archive
   key="$kind-$OS-$ARCH"
@@ -54,11 +93,18 @@ install_runtime() {
   fi
   [ ! -e "$installed" ] || { echo "现有 ${kind} 运行时与固定版本不符；请由 Agent 核对，安装器不会覆盖它。" >&2; exit 3; }
   echo "正在下载并校验项目专用 ${kind} ${version}（${OS}/${ARCH}）……" >&2
-  STAGING="$(mktemp -d "$RUNTIME/.download-$kind.XXXXXX")"
-  archive="$STAGING/runtime.tar.gz"
-  curl --fail --location --proto '=https' --proto-redir '=https' --connect-timeout 20 --max-time 600 --retry 2 --silent --show-error "$url" -o "$archive"
+  local cache="$STATE/download-cache/runtimes"
+  [ ! -L "$STATE/download-cache" ] && [ ! -L "$cache" ] || { echo '下载缓存不能是符号链接。' >&2; exit 2; }
+  mkdir -p "$cache"
+  archive="$cache/$checksum.tar.gz"
+  [ ! -L "$archive" ] && [ ! -L "$archive.part" ] || { echo '下载缓存不能是符号链接。' >&2; exit 2; }
+  if [ ! -f "$archive" ]; then
+    download_runtime "$kind" "$url" "$archive.part"
+    mv "$archive.part" "$archive"
+  fi
   actual="$("${HASH[@]}" "$archive" | awk '{print $1}')"
-  [ "$actual" = "$checksum" ] || { echo '下载校验失败，已停止；没有执行该文件。' >&2; exit 4; }
+  [ "$actual" = "$checksum" ] || { rm -f -- "$archive"; printf '{"stage":"%s_checksum","status":"failed"}\n' "$kind" > "$STATE/setup-progress.json"; echo '下载校验失败，已停止；没有执行该文件。' >&2; exit 4; }
+  STAGING="$(mktemp -d "$RUNTIME/.download-$kind.XXXXXX")"
   mkdir "$STAGING/unpacked"
   tar -xzf "$archive" --strip-components=1 -C "$STAGING/unpacked"
   if [ "$kind" = python ]; then
@@ -68,6 +114,7 @@ install_runtime() {
   fi
   printf '%s\n' "$key $version $checksum" > "$STAGING/unpacked/.social-read-runtime"
   mv "$STAGING/unpacked" "$installed"
+  printf '{"stage":"%s_runtime","status":"ready"}\n' "$kind" > "$STATE/setup-progress.json"
   rm -rf -- "$STAGING"; STAGING=''
 }
 install_runtime python

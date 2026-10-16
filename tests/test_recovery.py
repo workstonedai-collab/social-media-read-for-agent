@@ -181,6 +181,7 @@ class SearchReadinessTests(unittest.TestCase):
             def wait(self,*a):pass
             def command(self,*a):pass
             def navigate_same_origin(self,*a):pass
+            navigation_dispatch='acknowledged'
             tab="owned"
             def evaluate(self,script,*a):
                 setup="""global.location={origin:'https://www.xiaohongshu.com',href:HREF.includes('xiaohongshu.com')?'https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent('主题'):'https://www.zhihu.com/search?q=test'};

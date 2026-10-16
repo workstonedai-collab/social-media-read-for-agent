@@ -64,9 +64,27 @@ class ReadPage:
           if(!same)location.assign(target.href);
           return {submitted:true};
         })()""" % json.dumps(target)
-        receipt=self.evaluate(script,timeout)
+        try:
+            receipt=self.evaluate(script,timeout)
+            self.navigation_dispatch='acknowledged'
+        except ReadError as error:
+            if error.code!='timeout':
+                error.stage='navigation_dispatch'
+                raise
+            # A navigation can commit while its originating evaluation loses
+            # the response. Observe the same owned target; do not resend it or
+            # create a recovery tab. Content readers still verify query/note.
+            wait_navigation(self.runner,self.session,self.tab,self.cancel,12,
+                            expected_hosts={destination.hostname},expected_path=destination.path)
+            self.navigation_dispatch='observed_after_dispatch_timeout'
+            _navigation_receipt(self.runner,{'phase':'navigation_dispatch','status':self.navigation_dispatch,'first_failure':'timeout'})
+            return
         if not isinstance(receipt,dict) or receipt.get("submitted") is not True:
             raise ReadError("source_mismatch", "站内导航没有从预期的平台页面发起。")
+        # Acknowledged location.assign() still belongs to the outgoing
+        # document. Wait for the destination path before attaching a new eval.
+        wait_navigation(self.runner,self.session,self.tab,self.cancel,25,
+                        expected_hosts={destination.hostname},expected_path=destination.path)
 
     def check(self):
         data = self.evaluate("({value:document.body?.innerText || ''})")
@@ -137,6 +155,8 @@ def wait_navigation(runner, session, tab, cancel, seconds=25, expected_hosts=Non
         except (ValueError, TypeError, AttributeError):
             raise ReadError("adapter_incompatible", "浏览器导航状态格式发生变化。")
         sample={"found":bool(owned),"scheme":url.scheme if url else None,"host":url.hostname if url else None}
+        if url and url.hostname=='weixin.sogou.com':
+            sample['phase']='index' if url.path=='/weixin' else 'redirect' if url.path=='/link' else 'other'
         if not samples or samples[-1]!=sample:samples.append(sample)
         if expected_hosts and url and url.hostname=='weixin.sogou.com' and re.search(r'/antispider|/captcha',url.path,re.I):
             raise ReadError("verification_required","搜索页面要求验证，读取已停止。")

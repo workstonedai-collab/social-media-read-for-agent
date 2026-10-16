@@ -534,6 +534,7 @@ class WeixinContextTests(unittest.TestCase):
                 if args[2]=="eval" and "signature:" in args[3]:return 0,'{"signature":"body-stable"}',""
                 if args[2]=="eval" and "const selector=" in args[3]:return 0,json.dumps({"ready":not blocked,"verification":blocked}),""
                 if args[2:4]==["get","text"]:return 0,'{"value":"安全验证 请输入验证码"}',""
+                if args[2]=="eval" and 'a.click()' in args[3]:self.clicked=True;return 0,'{"clicked":true}',""
                 if args[2]=="eval":return 0,json.dumps({"selected":selected} if "const wanted" in args[3] else {"url":"https://mp.weixin.qq.com/s/canonical"}),""
                 if args[2:4]==["get","url"]:return 0,"https://mp.weixin.qq.com/s?timestamp=100&signature=PRIVATE",""
                 if args[2:4]==["get","html"]:return 0,'<h2 id="activity-name">标题</h2><span id="publish_time">2019年8月18日</span><div id="js_content"><p>正文</p><img data-src="https://mmbiz.qpic.cn/a"></div>',""
@@ -549,12 +550,15 @@ class WeixinContextTests(unittest.TestCase):
         self.assertEqual(item["source_url"],"https://mp.weixin.qq.com/s/canonical")
         self.assertEqual(runner.calls[-1][2:],["tab","close","owned-page"])
         self.assertTrue(all("--tab" not in x or x[x.index("--tab")+1]=="owned-page" for x in runner.calls))
+        self.assertFalse(any(x[2]=='click' for x in runner.calls))
+        self.assertEqual(sum(x[2]=='eval' and 'a.click()' in x[3] for x in runner.calls),1)
+        self.assertEqual(item['navigation']['article_clicks'],1)
 
     def test_article_click_timeout_reports_stage_and_closes_owned_page(self):
         from social_read.weixin_browser import read_search_article
         runner=self.runner();original=runner.run
         def run(args,cancel=None,timeout=None):
-            if args[2]=="click":raise ReadError("timeout","读取超时。",True)
+            if args[2]=="eval" and 'a.click()' in args[3]:raise ReadError("timeout","读取超时。",True)
             return original(args,cancel,timeout)
         runner.run=run
         with self.assertRaises(ReadError) as exc:read_search_article(runner,"主题","标题",threading.Event())

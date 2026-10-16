@@ -11,6 +11,28 @@ spec=importlib.util.spec_from_file_location('bootstrap_onboarding',ROOT/'bootstr
 setup=importlib.util.module_from_spec(spec);spec.loader.exec_module(setup)
 
 class NavigationTests(unittest.TestCase):
+    def test_navigation_timeout_observes_destination_without_replaying(self):
+        from social_read.browser_page import ReadPage
+        from social_read.model import ReadError
+        runner=Mock();runner.workdir=None
+        page=ReadPage(runner,'https://www.xiaohongshu.com/explore',threading.Event());page.tab='owned'
+        page.evaluate=Mock(side_effect=ReadError('timeout','timeout',True))
+        with patch('social_read.browser_page.wait_navigation',return_value={'status':'ready'}) as observe:
+            page.navigate_same_origin('https://www.xiaohongshu.com/search_result?keyword=test')
+        self.assertEqual(page.evaluate.call_count,1)
+        self.assertEqual(page.navigation_dispatch,'observed_after_dispatch_timeout')
+        self.assertEqual(observe.call_args.args[2],'owned')
+        self.assertEqual(observe.call_args.kwargs['expected_path'],'/search_result')
+
+    def test_unknown_outcome_does_not_resubmit_navigation(self):
+        from social_read.browser_page import ReadPage
+        from social_read.model import ReadError
+        page=ReadPage(Mock(),'https://www.xiaohongshu.com/explore',threading.Event());page.tab='owned'
+        page.evaluate=Mock(side_effect=ReadError('command_outcome_unknown','unknown'))
+        with patch('social_read.browser_page.wait_navigation') as observe:
+            with self.assertRaises(ReadError):page.navigate_same_origin('https://www.xiaohongshu.com/search_result?keyword=test')
+        observe.assert_not_called();self.assertEqual(page.evaluate.call_count,1)
+
     def test_waits_for_expected_committed_host_not_outgoing_document(self):
         from social_read.browser_page import wait_navigation
         runner=Mock();runner.workdir=None
@@ -57,6 +79,17 @@ class NavigationTests(unittest.TestCase):
         with patch('social_read.xiaohongshu_search.ReadPage',return_value=page) as pages:
             with self.assertRaises(ReadError) as error:search_notes(None,'query',1,threading.Event())
         self.assertEqual(error.exception.code,'rate_limited');self.assertEqual(pages.call_count,1)
+
+    def test_read_only_probe_timeout_does_not_resubmit_search(self):
+        from social_read.xiaohongshu_search import search_notes
+        from social_read.model import ReadError
+        page=MagicMock();page.__enter__.return_value=page
+        page.evaluate.side_effect=[ReadError('timeout','timeout'),{'items':[{'title':'ready','url':'https://www.xiaohongshu.com/explore/6a99838a000000002b0133c8?xsec_token=test'}]}]
+        with patch('social_read.xiaohongshu_search.ReadPage',return_value=page) as pages,patch('social_read.xiaohongshu_search._pause'):
+            items=search_notes(None,'query',1,threading.Event())
+        self.assertEqual(pages.call_count,1);page.navigate_same_origin.assert_called_once()
+        self.assertEqual(items[0]['navigation']['page_attempts'],1)
+        self.assertEqual(items[0]['navigation']['first_probe_failure'],'timeout')
 
     def test_comment_ready_failure_does_not_reopen_or_start_walk(self):
         from social_read.comments import xhs_comments

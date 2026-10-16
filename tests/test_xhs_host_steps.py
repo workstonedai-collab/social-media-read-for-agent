@@ -106,7 +106,10 @@ class BrowserScriptTests(unittest.TestCase):
             def evaluate(script,timeout):
                 source='let assigns=0;global.location=new URL('+json.dumps(initial)+');location.assign=()=>assigns++;const receipt='+script+';console.log(JSON.stringify({receipt,assigns}));'
                 result=owner.node(source);self.assertEqual(result['assigns'],expected);return result['receipt']
-            page.evaluate=evaluate;page.navigate_same_origin(TARGET)
+            page.evaluate=evaluate
+            with patch('social_read.browser_page.wait_navigation') as navigation:
+                page.navigate_same_origin(TARGET)
+            self.assertEqual(navigation.call_args.kwargs['expected_path'],'/explore/000000000000000000000001')
         with self.assertRaises(ReadError):page.navigate_same_origin('https://evil.example/explore')
 
     def test_recommendation_cards_are_not_search_results_for_wrong_keyword(self):

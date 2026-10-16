@@ -66,12 +66,35 @@ def read_search_article(runner, query, title, cancel):
         if not selected.get("selected"):
             raise ReadError("source_context_changed", "搜索页没有唯一匹配这篇文章。请重新搜索后读取，不能替换成另一篇文章。")
         stage = "open_article"
-        command(["click", '.news-list h3 a[data-social-read-selected="1"]', "--tab", tab])
+        # OpenCLI 1.8.6 prefers a native coordinate click and acknowledges the
+        # input dispatch, even when the link was not activated. In a background
+        # page the rectangle can change after scrolling. Activate the already
+        # validated, unique link itself, letting Sogou's ordinary click handlers
+        # and the browser's default navigation run once. Never reconstruct its
+        # redirect parameters, replay a click, or choose a different result.
+        activate = """(() => {
+          const links=document.querySelectorAll('.news-list h3 a[data-social-read-selected="1"]');
+          if(links.length!==1)return {clicked:false};
+          const a=links[0], u=new URL(a.href,location.href);
+          if(u.protocol!=='https:' || u.hostname!=='weixin.sogou.com' || u.pathname!=='/link' || u.username || u.password)return {clicked:false};
+          if(a.dataset.socialReadOpened)return {clicked:false};
+          a.dataset.socialReadOpened='1'; a.target='_self'; a.click();
+          return {clicked:true};
+        })()"""
+        clicked=json.JSONDecoder().raw_decode(command(["eval",activate,"--tab",tab]))[0]
+        if not clicked.get('clicked'):
+            raise ReadError('source_context_changed','本次选定的文章链接已变化，未重复点击。请重新搜索。')
         # The click can return while Chrome still exposes the old Sogou
         # document. Native metadata does not attach an evaluator to that
         # outgoing document; wait for the article host before probing its DOM.
         stage = "wait_article_navigation"
-        wait_navigation(runner,session,tab,cancel,25,expected_hosts={"mp.weixin.qq.com"})
+        try:
+            navigation=wait_navigation(runner,session,tab,cancel,40,expected_hosts={"mp.weixin.qq.com"})
+        except ReadError:
+            # A denial/verification on the intermediate document must not be
+            # mislabeled as generic loading or trigger another navigation.
+            check_page()
+            raise
         stage = "wait_article_body"
         try:
             wait_selector(runner, session, tab, "#js_content", cancel, 20)
@@ -79,7 +102,9 @@ def read_search_article(runner, query, title, cancel):
             check_page()
             raise
         stage = "extract_article"
-        return extract_article(command,session,tab)
+        item=extract_article(command,session,tab)
+        item['navigation']={'page_attempts':1,'article_clicks':1,'activation':'validated_link_dom_click','article_navigation_seconds':navigation['seconds']}
+        return item
     except ReadError as error:
         error.stage = stage
         raise

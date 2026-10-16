@@ -46,15 +46,29 @@ def search_notes(runner,query,limit,cancel):
     # origin/referrer context. Do not replay a search on a second target.
     with ReadPage(runner,"https://www.xiaohongshu.com/explore",cancel,"xhs-search") as page:
         page.navigate_same_origin(target)
-        deadline=time.monotonic()+25
+        deadline=time.monotonic()+45
+        probe_timeout=None
         while True:
-            data=page.evaluate(script,max(.1,min(12,deadline-time.monotonic())))
+            try:
+                data=page.evaluate(script,max(.1,min(12,deadline-time.monotonic())))
+            except ReadError as error:
+                # This is a read-only observation, not another search. A
+                # transient evaluation timeout must not close a page whose
+                # delayed result request is still completing. Keep its first
+                # failure visible and permit only one further probe sequence.
+                if error.code=='timeout' and probe_timeout is None and time.monotonic()<deadline:
+                    probe_timeout=error.code
+                    _pause(cancel,min(.5,max(0,deadline-time.monotonic())))
+                    continue
+                error.stage='search_cards_probe'
+                raise
             if not isinstance(data,dict) or data.get("failure") not in {"content_loading_timeout","adapter_incompatible"}:break
             if time.monotonic()>=deadline:
                 error=ReadError(data["failure"],"搜索页面未在预算内取得匹配关键词的标题与访问链接。")
                 error.stage=data.get("stage","search_cards");raise error
             _pause(cancel,min(.5,max(0,deadline-time.monotonic())))
-        navigation={"status":"ready","seconds":round(time.monotonic()-started,3),"search_entry":"same_origin_navigation","page_attempts":1}
+        navigation={"status":"ready","seconds":round(time.monotonic()-started,3),"search_entry":"same_origin_navigation","page_attempts":1,"dispatch_status":page.navigation_dispatch}
+        if probe_timeout:navigation['first_probe_failure']=probe_timeout
     if not isinstance(data,dict):raise ReadError("adapter_incompatible","搜索结果结构变化。")
     if data.get("failure"):
         messages={"search_empty_confirmed":"平台明确显示本次搜索没有结果。", "adapter_incompatible":"搜索页有卡片，但未取得可用的标题和访问链接。", "content_loading_timeout":"搜索页未在预算内加载可读结果，不能判断没有相关内容。"}
