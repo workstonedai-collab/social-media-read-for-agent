@@ -9,24 +9,54 @@ from .model import ReadError, content_item, digest, scrub, validate_url
 FETCH_JS = """
 const pause = ms => new Promise(r=>setTimeout(r,ms));
 const requestDeadline = Date.now()+45000;
+const requestKind = path => /^\/api\/v4\/comment_v5\/(?:answers|articles)\/\d+\/root_comment(?:\?|$)/.test(path)?'zhihu_root_comments':
+  /^\/api\/v4\/comment_v5\/comment\/\d+\/child_comment(?:\?|$)/.test(path)?'zhihu_child_comments':
+  /^\/api\/v4\/answers\/\d+(?:\?|$)/.test(path)?'zhihu_answer':
+  /^\/ajax\/statuses\/show(?:\?|$)/.test(path)?'weibo_status':
+  /^\/ajax\/statuses\/buildComments(?:\?|$)/.test(path)?'weibo_comments':
+  /^\/ajax\/statuses\/longtext(?:\?|$)/.test(path)?'weibo_longtext':'other_read';
+const platformCode = data => {
+  const value=data?.error?.code ?? data?.error_code;
+  return Number.isInteger(value) && value>=0 && value<=999999999 ? value:null;
+};
 const getOnce = async path => {
   const abort = new AbortController(); const timer=setTimeout(()=>abort.abort(),Math.max(500,Math.min(12000,requestDeadline-Date.now())));
+  const diagnostics={request_kind:requestKind(path),request_attempts:1};
+  const fail=(failure,origin)=>({failure,diagnostics:{...diagnostics,failure_origin:origin}});
   try {
     const response = await fetch(path,{credentials:'include',signal:abort.signal});
-    if (!response.ok) return {failure:response.status===429?'rate_limited':response.status===401?'login_required':response.status===403?'access_denied':response.status===404?'content_unavailable':'adapter_error'};
+    diagnostics.http_status=response.status;
+    const contentType=(response.headers?.get('content-type') || '').split(';')[0].trim().toLowerCase();
+    diagnostics.response_kind=/^(?:application|text)\/(?:[\w.+-]+\+)?json$/.test(contentType)?'json':contentType==='text/html'?'html':contentType?'other':'unknown';
+    if (!response.ok) {
+      let failure=response.status===429?'rate_limited':response.status===401?'login_required':response.status===403?'access_denied':response.status===404?'content_unavailable':'adapter_error';
+      // Inspect this response only, never replay a denial. Keep neither its
+      // body/message nor headers/URLs: a 403 JSON challenge has a known code.
+      if(diagnostics.response_kind==='json'){
+        try {
+          const raw=await response.text();
+          if(raw.length<=1500000){const code=platformCode(JSON.parse(raw));if(code!==null)diagnostics.platform_error_code=code;}
+        } catch {}
+      }
+      if(response.status===403 && diagnostics.platform_error_code===40362)failure='verification_required';
+      return fail(failure,'http_response');
+    }
     const raw = await response.text();
-    if(raw.length>1500000) return {failure:'response_budget_exceeded'};
+    if(raw.length>1500000) return fail('response_budget_exceeded','response_parse');
     try {
       const data = JSON.parse(raw.replace(/"(id|max_id|since_id|root_comment_id|reply_comment_id|reply_to_comment_id|comment_id|user_id)"\\s*:\\s*(\\d{16,})(?=[,}\\s])/g,'"$1":"$2"'));
-      if(data.error || data.error_code || data.ok===0) return {failure:(data.error?.code===40362 || data.error_code===40362)?'verification_required':'adapter_error'};
+      if(data.error || data.error_code || data.ok===0){
+        const code=platformCode(data);if(code!==null)diagnostics.platform_error_code=code;
+        return fail(code===40362?'verification_required':'adapter_error','platform_json');
+      }
       return data;
-    } catch {return {failure:'adapter_incompatible'};}
-  } catch {return {failure:'timeout'};}
+    } catch {return fail('adapter_incompatible','response_parse');}
+  } catch {return fail('timeout','network');}
   finally {clearTimeout(timer);}
 };
 const get = async path => {
   let value=await getOnce(path);
-  if(value.failure==='timeout' && Date.now()+6000<requestDeadline){await pause(2500);value=await getOnce(path);}
+  if(value.failure==='timeout' && Date.now()+6000<requestDeadline){await pause(2500);value=await getOnce(path);if(value.diagnostics)value.diagnostics.request_attempts=2;}
   return value;
 };
 """
@@ -37,7 +67,7 @@ def check_failure(data):
         raise ReadError("adapter_incompatible","读取结果结构发生变化。")
     if data.get("failure"):
         code=data["failure"]
-        raise ReadError(code if code in ERROR_MESSAGES else "adapter_error", ERROR_MESSAGES.get(code,"平台读取未完成。"))
+        raise ReadError(code if code in ERROR_MESSAGES else "adapter_error", ERROR_MESSAGES.get(code,"平台读取未完成。"), diagnostics=data.get("diagnostics"))
 
 def read_weibo(runner,target,cancel):
     target=validate_url("weibo",target)

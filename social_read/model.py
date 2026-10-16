@@ -19,14 +19,35 @@ HOSTS = {
 SECRET_KEYS = {"cookie", "authorization", "access_token", "refresh_token", "token", "xsec_token", "api_key", "password", "secret", "signature"}
 
 
+def request_diagnostics(value):
+    """Only bounded categories/counts may leave an upstream response."""
+    if not isinstance(value, dict):
+        return {}
+    result = {}
+    categories = {
+        "request_kind": {"zhihu_root_comments", "zhihu_child_comments", "zhihu_answer", "weibo_status", "weibo_comments", "weibo_longtext", "other_read"},
+        "response_kind": {"json", "html", "other", "unknown"},
+        "failure_origin": {"http_response", "platform_json", "response_parse", "network"},
+    }
+    for key, choices in categories.items():
+        if isinstance(value.get(key), str) and value[key] in choices:
+            result[key] = value[key]
+    for key, low, high in (("http_status", 100, 599), ("platform_error_code", 0, 999999999), ("request_attempts", 1, 2)):
+        if type(value.get(key)) is int and low <= value[key] <= high:
+            result[key] = value[key]
+    return result
+
+
 class ReadError(Exception):
-    def __init__(self, code, message, retryable=False):
+    def __init__(self, code, message, retryable=False, diagnostics=None):
         super().__init__(message)
         self.code, self.message, self.retryable = code, message, retryable
+        self.diagnostics = request_diagnostics(diagnostics)
 
     def result(self):
         result = {"status": self.code, "message": self.message, "retryable": self.retryable}
         if getattr(self, "stage", None):result["stage"] = self.stage
+        if self.diagnostics:result["diagnostics"] = dict(self.diagnostics)
         return result
 
 

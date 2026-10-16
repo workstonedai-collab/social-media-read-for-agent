@@ -1,0 +1,91 @@
+{
+  "version": "0.1.0a12",
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "investigation": "仅使用已有本机回执和对应版本代码，未再次访问平台",
+  "historical_code_commit": "aae23c94d8dfc967504b20444c1fa5e0a9f1f466",
+  "historical_samples": [
+    {
+      "time": "2026-10-16T12:17:54+08:00",
+      "status": "success",
+      "same_source_as_failure": true,
+      "requested_top_level": 2,
+      "replies_per_root_limit": 1,
+      "returned_top_level": 2,
+      "returned_replies": 2
+    },
+    {
+      "time": "2026-10-16T13:12:44+08:00",
+      "status": "failed",
+      "same_source_as_success": true,
+      "requested_top_level": 2,
+      "replies_per_root_limit": 1,
+      "error_status": "access_denied",
+      "http_status": 403,
+      "http_status_evidence": "由该版本仅HTTP403返回access_denied的根评论请求分支推断；旧日志没有直接保存状态码字段",
+      "failure_phase": "before_comment_parsing",
+      "response_kind": "not_recorded",
+      "platform_error_code": "not_recorded"
+    }
+  ],
+  "assessment": {
+    "supported": "本次评论HTTP接口拒绝；没有证据显示评论解析器导致了拒绝",
+    "not_established": [
+      "账号被封",
+      "会话过期",
+      "具体风控规则",
+      "旧失败是否包含验证码错误码",
+      "平台网页手动查看是否正常",
+      "页面会话时序或工具请求兼容性是否参与触发403"
+    ],
+    "tool_defect": "HTTP非成功响应过早丢弃全部诊断，无法细分普通拒绝与已知验证要求"
+  },
+  "fix": {
+    "diagnostic_fields": [
+      "http_status",
+      "request_kind",
+      "response_kind",
+      "platform_error_code",
+      "request_attempts",
+      "failure_origin"
+    ],
+    "excluded_fields": [
+      "request_url",
+      "request_headers",
+      "response_headers",
+      "response_body",
+      "response_message",
+      "credentials"
+    ],
+    "denial_retried": false,
+    "known_json_challenge_on_http403": "verification_required",
+    "ordinary_http403": "access_denied",
+    "child_denial": "保留首层及失败诊断，停止后续子回复请求"
+  },
+  "verification": {
+    "new_offline_response_tests": 12,
+    "affected_existing_tests_passed": 106,
+    "real_browser_or_network_used_by_tests": false,
+    "real_platform_after_fix": "not_requested",
+    "new_codex_platform_read": "not_requested",
+    "current_codex_runtime": {
+      "version": "0.1.0a12",
+      "loaded_revision": "ff0f9bfb054a694c",
+      "disk_revision": "ff0f9bfb054a694c",
+      "update_pending": false,
+      "update_error": null,
+      "historical_task_retrieval": "passed",
+      "new_platform_request": false
+    }
+  },
+  "daily_scope": {
+    "observed_dates": [
+      "2026-10-15",
+      "2026-10-16"
+    ],
+    "new_date_added": false,
+    "same_day_platform_visits_performed": false,
+    "seven_days_complete": false
+  },
+  "limitations": "修复诊断保留，不宣称已消除平台403；旧失败缺失的字段不回填。a11真实通过不作为a12真实平台复测。"
+}

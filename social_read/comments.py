@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 # (Apache-2.0), commit 7797fd3. See THIRD_PARTY_NOTICES.md.
 from .article_text import html_text
 from .browser_page import ReadPage, _pause
-from .model import ReadError, digest, scrub, validate_url
+from .model import ReadError, digest, request_diagnostics, scrub, validate_url
 from .platform_reads import FETCH_JS, check_failure
 
 def normalize_rows(raw, site, limit, replies_limit):
@@ -47,7 +47,12 @@ def finish(raw,site,limit,replies_limit):
     check_failure(raw)
     items=normalize_rows(raw.get("items",[]),site,limit,replies_limit)
     roots=sum(not i["is_reply"] for i in items)
-    errors=list(raw.get("errors",[]))
+    errors=[]
+    for error in raw.get("errors",[]):
+        clean={k:v for k,v in error.items() if k!='diagnostics'}
+        diagnostics=request_diagnostics(error.get('diagnostics'))
+        if diagnostics:clean['diagnostics']=diagnostics
+        errors.append(clean)
     if raw.get("is_end") is not True and raw.get("stop_reason") in {"loading_stalled", "time_budget"} and roots<limit:
         errors.append({"status":"comments_loading_incomplete", "message":"评论尚未完成加载，保留本次已读内容；不能判断平台没有评论。"})
     return {"items":items,"coverage":{"requested_top_level":limit,"replies_per_root_limit":replies_limit,
@@ -95,7 +100,7 @@ def read_comments(runner,site,target,limit,replies_limit,cancel,cursor=None):
             if(reply_requests<3 && rootRow.id){
               await pause(2500);reply_requests++;
               const child=await get('/ajax/statuses/buildComments?flow=1&is_reload=1&id='+encodeURIComponent(rootRow.id)+'&is_show_bulletin=2&is_mix=1&count='+cfg.replies);
-              if(child.failure){errors.push({status:child.failure,message:'部分微博回复未取得。'});if(['rate_limited','verification_required','login_required','access_denied','timeout'].includes(child.failure))replyBlocked=true;}
+              if(child.failure){errors.push({status:child.failure,message:'部分微博回复未取得。',diagnostics:child.diagnostics});if(['rate_limited','verification_required','login_required','access_denied','timeout'].includes(child.failure))replyBlocked=true;}
               else if(Array.isArray(child.data))children=child.data;
             }else reply_roots_not_expanded++;
           }
@@ -121,7 +126,7 @@ def read_comments(runner,site,target,limit,replies_limit,cancel,cursor=None):
             if(reply_requests<3 && rootRow.id){
               await pause(2500);reply_requests++;
               const child=await get('/api/v4/comment_v5/comment/'+encodeURIComponent(rootRow.id)+'/child_comment?limit='+cfg.replies+'&offset=');
-              if(child.failure){errors.push({status:child.failure,message:'部分知乎回复未取得。'});if(['rate_limited','verification_required','login_required','access_denied','timeout'].includes(child.failure))replyBlocked=true;}
+              if(child.failure){errors.push({status:child.failure,message:'部分知乎回复未取得。',diagnostics:child.diagnostics});if(['rate_limited','verification_required','login_required','access_denied','timeout'].includes(child.failure))replyBlocked=true;}
               else if(Array.isArray(child.data))children=child.data;
             }else reply_roots_not_expanded++;
           }
