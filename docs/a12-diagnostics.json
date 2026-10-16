@@ -87,5 +87,11 @@
     "same_day_platform_visits_performed": false,
     "seven_days_complete": false
   },
-  "limitations": "修复诊断保留，不宣称已消除平台403；旧失败缺失的字段不回填。a11真实通过不作为a12真实平台复测。"
+  "limitations": "修复诊断保留，不宣称已消除平台403；旧失败缺失的字段不回填。a11真实通过不作为a12真实平台复测。",
+  "normal_web_followup": {
+    "reference": "a12-normal-web-2026-10-16.json",
+    "normal_page_comments_visible": true,
+    "tool_api_retested": false,
+    "historical_assessment_scope_preserved": true
+  }
 }

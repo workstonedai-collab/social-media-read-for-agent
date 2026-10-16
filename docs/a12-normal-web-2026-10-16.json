@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "recorded_at": "2026-10-16T20:35:09.761776+08:00",
+  "kind": "用户授权的一次正常网页对照；不等同于工具接口复测",
+  "tool_code_version": "0.1.0a12",
+  "browser": {
+    "application": "Google Chrome",
+    "profile": "已有授权的专用资料",
+    "reopened_existing_profile": true,
+    "old_crashed_pages_not_restored": true,
+    "account_changed": false,
+    "login_performed": false
+  },
+  "operations": {
+    "answer_navigation": 1,
+    "comment_panel_activation": 1,
+    "page_refreshes": 0,
+    "extra_reply_expansions": 0,
+    "tool_comment_api_requests": 0
+  },
+  "observations": {
+    "same_source_as_previous_api_failure": true,
+    "answer_body_visible": true,
+    "comment_panel_opened": true,
+    "displayed_comment_total": 5,
+    "visible_top_level_rows": 2,
+    "visible_reply_rows": 1,
+    "verification_prompt_visible": false,
+    "login_prompt_visible": false,
+    "all_comments_read": false,
+    "all_replies_read": false
+  },
+  "assessment": {
+    "supported": "正常网页在本次对照时可显示同一回答的评论，不能将此前接口403解释为网页当前整体不可用。",
+    "not_established": [
+      "正常网页与工具接口同时对照的结果",
+      "此前接口拒绝是否仍存在",
+      "403由平台临时策略、页面会话时序还是工具请求兼容性触发",
+      "全部评论或回复已读取"
+    ],
+    "time_and_environment_boundary": "此前工具失败与本次网页对照相隔数小时；本次重新打开已有专用浏览器资料，未重新登录。不能仅凭网页成功认定接口永久不兼容或故障已修复。"
+  },
+  "daily_validation": {
+    "today_already_recorded": true,
+    "other_platform_visits_this_turn": 0,
+    "new_observed_date_added": false,
+    "distinct_observed_days": 2
+  },
+  "privacy": "截图、来源链接与账号资料仅保存在本机私有状态；公开只含脱敏观察数量和边界。"
+}
