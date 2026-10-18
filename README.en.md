@@ -169,3 +169,7 @@ Seven-day stability, new-machine signed-in onboarding, Windows browser setup, vi
 On macOS the default is a new normal Chrome profile, so desktop agents that identify apps by bundle ID can operate its official store page. The agent clicks **Add to Chrome**; the user confirms the final permissions dialog. A host without desktop control must disclose the remaining manual button instead of promising silent installation. Setup can wait for the new connection and open the platform login page automatically. Deferred logins remain pending; other platforms can be used first. Browser-owned profile data stays under Chrome management; private project state remains in ignored `.state/`.
 
 Xiaohongshu search first opens the normal site homepage, then navigates to the requested search in the same owned page and checks the keyword before collecting results. Search and comments use one task page without automatic page reopening. Comments wait for the comment widget rather than optional caption/title nodes, use short host-driven steps, and retain observed rows if interrupted. Already visible replies are reused without unnecessary expansion. See the [validation record](docs/validation.md) for measured samples and remaining limits.
+
+## Use alongside Agent Reach
+
+Reuse an already configured independent reader without changing default routes or importing other tools’ credentials. See [integration and coverage](docs/agent-reach.md).
