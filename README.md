@@ -204,3 +204,7 @@ python3 scripts/verify_clean_install.py --output .state/clean-install.json
 
 
 [报告使用问题](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=bug_report.yml) · [提出功能建议](https://github.com/workstonedai-collab/social-media-read-for-agent/issues/new?template=feature_request.yml)
+
+## 与 Agent Reach 配合
+
+可作为独立的可选阅读入口，复用已配置连接，不改变默认路由或导入其他工具凭据。见 [接入与覆盖范围](docs/agent-reach.md)。
