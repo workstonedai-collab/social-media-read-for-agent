@@ -26,3 +26,5 @@
 - 首次建立普通Chrome资料的浏览器数据由Chrome管理；独立进程模式才把它放在项目.state。旧布局继续复用；不要未经确认写日常Chrome全局扩展登记或企业策略。
 
 - 知乎回答评论默认打开正常回答页，唯一核对回答身份后只展开一次评论面板；只读网页已渲染的首层与可见回复，不主动展开更多回复。来源变化、验证、登录、限流或拒绝均停止，不回退到评论API。文章评论仍是原有接口路径，不能冒称已完成文章网页评论验收。网页游标与旧接口游标不可混用，默认排序沿用网页，不标成score。
+
+- 知乎面板的reported_comment_count可包含回复，不等于requested_top_level；同时核对rendered_comment_count、returned_top_level和returned_replies。reported_visible_count_reached仅结束本次有限可见取样，不证明分页结尾；root_end_reached=null与完整性false必须保留。迟挂载面板在原有主机预算内观察，不重复点击、开页或回退接口。

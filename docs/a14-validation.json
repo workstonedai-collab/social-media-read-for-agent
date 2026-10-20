@@ -1,0 +1,130 @@
+{
+  "version": "0.1.0a14",
+  "date": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "client": "当前Codex原生MCP",
+  "runtime": {
+    "loaded_revision": "328b6ab37a5b8363",
+    "disk_revision": "328b6ab37a5b8363",
+    "update_pending": false,
+    "update_error": null
+  },
+  "behavior_checks_passed": 181,
+  "scope": "知乎回答网页评论的有限可见样本；按网页总条数与首层上限分别记录。",
+  "pre_fix": {
+    "version": "0.1.0a13",
+    "search_results": 1,
+    "fresh_answer_body_chars": 1308,
+    "comment_status": "partial",
+    "coverage": {
+      "requested_top_level": 2,
+      "replies_per_root_limit": 1,
+      "returned_top_level": 1,
+      "returned_replies": 1,
+      "returned_rows": 2,
+      "non_text_rows": 0,
+      "all_comments": false,
+      "all_replies": false,
+      "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+      "root_pages": 1,
+      "reply_requests": 0,
+      "root_end_reached": null,
+      "stop_reason": "loading_stalled",
+      "backend": "zhihu_answer_visible_dom",
+      "reply_roots_not_expanded": 0,
+      "sort": "platform_default",
+      "visible_replies_only": true,
+      "loading": {
+        "page_attempts": 1,
+        "comment_panel_clicks": 1,
+        "scroll_actions": 1,
+        "reply_expansions": 0,
+        "direct_api_requests": 0,
+        "dom_probes": 8,
+        "seconds": 7.199,
+        "wait_driver": "host"
+      },
+      "continued": false
+    },
+    "error_statuses": [
+      "comments_loading_incomplete"
+    ]
+  },
+  "normal_panel_inspection": {
+    "owned_pages": 1,
+    "panel_clicks": 1,
+    "heading_total_comments": 2,
+    "rendered_root_comments": 1,
+    "rendered_replies": 1,
+    "scrollable_overflow": false,
+    "explicit_end_marker_found": false,
+    "direct_api_requests": 0
+  },
+  "post_fix": {
+    "comment_attempts": 1,
+    "status": "success",
+    "coverage": {
+      "requested_top_level": 2,
+      "replies_per_root_limit": 1,
+      "returned_top_level": 1,
+      "returned_replies": 1,
+      "returned_rows": 2,
+      "non_text_rows": 0,
+      "all_comments": false,
+      "all_replies": false,
+      "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+      "root_pages": 1,
+      "reply_requests": 0,
+      "root_end_reached": null,
+      "stop_reason": "reported_visible_count_reached",
+      "backend": "zhihu_answer_visible_dom",
+      "reply_roots_not_expanded": 0,
+      "sort": "platform_default",
+      "visible_replies_only": true,
+      "reported_comment_count": 2,
+      "rendered_comment_count": 2,
+      "reported_count_includes_replies": true,
+      "visible_count_reached": true,
+      "loading": {
+        "page_attempts": 1,
+        "comment_panel_clicks": 1,
+        "scroll_actions": 0,
+        "reply_expansions": 0,
+        "direct_api_requests": 0,
+        "dom_probes": 8,
+        "seconds": 8.213,
+        "wait_driver": "host"
+      },
+      "continued": false
+    },
+    "error_statuses": [],
+    "same_answer_as_pre_fix": true
+  },
+  "semantics": {
+    "reported_comment_count": "网页显示的总条数，可包含回复；不是请求首层条数。",
+    "rendered_comment_count": "当前面板已渲染的不同评论标识数量，不限于返回的回复上限。",
+    "reported_visible_count_reached": "可见数量与页面显示数量一致且观察稳定，无加载标志或未展开回复按钮；结束本次有限样本。",
+    "root_end_reached": null,
+    "all_comments": false,
+    "all_replies": false,
+    "no_api_retry_or_fallback": true,
+    "no_page_reopen_recovery": true
+  },
+  "offline_checks": [
+    "迟挂载的空面板继续有界观察，不立即滚动或提前停",
+    "无效滚动不重放，后续新行仍可被读取",
+    "加载标志、未展开回复和未知分页结尾保持不完整边界",
+    "旧接口游标隔离、单次打开、来源绑定、验证即停继续通过",
+    "实际固定JS在离线DOM夹具中检查总条数、父子关系、评论文本不充当结束标记"
+  ],
+  "remaining_scope": {
+    "zhihu_article_comments": "仍是既有接口；本次未验证",
+    "hermes": "deferred",
+    "new_profile_login": "deferred",
+    "seven_day_stability": false,
+    "other_platform_visits_this_turn": 0,
+    "same_day_targeted_check_adds_day": false,
+    "daily_receipts_unchanged": true
+  },
+  "privacy": "原文、账号、来源链接、评论标识和任务标识仅保存在私有状态；公开仅保留脱敏数量与覆盖。"
+}

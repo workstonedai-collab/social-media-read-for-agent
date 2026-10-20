@@ -81,8 +81,14 @@ def snapshot(page, answer_id, operation, replies_limit, action=None, timeout=10)
         selected.push({root:{...root,is_reply:false},children,
           expandable:own(node,'button').some(e=>/^展开.*回复|^查看.*回复/.test(clean(e)))});
       }
-      const panelText=clean(panel), empty=selected.length===0 && /^0\s*条评论/.test(panelText);
-      const ended=empty || [...panel.querySelectorAll('span,div,p')].some(e=>!e.children.length && !e.closest('.CommentContent') && /^(?:没有更多了|没有更多评论|已显示全部评论)$/.test(clean(e)));
+      const panelText=clean(panel), total=panelText.match(/^(\d+)\s*条评论/);
+      // The heading includes replies on normal answer panels. Keep it distinct
+      // from the caller's root limit and from a confirmed pagination end.
+      const reported=total && Number.isSafeInteger(Number(total[1]))?Number(total[1]):null;
+      const rendered=new Set(nodes.map(e=>e.getAttribute('data-id')).filter(Boolean)).size;
+      const loading=!!panel.querySelector('[aria-busy="true"],[role="progressbar"]');
+      const empty=selected.length===0 && reported===0;
+      const ended=empty || [...panel.querySelectorAll('span,div,p')].some(e=>!e.children.length && !e.closest('[data-id]') && /^(?:没有更多了|没有更多评论了?|已显示全部评论)$/.test(clean(e)));
       if(!selected.length && /加载失败|请求失败|网络异常/.test(panelText))return {failure:'comments_loading_incomplete'};
       let scrolled=false;
       if(cfg.action==='scroll'){
@@ -97,7 +103,7 @@ def snapshot(page, answer_id, operation, replies_limit, action=None, timeout=10)
           scroller=scroller.parentElement;
         }
       }
-      return {ready:true,panel_open:true,clicked,roots:selected,ended,empty,scrolled};
+      return {ready:true,panel_open:true,clicked,roots:selected,ended,empty,scrolled,loading,reported_comment_count:reported,rendered_comment_count:rendered};
     })()""".replace('CONFIG',json.dumps(cfg))
     data=page.evaluate(script,timeout)
     if not isinstance(data,dict):raise ReadError('adapter_incompatible','网页评论结构没有返回可识别结果。')
@@ -125,6 +131,7 @@ def read_visible_comments(runner,target,limit,replies_limit,cancel,cursor=None):
     seen=set((cursor or {}).get('seen',[]));selected={};errors=[]
     started=time.monotonic();operation=uuid.uuid4().hex;clicks=scrolls=probes=0
     stop_reason='time_budget';raw={};previous=None;stable=0
+    last_change=started;scroll_blocked=False;visible_count_reached=False
     with ReadPage(runner,target,cancel,'zhihu-comments-dom') as page:
         deadline=time.monotonic()+30
         def probe(action=None):
@@ -135,7 +142,7 @@ def read_visible_comments(runner,target,limit,replies_limit,cancel,cursor=None):
             return snapshot(page,answer_id,operation,replies_limit,action,min(10,remaining))
         try:
             opened=False
-            for _ in range(24):
+            for _ in range(64):
                 if cancel and cancel.is_set():raise ReadError('cancelled','任务已取消。')
                 raw=probe()
                 if not raw.get('ready'):
@@ -148,17 +155,31 @@ def read_visible_comments(runner,target,limit,replies_limit,cancel,cursor=None):
                 for entry in raw.get('roots',[]):
                     ident=entry.get('root',{}).get('id')
                     if ident and ident not in seen and (ident in selected or len(selected)<limit):selected[ident]=entry
-                fingerprint=json.dumps(list(selected.values()),sort_keys=True)
-                stable=stable+1 if fingerprint==previous else 0;previous=fingerprint
+                fingerprint=json.dumps({'selected':list(selected.values()),'rendered':raw.get('rendered_comment_count'),
+                    'reported':raw.get('reported_comment_count'),'loading':raw.get('loading')},sort_keys=True)
+                if fingerprint==previous:stable+=1
+                else:stable=0;last_change=time.monotonic();scroll_blocked=False
+                previous=fingerprint
                 if len(selected)>=limit and stable>=1:
                     stop_reason='root_sample_limit';break
                 if raw.get('ended'):
                     stop_reason='visible_empty' if raw.get('empty') else 'visible_end';break
-                if raw.get('panel_open') and stable>=2 and len(selected)<limit:
-                    if scrolls>=3:
-                        stop_reason='loading_stalled';break
-                    changed=probe('scroll');scrolls+=1
-                    if not changed.get('scrolled'):
+                if raw.get('panel_open') and stable>=2 and len(selected)<limit and not raw.get('loading'):
+                    reported=raw.get('reported_comment_count');rendered=raw.get('rendered_comment_count',0)
+                    visible_count_reached=(bool(selected) and isinstance(reported,int) and not isinstance(reported,bool)
+                        and reported>0 and rendered>=reported and not any(e.get('expandable') for e in raw.get('roots',[])))
+                    if visible_count_reached:
+                        # A useful bounded sample, not proof that all roots or
+                        # nested replies are available. Leave is_end unknown.
+                        stop_reason='reported_visible_count_reached';break
+                    # A non-scrollable initial panel can still be loading. Wait
+                    # for six seconds of unchanged observations, without a new
+                    # page, repeated open, API request, or repeated no-op scroll.
+                    if selected and not scroll_blocked and scrolls<3:
+                        changed=probe('scroll');scrolls+=1
+                        scroll_blocked=not changed.get('scrolled')
+                        if not scroll_blocked:last_change=time.monotonic();stable=0
+                    if time.monotonic()-last_change>=6:
                         stop_reason='loading_stalled';break
                 _pause(cancel,.5)
         except ReadError as error:
@@ -167,14 +188,16 @@ def read_visible_comments(runner,target,limit,replies_limit,cancel,cursor=None):
     items=[];not_expanded=0
     for ident,entry in selected.items():
         items.append(entry['root']);items.extend(entry.get('children',[])[:replies_limit]);seen.add(ident)
-        if entry.get('expandable') and len(entry.get('children',[]))<replies_limit:not_expanded+=1
+        if entry.get('expandable'):not_expanded+=1
     exhausted=bool(raw.get('ended')) and all(e.get('root',{}).get('id') in seen for e in raw.get('roots',[]))
     from .comments import finish
     result=finish({'items':items,'errors':errors,'root_pages':1,'reply_requests':0,
         'reply_roots_not_expanded':not_expanded,'is_end':True if exhausted else None,
-        'next_state':{'reader':CURSOR_READER,'seen':list(seen)} if selected and not exhausted and not errors and len(seen)<2000 else None,
+        'next_state':{'reader':CURSOR_READER,'seen':list(seen)} if selected and not exhausted and not visible_count_reached and not errors and len(seen)<2000 else None,
         'stop_reason':stop_reason,'backend':'zhihu_answer_visible_dom'},'zhihu',limit,replies_limit)
     result['coverage'].update(sort='platform_default',visible_replies_only=True,
+        reported_comment_count=raw.get('reported_comment_count'),rendered_comment_count=raw.get('rendered_comment_count'),
+        reported_count_includes_replies=True,visible_count_reached=visible_count_reached,
         loading={'page_attempts':1,'comment_panel_clicks':clicks,'scroll_actions':scrolls,
                  'reply_expansions':0,'direct_api_requests':0,'dom_probes':probes,
                  'seconds':round(time.monotonic()-started,3),'wait_driver':'host'})

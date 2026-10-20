@@ -24,7 +24,15 @@ def snap(roots=None,**kwargs):
 class HostVisibleCommentsTests(unittest.TestCase):
     def run_read(self, values, limit=1, replies=1, cursor=None):
         page=MagicMock();page.__enter__.return_value=page
-        with patch('social_read.zhihu_comments.ReadPage',return_value=page) as pages,patch('social_read.zhihu_comments.snapshot',side_effect=values) as probes,patch('social_read.zhihu_comments._pause'):
+        clock=[0.0]
+        sequence=iter(values);last=[None]
+        def observe(*args,**kwargs):
+            try:last[0]=next(sequence)
+            except StopIteration:pass
+            if isinstance(last[0],Exception):raise last[0]
+            return last[0]
+        def pause(cancel,seconds):clock[0]+=seconds
+        with patch('social_read.zhihu_comments.ReadPage',return_value=page) as pages,patch('social_read.zhihu_comments.snapshot',side_effect=observe) as probes,patch('social_read.zhihu_comments._pause',side_effect=pause),patch('social_read.zhihu_comments.time.monotonic',side_effect=lambda:clock[0]):
             result=read_visible_comments(None,TARGET,limit,replies,threading.Event(),cursor)
         self.assertEqual(pages.call_count,1)
         return result,probes
@@ -82,7 +90,49 @@ class HostVisibleCommentsTests(unittest.TestCase):
         value,probes=self.run_read([snap(),snap(clicked=True),snap([original]),snap([original]),snap([original]),snap([original],scrolled=False)],cursor={'reader':CURSOR_READER,'seen':['1']})
         self.assertEqual(value['items'],[])
         self.assertEqual(value['errors'][0]['status'],'comments_loading_incomplete')
-        self.assertEqual(probes.call_count,6)
+        self.assertGreater(probes.call_count,6)
+
+    def test_heading_counts_replies_without_requiring_a_second_root(self):
+        reply={'id':'3','text':'可见回复','parent_id':'1','is_reply':True}
+        panel=snap([entry(children=[reply])],reported_comment_count=2,rendered_comment_count=2)
+        value,probes=self.run_read([snap(),snap(clicked=True),panel,panel,panel],limit=2)
+        self.assertEqual(value['errors'],[])
+        self.assertEqual(value['coverage']['stop_reason'],'reported_visible_count_reached')
+        self.assertEqual(value['coverage']['returned_top_level'],1)
+        self.assertEqual(value['coverage']['returned_replies'],1)
+        self.assertIsNone(value['coverage']['root_end_reached'])
+        self.assertFalse(value['coverage']['all_comments']);self.assertFalse(value['coverage']['all_replies'])
+        self.assertIsNone(value['_continuation'])
+        self.assertNotIn('scroll',[c.args[4] for c in probes.call_args_list])
+
+    def test_delayed_initial_rows_do_not_trigger_noop_scroll_or_early_stop(self):
+        panel=snap([entry()],reported_comment_count=1,rendered_comment_count=1)
+        value,probes=self.run_read([snap(),snap(clicked=True)]+[snap()]*8+[panel,panel,panel],limit=2)
+        self.assertEqual(value['errors'],[])
+        self.assertEqual(value['coverage']['returned_top_level'],1)
+        self.assertEqual(probes.call_count,13)
+        self.assertNotIn('scroll',[c.args[4] for c in probes.call_args_list])
+
+    def test_loading_indicator_prevents_count_based_stop(self):
+        busy=snap([entry()],reported_comment_count=1,rendered_comment_count=1,loading=True)
+        ready=snap([entry()],reported_comment_count=1,rendered_comment_count=1)
+        value,probes=self.run_read([snap(),snap(clicked=True)]+[busy]*8+[ready]*3,limit=2)
+        self.assertEqual(probes.call_count,13)
+        self.assertEqual(value['coverage']['stop_reason'],'reported_visible_count_reached')
+
+    def test_unexpanded_replies_do_not_imply_all_visible_count_reached(self):
+        panel=snap([entry(expandable=True)],reported_comment_count=1,rendered_comment_count=1)
+        value,_=self.run_read([snap(),snap(clicked=True),panel],limit=2)
+        self.assertEqual(value['errors'][0]['status'],'comments_loading_incomplete')
+        self.assertEqual(value['coverage']['reply_roots_not_expanded'],1)
+        self.assertEqual(value['coverage']['loading']['reply_expansions'],0)
+
+    def test_noop_scroll_waits_for_later_root_and_is_not_replayed(self):
+        initial=snap([entry()]);later=snap([entry(),entry('2')])
+        value,probes=self.run_read([snap(),snap(clicked=True)]+[initial]*3+[snap([entry()],scrolled=False)]+[initial]*3+[later,later],limit=2)
+        self.assertEqual(value['errors'],[])
+        self.assertEqual(value['coverage']['returned_top_level'],2)
+        self.assertEqual([c.args[4] for c in probes.call_args_list].count('scroll'),1)
 
     def test_answer_routes_to_dom_and_never_falls_back_to_denied_api(self):
         with patch('social_read.zhihu_comments.read_visible_comments',side_effect=ReadError('access_denied','stop')) as dom,patch('social_read.comments.read_api_comments') as api:
@@ -142,5 +192,15 @@ class DOMScriptTests(unittest.TestCase):
         value=snapshot(Page(),'456','fixture',1)
         self.assertEqual([r['root']['id'] for r in value['roots']],['1999999999999999999','2'])
         self.assertEqual(value['roots'][1]['children'][0]['parent_id'],'2')
+        self.assertEqual(value['reported_comment_count'],5)
+        self.assertEqual(value['rendered_comment_count'],3)
+        self.assertFalse(value['ended'])
+        original_harness=harness
+        leaf="{children:[],innerText:'没有更多了',closest:()=>root1}"
+        harness=original_harness.replace("s==='[data-id]'?[root1,root2,reply]:[]", "s==='[data-id]'?[root1,root2,reply]:s==='span,div,p'?["+leaf+"]:[]")
+        self.assertFalse(snapshot(Page(),'456','fixture',1)['ended'])
+        harness=harness.replace("closest:()=>root1}","closest:()=>null}")
+        self.assertTrue(snapshot(Page(),'456','fixture',1)['ended'])
+        harness=original_harness
         with self.assertRaises(ReadError) as caught:snapshot(Page(),'999','fixture',1)
         self.assertEqual(caught.exception.code,'source_mismatch')
