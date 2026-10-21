@@ -8,6 +8,7 @@ import tempfile
 import time
 import uuid
 import secrets
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -37,10 +38,29 @@ class Runner:
         self.executable = executable or opencli_executable()
         self.profile = profile
         self.timeout = timeout
+        self.connection_events = threading.local()
         if profile and (not re.fullmatch(r"[\w .-]{1,80}", profile) or profile.startswith("-")):
             raise ReadError("invalid_input", "浏览器资料名称格式无效。")
 
+    def ensure_connection(self, cancel=None):
+        from .runtime import ROOT
+        state=ROOT/'.state'
+        marker=state/'browser-profile.txt'
+        try:saved=marker.read_text().strip()
+        except OSError:return
+        if not self.profile or saved!=self.profile or not self.executable:return
+        from .connection import BrowserConnection
+        receipt=BrowserConnection(state,self.profile,self.executable).ensure(cancel)
+        if receipt.get('initial_status')!='ready':
+            receipts=getattr(self.connection_events,'receipts',[])
+            receipts.append(receipt);self.connection_events.receipts=receipts
+
     def run(self, args, cancel=None, timeout=None):
+        # Recover local readiness before any page or platform command is sent.
+        # Never recover/replay an already dispatched command or click.
+        browser_open=len(args)>=4 and args[0]=='browser' and args[2:4]==['tab','new']
+        platform_read=len(args)>=2 and args[1] in READ_COMMANDS.get(args[0],set())
+        if browser_open or platform_read:self.ensure_connection(cancel)
         if not self.executable:
             raise ReadError("adapter_missing", "请先安装 OpenCLI，再连接浏览器扩展。")
         from .runtime import command_env
@@ -165,6 +185,7 @@ class Runner:
                     pass
 
     def diagnose(self, cancel=None):
+        self.ensure_connection(cancel)
         if not self.executable:
             return {"status": "adapter_missing", "message": "OpenCLI 未安装。"}
         code, version, _ = self.run(["--version"], cancel, 5)

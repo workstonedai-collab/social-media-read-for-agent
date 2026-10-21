@@ -28,3 +28,5 @@
 - 知乎回答评论默认打开正常回答页，唯一核对回答身份后只展开一次评论面板；只读网页已渲染的首层与可见回复，不主动展开更多回复。来源变化、验证、登录、限流或拒绝均停止，不回退到评论API。文章评论仍是原有接口路径，不能冒称已完成文章网页评论验收。网页游标与旧接口游标不可混用，默认排序沿用网页，不标成score。
 
 - 知乎面板的reported_comment_count可包含回复，不等于requested_top_level；同时核对rendered_comment_count、returned_top_level和returned_replies。reported_visible_count_reached仅结束本次有限可见取样，不证明分页结尾；root_end_reached=null与完整性false必须保留。迟挂载面板在原有主机预算内观察，不重复点击、开页或回退接口。
+
+- 已保存连接离线时先直接执行读取，运行时会在发送命令前恢复唯一绑定的原资料；不要采用onboarding-browser里的其他空白资料或重新安装。读取回执中的connection_recovery与私有connection-recovery日志保留实际恢复次数。版本不符、资料不唯一、扩展未连上时停止，由Agent核查；已发送操作结果不明时不恢复重放。图片diagnostics只提供固定网络/传输/本地IO类别，不含原始异常；不通过换路由、关闭TLS或重复请求绕过拒绝。

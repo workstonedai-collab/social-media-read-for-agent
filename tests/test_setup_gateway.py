@@ -36,6 +36,7 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(bootstrap.discover_profile(['daily','new'],None,['daily']),'new')
         self.assertIsNone(bootstrap.discover_profile(['a','b'],None,[]))
         self.assertEqual(bootstrap.discover_profile(['known'],'known'),'known')
+        self.assertIsNone(bootstrap.discover_profile(['new-blank'],'saved-offline',[]))
 
     def test_selected_platform_acceptance_requires_fresh_bodies(self):
         from unittest.mock import Mock

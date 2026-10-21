@@ -25,10 +25,11 @@ def request_diagnostics(value):
         return {}
     result = {}
     categories = {
-        "request_kind": {"zhihu_root_comments", "zhihu_child_comments", "zhihu_answer", "weibo_status", "weibo_comments", "weibo_longtext", "other_read"},
+        "request_kind": {"zhihu_root_comments", "zhihu_child_comments", "zhihu_answer", "weibo_status", "weibo_comments", "weibo_longtext", "other_read", "xiaohongshu_image"},
         "response_kind": {"json", "html", "other", "unknown"},
-        "failure_origin": {"http_response", "platform_json", "response_parse", "network"},
+        "failure_origin": {"http_response", "platform_json", "response_parse", "network", "image_connect", "image_response", "image_read", "image_storage"},
     }
+    categories["network_error"]={"timeout","dns","tls","connection_reset","connection_refused","connection_other","incomplete_body","invalid_metadata","local_io"}
     for key, choices in categories.items():
         if isinstance(value.get(key), str) and value[key] in choices:
             result[key] = value[key]

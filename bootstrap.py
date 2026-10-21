@@ -79,6 +79,7 @@ def connected_profiles(executable):
 
 def discover_profile(profiles, saved, baseline=None):
     if saved in profiles:return saved
+    if saved:return None # An offline saved identity must never become a new blank profile.
     # Only auto-select a newly connected profile after we opened our owned browser.
     if baseline is not None:
         added=set(profiles)-set(baseline)
@@ -288,10 +289,12 @@ def main():
     if selected and a.apply:private_write(config,selected+'\n')
     result.update(connected_profiles=profiles,selected_profile=selected)
     if not executable:result['next_actions'].append({'action':'install_opencli','message':'由 Agent 检查 Node 20.18.1+ 后运行 --apply，安装项目独立 OpenCLI。'})
-    if not selected:result['next_actions'].append({'action':'dedicated_browser_extension','url':EXTENSION,'message':'由 Agent 在空白专用 Chrome 资料打开官方商店并点击添加至 Chrome；用户只确认最终权限。用 --apply --wait-for-browser 180 自动继续连接，不让用户找资料编号或复制 Cookie。'})
+    if not selected and saved:result['next_actions'].append({'action':'reconnect_saved_browser','message':'已保存专用连接但当前离线。Agent直接执行读取即可先恢复原资料；不要重新安装、采用新连接或覆盖现有选择。'})
+    if not selected and not saved:result['next_actions'].append({'action':'dedicated_browser_extension','url':EXTENSION,'message':'由 Agent 在空白专用 Chrome 资料打开官方商店并点击添加至 Chrome；用户只确认最终权限。用 --apply --wait-for-browser 180 自动继续连接，不让用户找资料编号或复制 Cookie。'})
     if a.open_browser and selected:
         raise RuntimeError('dedicated_profile_already_connected_use_open_login')
     if a.open_browser:
+        if saved:raise RuntimeError('saved_browser_offline_reconnect_instead_of_onboarding')
         if sys.platform!='darwin':raise RuntimeError('automatic_browser_launch_macos_only')
         plan=browser_plan(marker,profiles,a.browser_layout)
         result['extension_setup']=launch_browser(plan,a.extension_install)

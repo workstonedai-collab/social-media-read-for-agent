@@ -10,7 +10,9 @@
 
 项目标识：`social-media-read-for-agent`。为已有 Agent 提供七个只读 MCP 工具，也可以通过命令行或本地网页使用。本项目无需额外的模型 API 密钥；你的 Agent 自身仍按原来的方式运行。
 
-当前是 **0.1.0a14 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+当前是 **0.1.0a15 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
+
+已有专用连接暂时离线时，读取前会自动核对并打开原Chrome资料，无需反复安装或登录；本机macOS已做真实恢复验收。图片下载失败会报告具体网络/传输类别，成功图片与配文保留。详见[本轮恢复与读取验证](docs/a15-validation.json)。
 
 知乎回答评论现在默认打开正常网页评论面板，按范围读取首层和可见回复；文章评论仍使用原有接口。不会把未展开回复算作已读，也不会在拒绝后切换接口重试。网页“评论总数”与首层上限分别计数，避免“1条首层+1条回复”误报加载失败。详见[本轮真实验收](docs/a14-validation.json)。
 
@@ -118,7 +120,7 @@ flowchart LR
 
 Hermes 换成 `--clients hermes`；明确两边都需要时使用 `--clients codex hermes`。其他本地 Agent 使用 `--clients generic` 生成配置，再由 Agent 合并到自己的客户端。
 
-macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a14/social-media-read-for-agent-v0.1.0a14.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
+macOS 用户也可以 [下载一键安装源码包](https://github.com/workstonedai-collab/social-media-read-for-agent/releases/download/v0.1.0a15/social-media-read-for-agent-v0.1.0a15.zip)，解压后双击 **安装.command**。系统可能要求确认打开文件；安装结束后回到 Agent，由它继续引导授权和登录。没有 Git 时可直接使用压缩包。
 
 - 安装器按系统/处理器下载固定版本的独立 Python、Node，校验 SHA256 后才执行，保存在项目 `.state/runtime/`，不改系统 Python/Node、shell 设置或 Agent 自己的依赖。
 - 首次需要联网下载运行时和组件；后续重复安装复用它们。不是把运行时删掉，而是免去用户单独安装和管理；运行时解压约260 MB，OpenCLI 与可选 OCR 另需空间。

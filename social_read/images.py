@@ -7,6 +7,9 @@ import shutil
 import subprocess
 import tempfile
 import time
+import socket
+import ssl
+import http.client
 from pathlib import Path
 from urllib.error import URLError, HTTPError
 from urllib.parse import urlsplit, urlunsplit
@@ -36,35 +39,61 @@ class ImageRedirect(HTTPRedirectHandler):
 def download_image(url, path, cancel, deadline=None):
     url = image_url(url)
     stop = min(time.monotonic() + 12, deadline) if deadline else time.monotonic() + 12
+    stage="image_connect"
+    def fail(code, message, kind=None, http_status=None):
+        diagnostics={"request_kind":"xiaohongshu_image","request_attempts":1,"failure_origin":stage}
+        if kind:diagnostics["network_error"]=kind
+        if http_status:diagnostics["http_status"]=http_status
+        return ReadError(code,message,diagnostics=diagnostics)
     try:
         with build_opener(ImageRedirect()).open(Request(url, headers={"Accept": "image/*", "Referer": "https://www.xiaohongshu.com/"}), timeout=max(0.5, min(12, stop-time.monotonic()))) as response:
+            stage="image_response"
             image_url(response.geturl())
             kind = response.headers.get_content_type()
             if kind not in {"image/jpeg", "image/png", "image/webp", "image/avif", "image/heic", "application/octet-stream"}:
                 raise ReadError("image_decode_failed", "图片来源没有返回支持的图片。")
-            if int(response.headers.get("Content-Length", "0")) > MAX_IMAGE_BYTES:
+            expected=int(response.headers.get("Content-Length", "0"))
+            if expected<0:raise ValueError()
+            if expected > MAX_IMAGE_BYTES:
                 raise ReadError("image_budget_exceeded", "图片超过单张读取预算。")
             size = 0
+            stage="image_storage"
             with open(path, "wb") as dest:
                 while True:
                     if cancel and cancel.is_set():
                         raise ReadError("cancelled", "任务已取消。")
                     if time.monotonic() > stop:
                         raise ReadError("image_timeout", "图片下载超过时间预算。")
+                    stage="image_read"
                     chunk = (response.read1 if hasattr(response, "read1") else response.read)(64 * 1024)
                     if not chunk:
                         break
                     size += len(chunk)
                     if size > MAX_IMAGE_BYTES:
                         raise ReadError("image_budget_exceeded", "图片超过单张读取预算。")
+                    stage="image_storage"
                     dest.write(chunk)
+            stage="image_response"
+            if expected and size!=expected:
+                raise fail("image_incomplete","图片传输未完成，已保留配文及其他图片。","incomplete_body")
             if not size:
                 raise ReadError("image_decode_failed", "图片为空。")
     except HTTPError as exc:
         code = "image_rate_limited" if exc.code == 429 else "image_access_denied" if exc.code in (401, 403) else "image_unavailable"
-        raise ReadError(code, "图片来源暂不可访问，已保留其他图片，未重复请求。")
-    except (URLError, OSError, ValueError):
-        raise ReadError("image_unavailable", "本次未取得图片，配文及其他已读图片保留。")
+        raise fail(code, "图片来源暂不可访问，已保留其他图片，未重复请求。", http_status=exc.code)
+    except http.client.IncompleteRead:
+        raise fail("image_incomplete","图片传输未完成，已保留配文及其他图片。","incomplete_body")
+    except (URLError, OSError, ValueError) as exc:
+        reason=exc.reason if isinstance(exc,URLError) else exc
+        if stage=="image_storage":code,kind="image_storage_failed","local_io"
+        elif isinstance(reason,(socket.timeout,TimeoutError)):code,kind="image_timeout","timeout"
+        elif isinstance(reason,ssl.SSLError):code,kind="image_tls_failed","tls"
+        elif isinstance(reason,socket.gaierror):code,kind="image_dns_failed","dns"
+        elif isinstance(reason,ConnectionResetError):code,kind="image_connection_reset","connection_reset"
+        elif isinstance(reason,ConnectionRefusedError):code,kind="image_connection_failed","connection_refused"
+        elif isinstance(reason,ValueError):code,kind="image_response_invalid","invalid_metadata"
+        else:code,kind="image_unavailable","connection_other"
+        raise fail(code,"本次未取得图片，已保留配文及其他图片；Agent可根据具体诊断处理。",kind)
 
 def run_local(args, cancel, timeout):
     with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
@@ -302,6 +331,7 @@ def enrich_images(item, images, runner, cancel, order_source, reported_count=Non
                     publish()
                     raise
                 row.update(status=exc.code, message=exc.message)
+                if exc.diagnostics:row["diagnostics"]=dict(exc.diagnostics)
                 errors.append({"image_order": index + 1, **exc.result()})
                 if exc.code in {"image_access_denied", "image_rate_limited"}:
                     blocked = exc.code

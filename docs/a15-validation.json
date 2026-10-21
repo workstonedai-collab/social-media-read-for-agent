@@ -1,0 +1,154 @@
+{
+  "version": "0.1.0a15",
+  "date": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "client": "当前Codex原生MCP",
+  "runtime": {
+    "loaded_revision": "2b62b269a58b27a3",
+    "disk_revision": "2b62b269a58b27a3",
+    "update_pending": false,
+    "update_error": null
+  },
+  "behavior_checks_passed": 199,
+  "connection_diagnosis": {
+    "local_daemon_running": true,
+    "saved_extension_connected_before": false,
+    "only_open_browser_process_was_blank_onboarding_profile": true,
+    "original_profile_bound_by_saved_extension_context": true,
+    "root_cause_scope": "运行时没有唤起已保存资料，启动资料记录却属于另一个空白验收资料；已确认状态差异，未推断用户关闭窗口的原因。",
+    "live_recovery": [
+      {
+        "initial_status": "profile_disconnected",
+        "daemon_starts": 0,
+        "browser_launches": 1,
+        "profile_pinned": true,
+        "final_status": "ready",
+        "seconds": 1.027
+      }
+    ],
+    "user_operations_this_run": 0,
+    "service_restart_performed": false
+  },
+  "image_diagnosis": {
+    "historical_date": "2026-10-20",
+    "historical_error": "image_unavailable",
+    "historical_exception_type_preserved": false,
+    "historical_transport_cause_confirmed": false,
+    "historical_record_unchanged": true,
+    "improvements": [
+      "网络超时、DNS、TLS、连接中断/拒绝、本地写入及无效响应头分类",
+      "只保存固定类别、阶段、HTTP状态与请求次数，不保存异常原文、URL、Cookie或响应头",
+      "Content-Length与实际字节不符时不将截断图片送入OCR",
+      "401/403/429停止，未新增图片自动重试或网络路由切换"
+    ],
+    "same_note_fresh_acceptance": {
+      "status": "success",
+      "body_chars": 548,
+      "coverage": {
+        "caption": "read",
+        "ocr_profile": "rapidocr-v1-a2953855a856d6e7",
+        "image_count": 1,
+        "discovered_images": 1,
+        "ocr_attempted": 1,
+        "ocr_succeeded": 1,
+        "ocr_unread": 0,
+        "image_order": "note_state_carousel",
+        "images_all_processed": true,
+        "video_transcription": false,
+        "ocr_accuracy_verified": false,
+        "images_reused": 0,
+        "images_processed_this_run": 1,
+        "unread_orders": [],
+        "undiscovered_image_count": 0,
+        "images_from_download_cache": 0
+      },
+      "image_download_cache_used": false,
+      "errors": []
+    }
+  },
+  "limited_live_acceptance": {
+    "search": {
+      "status": "success",
+      "returned_by_platform": {
+        "xiaohongshu": 1,
+        "weixin": 1
+      }
+    },
+    "xiaohongshu_comments": {
+      "status": "success",
+      "coverage": {
+        "requested_top_level": 2,
+        "replies_per_root_limit": 1,
+        "returned_top_level": 2,
+        "returned_replies": 1,
+        "returned_rows": 3,
+        "non_text_rows": 0,
+        "all_comments": false,
+        "all_replies": false,
+        "reply_relationship": "root_thread_and_reply_to_author; deeper_nesting_unverified",
+        "root_pages": 0,
+        "reply_requests": 0,
+        "root_end_reached": null,
+        "stop_reason": "root_sample_limit",
+        "backend": "note_dom_host_steps",
+        "reply_roots_not_expanded": 0,
+        "loading": {
+          "page_attempts": 1,
+          "search_entry": "same_origin_navigation",
+          "seconds": 8.642,
+          "wait_driver": "host",
+          "optional_caption_required": false
+        },
+        "continued": false,
+        "sort": "platform_default"
+      },
+      "errors": []
+    },
+    "weixin_body": {
+      "status": "success",
+      "body_chars": 4478,
+      "cache_used": false,
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      },
+      "navigation": {
+        "page_attempts": 1,
+        "article_clicks": 1,
+        "activation": "validated_link_dom_click",
+        "article_navigation_seconds": 3.991
+      },
+      "errors": []
+    }
+  },
+  "offline_coverage": [
+    "只打开唯一匹配已保存扩展身份的现有Chrome资料，忽略另一空白资料的启动标记",
+    "连接在线时零打开；服务离线只启动一次；版本不符不关闭既有服务",
+    "并发任务只恢复一次；可取消；未知或已发送操作不重新派发",
+    "显式别名兼容，不采用全局默认资料",
+    "设置流程不将已保存离线身份替换成新连接",
+    "图片诊断不泄漏URL或异常原文；限流/拒绝不重试；截断与本地IO分别处理"
+  ],
+  "remaining_scope": {
+    "automatic_profile_reopen": "已验证macOS普通Chrome资料；其他系统/独立user-data-dir未验收",
+    "daemon_start_when_stopped": "离线夹具通过，未停止用户现有服务做真实重启验收",
+    "historical_image_failure": "本轮未复现；不宣称已证明或消除历史网络原因",
+    "zhihu_weibo_live_this_turn": false,
+    "hermes": "deferred",
+    "new_profile_login": "deferred",
+    "promotion": "deferred",
+    "all_comments": false,
+    "all_replies": false,
+    "ocr_accuracy_verified": false,
+    "seven_day_a15_stability": false,
+    "daily_first_receipts_unchanged": true,
+    "scheduled_followup_recreated": false
+  },
+  "privacy": "来源、原文、账号、扩展资料标识与任务标识均只保存在私有状态，公开仅保留脱敏结果。"
+}

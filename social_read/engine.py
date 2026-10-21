@@ -138,6 +138,8 @@ class Engine:
     def _work(self, job_id, action, r, event):
         result = {"version": __version__, "mode": self.mode, "items": [], "errors": [], "fetched_at": now()}
         status = "success"
+        events=getattr(self.runner,"connection_events",None)
+        if events is not None:events.receipts=[]
         try:
             if event.is_set():
                 raise ReadError("cancelled", "任务已取消。")
@@ -240,6 +242,8 @@ class Engine:
             result["errors"].append({"status": "internal_error", "message": "服务未完成此任务，请查看验证记录或重新提交。"})
             status = "failed"
         finally:
+            receipts=getattr(events,"receipts",None)
+            if isinstance(receipts,list) and receipts:result["connection_recovery"]=receipts
             self.store.update_job(job_id, "cancelled" if event.is_set() else status, result)
             with self.events_lock:
                 self.events.pop(job_id, None)
