@@ -1,8 +1,11 @@
 # 智能体国内社媒使用工具
 
-这个项目能够让智能体访问、搜索、查阅社交媒体，当前已经集成了小红书、微博、知乎和微信公众号，其他社交媒体正在陆续接通中。项目适用于小白，借鉴了现有多个开源工具，并做了集成。直接把这个项目丢给你的智能体，并在他的引导下登录社交媒体账号，你的智能体即可访问这些平台了。请注意，为确保安全，登录时尽量使用无过多个人隐私内容的空白账号
+为本地智能体提供小红书、微博、知乎和微信公众号的搜索与阅读能力。项目集成并保留所参考开源工具的归属；你可以把仓库交给 Agent，按说明准备环境，再在平台页面正常登录。建议使用个人隐私内容较少的专用账号。
 
-**把账号登录好，其余交给 Agent：跨平台搜索、读原文和图片、查评论，留下可回查的来源。**
+A read-only tool for local agents to search and read supported content on Xiaohongshu, Weibo, Zhihu and WeChat public accounts. It integrates existing open-source tools with attribution. Let your agent follow the setup guide, then sign in normally on the platforms using a dedicated account with little personal content.
+
+
+**跨平台搜索、读原文和图片、查看有限评论，并保留可回查的来源。**
 
 **中文** · [English](README.en.md) · [安装与排障](docs/installation.md) · [首次使用教程](docs/first-use.md) · [任务模板](docs/trial-tasks.md) · [试用反馈](docs/trial-feedback.md) · [实际验证](docs/validation.md)
 
