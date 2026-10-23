@@ -1,11 +1,8 @@
 # 智能体国内社媒使用工具
 
-为本地智能体提供小红书、微博、知乎和微信公众号的搜索与阅读能力。项目集成并保留所参考开源工具的归属；你可以把仓库交给 Agent，按说明准备环境，再在平台页面正常登录。建议使用个人隐私内容较少的专用账号。
+给做产品调研、核对用户反馈的本地 Agent 使用。搜索小红书、微博、知乎和微信公众号，继续读原文、图中文字和有限评论，留下可以回查的来源。
 
-A read-only tool for local agents to search and read supported content on Xiaohongshu, Weibo, Zhihu and WeChat public accounts. It integrates existing open-source tools with attribution. Let your agent follow the setup guide, then sign in normally on the platforms using a dedicated account with little personal content.
-
-
-**跨平台搜索、读原文和图片、查看有限评论，并保留可回查的来源。**
+For local agents researching Chinese social media: search, read supported posts and bounded comments, and keep source links.
 
 **中文** · [English](README.en.md) · [安装与排障](docs/installation.md) · [首次使用教程](docs/first-use.md) · [任务模板](docs/trial-tasks.md) · [试用反馈](docs/trial-feedback.md) · [实际验证](docs/validation.md)
 
@@ -15,9 +12,7 @@ A read-only tool for local agents to search and read supported content on Xiaoho
 
 当前是 **0.1.0a15 预览版**。已有真实账号读取及 Codex/Hermes 调用证据；首次设置的依赖与配置已在隔离环境验证。搜索排序、登录有效期、平台验证与页面变化仍会影响结果。它不是平台官方接口，不提供发布、点赞或关注功能。
 
-已有专用连接暂时离线时，读取前会自动核对并打开原Chrome资料，无需反复安装或登录；本机macOS已做真实恢复验收。图片下载失败会报告具体网络/传输类别，成功图片与配文保留。详见[本轮恢复与读取验证](docs/a15-validation.json)。
-
-知乎回答评论现在默认打开正常网页评论面板，按范围读取首层和可见回复；文章评论仍使用原有接口。不会把未展开回复算作已读，也不会在拒绝后切换接口重试。网页“评论总数”与首层上限分别计数，避免“1条首层+1条回复”误报加载失败。详见[本轮真实验收](docs/a14-validation.json)。
+首次使用建议 **macOS + Chrome**。先看下面的真实任务回执，再把安装提示交给 Agent；也可以先跑[无需账号的演示](#先看一个不需要账号的例子)。请在平台页面正常登录，建议使用个人信息较少的专用账号。复用项目及作者归属见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
 ## 适合用它做什么
 
@@ -32,20 +27,6 @@ flowchart LR
     C --> D[直接提出搜索或调研问题]
     D --> E[原文、图中文字、有限评论与来源]
 ```
-
-## 把仓库交给 Agent
-
-复制这一段给支持本地执行的 Codex、Hermes 或其他 Agent：
-
-> 请安装并配置 https://github.com/workstonedai-collab/social-media-read-for-agent 。先阅读仓库 AGENTS.md 和安装说明，自动检查运行环境、安装项目独立依赖、配置你自己的读取入口。使用专用浏览器资料；需要我确认扩展授权或在平台扫码/输入密码时再引导我。不要索取 Cookie 或让我手改配置。完成后用当前对话实际搜索、阅读，并报告可用平台与限制。
-
-正常的用户流程：**交给 Agent → 确认一次官方扩展权限 → 在专用浏览器登录 → 直接提出调研问题。** 后续可问：
-
-> 在四个平台搜索“个人知识管理工具”，读几篇原文及有限评论，区分品牌推广、教程与用户反馈，给出有来源的痛点归纳。
-
-用户不需要找浏览器资料编号、复制 Cookie、配置模型密钥或保持手动启动的服务。Agent 可等待授权后的新连接并自动打开登录页。暂时无法登录时保留进度，先使用其他平台；不必从头安装。平台再次要求扫码、验证码或安全验证时，需要本人正常完成。某些 Agent 首次发现 MCP 需要刷新工具；Agent 可先用同仓库 CLI 完成任务，不应把反复重配交给用户。
-
-完整步骤、兼容性、升级和失败处理见 **[安装说明](docs/installation.md)**；执行约定见 [AGENTS.md](AGENTS.md)。
 
 ## 看一次真实执行
 
@@ -64,19 +45,19 @@ flowchart LR
 
 </details>
 
-## 我们在能力集成的基础上做了什么
+## 把仓库交给 Agent
 
-| 你关心的事 | 本项目增加的使用体验 |
-| --- | --- |
-| 不想研究一堆安装教程 | 把仓库交给 Agent，由它检查环境、安装独立依赖、合并配置、引导授权和登录；已有连接直接复用 |
-| 不想分别配置四个平台 | 七个统一工具返回相同任务结构、确定条数和来源；某个平台失败时，其他已读内容保留 |
-| 不想只读到搜索摘要 | 从搜索记录继续读原文；小红书按顺序读图中文字，公众号记录正文边界和加载状态 |
-| 不想失败后全部重来 | 成功图片逐张保留，缺图继续补读；兼容的代码更新在空闲时加载，任务和缓存不丢失 |
-| 不懂怎么判断是否装好了 | 用当前 Agent 实际搜索、阅读验收；返回明确失败原因，不把“已登录”当成“已读成功” |
+复制这一段给支持本地执行的 Codex、Hermes 或其他 Agent：
 
-底层读取复用 [OpenCLI](https://github.com/jackwener/OpenCLI)，评论加载借鉴并署名 [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)，图片识别可选 [RapidOCR](https://github.com/RapidAI/RapidOCR)。本项目的重点是把这些能力做成**容易上手、可以恢复、结果可核对的国内社媒阅读流程**。复用范围及许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+> 请安装并配置 https://github.com/workstonedai-collab/social-media-read-for-agent 。先阅读仓库 AGENTS.md 和安装说明，自动检查运行环境、安装项目独立依赖、配置你自己的读取入口。使用专用浏览器资料；需要我确认扩展授权或在平台扫码/输入密码时再引导我。不要索取 Cookie 或让我手改配置。完成后用当前对话实际搜索、阅读，并报告可用平台与限制。
 
-只想先用一个平台，也可以先让 Agent 配置它、完成登录，再按需接通其他平台；不必为了试用而一次登录所有账号。
+正常的用户流程：**交给 Agent → 确认一次官方扩展权限 → 在专用浏览器登录 → 直接提出调研问题。** 后续可问：
+
+> 在四个平台搜索“个人知识管理工具”，读几篇原文及有限评论，区分品牌推广、教程与用户反馈，给出有来源的痛点归纳。
+
+用户不需要找浏览器资料编号、复制 Cookie、配置模型密钥或保持手动启动的服务。Agent 可等待授权后的新连接并自动打开登录页。暂时无法登录时保留进度，先使用其他平台；不必从头安装。平台再次要求扫码、验证码或安全验证时，需要本人正常完成。某些 Agent 首次发现 MCP 需要刷新工具；Agent 可先用同仓库 CLI 完成任务，不应把反复重配交给用户。
+
+完整步骤、兼容性、升级和失败处理见 **[安装说明](docs/installation.md)**；执行约定见 [AGENTS.md](AGENTS.md)。
 
 ## 先看一个不需要账号的例子
 
@@ -99,6 +80,20 @@ flowchart LR
 ```
 
 完整可重现输出见 [演示结果](examples/demo-research.json)。真实使用的结果还包括正文、原始日期、来源、取得时间、图片处理状态和明确失败原因；Agent 应按这些字段判断资料覆盖，不能把搜索摘要写成“已读全文”。
+
+## 我们在能力集成的基础上做了什么
+
+| 你关心的事 | 本项目增加的使用体验 |
+| --- | --- |
+| 不想研究一堆安装教程 | 把仓库交给 Agent，由它检查环境、安装独立依赖、合并配置、引导授权和登录；已有连接直接复用 |
+| 不想分别配置四个平台 | 七个统一工具返回相同任务结构、确定条数和来源；某个平台失败时，其他已读内容保留 |
+| 不想只读到搜索摘要 | 从搜索记录继续读原文；小红书按顺序读图中文字，公众号记录正文边界和加载状态 |
+| 不想失败后全部重来 | 成功图片逐张保留，缺图继续补读；兼容的代码更新在空闲时加载，任务和缓存不丢失 |
+| 不懂怎么判断是否装好了 | 用当前 Agent 实际搜索、阅读验收；返回明确失败原因，不把“已登录”当成“已读成功” |
+
+底层读取复用 [OpenCLI](https://github.com/jackwener/OpenCLI)，评论加载借鉴并署名 [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)，图片识别可选 [RapidOCR](https://github.com/RapidAI/RapidOCR)。本项目的重点是把这些能力做成**容易上手、可以恢复、结果可核对的国内社媒阅读流程**。复用范围及许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
+只想先用一个平台，也可以先让 Agent 配置它、完成登录，再按需接通其他平台；不必为了试用而一次登录所有账号。
 
 ## 能读取什么
 
@@ -213,3 +208,9 @@ python3 scripts/verify_clean_install.py --output .state/clean-install.json
 ## 与 Agent Reach 配合
 
 可作为独立的可选阅读入口，复用已配置连接，不改变默认路由或导入其他工具凭据。见 [接入与覆盖范围](docs/agent-reach.md)。
+
+## 版本与验证记录
+
+已有专用连接暂时离线时，读取前会自动核对并打开原Chrome资料，无需反复安装或登录；本机macOS已做真实恢复验收。图片下载失败会报告具体网络/传输类别，成功图片与配文保留。详见[本轮恢复与读取验证](docs/a15-validation.json)。
+
+知乎回答评论现在默认打开正常网页评论面板，按范围读取首层和可见回复；文章评论仍使用原有接口。不会把未展开回复算作已读，也不会在拒绝后切换接口重试。网页“评论总数”与首层上限分别计数，避免“1条首层+1条回复”误报加载失败。详见[本轮真实验收](docs/a14-validation.json)。

@@ -1,8 +1,6 @@
 # Chinese Social Media Tools for Agents
 
-Let your agent access, search, and read Chinese social platforms. **Xiaohongshu (RedNote), Weibo, Zhihu, and WeChat Official Account articles** are currently integrated. More platforms are planned. This project brings together existing open-source tools and adds a unified read interface, local OCR, recovery, and agent-led setup.
-
-Give this repository to your local agent and follow its prompts to authorize the browser extension and sign in. For account privacy, use dedicated accounts with little personal information. Sign in on the platform page; never send passwords, cookies, or verification codes to the agent.
+For product researchers and local agents working with Chinese social media. Search Xiaohongshu (RedNote), Weibo, Zhihu and WeChat Official Accounts, then read supported posts, image text and bounded comments with source links.
 
 [中文](README.md) · **English** · [Installation](docs/installation.en.md) · [First use (中文)](docs/first-use.md) · [Task templates (中文)](docs/trial-tasks.md) · [Validation and known failures](docs/validation.md)
 
@@ -10,21 +8,19 @@ Give this repository to your local agent and follow its prompts to authorize the
 
 Package/repository identifier: `social-media-read-for-agent`. **0.1.0a15, public preview.** Seven read-only MCP tools, a CLI, and a local dashboard. No additional model API key is required by this project; your existing agent keeps its own model setup. This is an unofficial integration. Login expiry, platform challenges, loading failures, and page changes can still affect access. Posting, liking, and following are outside the current scope.
 
-Before a read, an offline saved connection can reopen its verified original Chrome profile instead of repeating setup or adopting another account. Real recovery was validated on macOS. Image downloads report bounded transport diagnostics and retain successful content. See [recovery and live validation](docs/a15-validation.json).
-
-Zhihu answer comments now use the normal webpage panel and return bounded, rendered comments and visible replies. Article comments retain the existing API reader. Denials do not trigger an API fallback. Displayed totals, rendered rows and root limits are recorded separately, so one root plus one reply is not mistaken for a missing second root. See the [bounded live validation](docs/a14-validation.json).
-
-## A real run, with explicit coverage
-
-[![Sanitized receipts from a real Codex run](docs/assets/live-demo-poster.png)](docs/assets/live-demo.mp4)
-
-This replay comes from actual tool tasks using existing dedicated accounts. It is not a platform screen recording or a fresh-account sign-in walkthrough. Waiting is compressed; results and limits are kept separate. See the [versioned validation record](docs/a11-validation.json) for successful coverage, first failures, and unverified boundaries.
+Start with **macOS + Chrome**. Watch the task receipts below, then give the setup prompt to your agent; an [account-free demo](#try-it-without-an-account) is also available. Sign in on platform pages using a dedicated account with little personal information. Never send passwords, cookies or verification codes to the agent. Reused tools retain their attribution in [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## What it helps with
 
 - Research product needs: search a topic across platforms, read original posts and a bounded set of comments, and compare use cases and counterexamples.
 - Check feedback: distinguish personal experiences, sponsored posts, and tutorials, with sources and original dates.
 - Read saved links: retrieve visible text and ordered image OCR for Xiaohongshu notes; resume missing images without discarding successful ones.
+
+## A real run, with explicit coverage
+
+[![Sanitized receipts from a real Codex run](docs/assets/live-demo-poster.png)](docs/assets/live-demo.mp4)
+
+This replay comes from actual tool tasks using existing dedicated accounts. It is not a platform screen recording or a fresh-account sign-in walkthrough. Waiting is compressed; results and limits are kept separate. See the [versioned validation record](docs/a11-validation.json) for successful coverage, first failures, and unverified boundaries.
 
 ## Give the repository to your agent
 
@@ -47,20 +43,6 @@ Captured after real search/read operations in this project's local demo mode. No
 
 </details>
 
-## What this integration adds
-
-| User need | Project behavior |
-| --- | --- |
-| Less configuration | Agent-led isolated installation, preserved client settings, reuse of dedicated browser connections |
-| One research flow | Seven consistent tools, explicit per-platform counts, sources, and preserved results when a platform fails |
-| More than snippets | Original bodies, ordered Xiaohongshu image OCR, WeChat body boundaries and loading status |
-| Recovery without starting over | Per-image checkpoints, missing-image resume, idle reading-code reload with task state retained |
-| Proof that setup worked | Actual current-agent search/read acceptance, rather than a login-status claim |
-
-Reading uses [OpenCLI](https://github.com/jackwener/OpenCLI); attributed comment-loading logic builds on [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp); optional local OCR uses [RapidOCR](https://github.com/RapidAI/RapidOCR). The focus is an approachable, recoverable research workflow with inspectable coverage. See [license and provenance details](THIRD_PARTY_NOTICES.md).
-
-Start with only the platforms you need, then connect others later. Signing in to every platform is not a prerequisite for trying one.
-
 ## Try it without an account
 
 After cloning the repository:
@@ -82,6 +64,20 @@ Once the runtime is available, no additional Python packages, network, browser, 
 ```
 
 See the [reproducible complete output](examples/demo-research.json). Live results include text, original date, source, fetch time, image coverage, and explicit errors. A search snippet is not an article read.
+
+## What this integration adds
+
+| User need | Project behavior |
+| --- | --- |
+| Less configuration | Agent-led isolated installation, preserved client settings, reuse of dedicated browser connections |
+| One research flow | Seven consistent tools, explicit per-platform counts, sources, and preserved results when a platform fails |
+| More than snippets | Original bodies, ordered Xiaohongshu image OCR, WeChat body boundaries and loading status |
+| Recovery without starting over | Per-image checkpoints, missing-image resume, idle reading-code reload with task state retained |
+| Proof that setup worked | Actual current-agent search/read acceptance, rather than a login-status claim |
+
+Reading uses [OpenCLI](https://github.com/jackwener/OpenCLI); attributed comment-loading logic builds on [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp); optional local OCR uses [RapidOCR](https://github.com/RapidAI/RapidOCR). The focus is an approachable, recoverable research workflow with inspectable coverage. See [license and provenance details](THIRD_PARTY_NOTICES.md).
+
+Start with only the platforms you need, then connect others later. Signing in to every platform is not a prerequisite for trying one.
 
 ## Supported reading
 
@@ -175,3 +171,9 @@ Xiaohongshu search first opens the normal site homepage, then navigates to the r
 ## Use alongside Agent Reach
 
 Reuse an already configured independent reader without changing default routes or importing other tools’ credentials. See [integration and coverage](docs/agent-reach.md).
+
+## Release and validation notes
+
+Before a read, an offline saved connection can reopen its verified original Chrome profile instead of repeating setup or adopting another account. Real recovery was validated on macOS. Image downloads report bounded transport diagnostics and retain successful content. See [recovery and live validation](docs/a15-validation.json).
+
+Zhihu answer comments now use the normal webpage panel and return bounded, rendered comments and visible replies. Article comments retain the existing API reader. Denials do not trigger an API fallback. Displayed totals, rendered rows and root limits are recorded separately, so one root plus one reply is not mistaken for a missing second root. See the [bounded live validation](docs/a14-validation.json).
