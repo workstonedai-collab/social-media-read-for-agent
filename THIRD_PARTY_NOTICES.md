@@ -39,3 +39,10 @@ Python-build-standalone's build-system source is MPL-2.0; none of that implement
 ## Locked OpenCLI dependencies
 
 `dependencies/opencli/package.json` and `package-lock.json` record the pinned external OpenCLI 1.8.6 runtime and its npm dependencies, with official registry URLs and SRI integrity values. No dependency implementation is copied into our source repository. `npm ci --ignore-scripts --omit=optional` installs the package baseline into the project-private directory; original installed licenses remain in place. This does not relicense those packages under the project MIT license.
+
+## Agent Reach cooldown policy
+
+- Source: https://github.com/Panniantong/Agent-Reach/blob/beabda7486e9a666360b18cdb5c0e759c2c4d20f/agent_reach/runtime/dispatch.py (`cooldown`, `RATE_LIMIT_SECONDS`, `_remember`).
+- Revision/version: `beabda7486e9a666360b18cdb5c0e759c2c4d20f`, 1.6.0.
+- Copyright (c) 2025 Agent Eyes; MIT, full text in `licenses/Agent-Reach-MIT.txt`.
+- `social_read/health.py` adapts the per-platform persisted rate-limit cooldown calculation and one-hour policy. Our SQLite persistence, profile/mode scopes, partial-result inspection and per-action observation records integrate it with this project's existing task engine. No Agent Reach browser, account state, configuration or runtime dependency is imported.

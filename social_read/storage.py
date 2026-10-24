@@ -28,6 +28,14 @@ class Store:
             CREATE TABLE IF NOT EXISTS comment_cursors (
                 id TEXT PRIMARY KEY, source TEXT NOT NULL, expires REAL NOT NULL, data TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS platform_activity (
+                platform TEXT NOT NULL, action TEXT NOT NULL,
+                latest TEXT NOT NULL, last_success TEXT, last_failure TEXT,
+                PRIMARY KEY (platform, action)
+            );
+            CREATE TABLE IF NOT EXISTS platform_cooldowns (
+                platform TEXT PRIMARY KEY, until REAL NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS jobs (
                 id TEXT PRIMARY KEY, action TEXT NOT NULL, status TEXT NOT NULL,
                 created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
@@ -162,3 +170,31 @@ class Store:
         with self.lock:
             ids = [r[0] for r in self.db.execute("SELECT id FROM jobs ORDER BY created_at DESC LIMIT 30").fetchall()]
         return [self.job(i) for i in ids]
+
+    def record_activity(self, site, action, observation, rate_limited=False):
+        # Only explicitly constructed metadata reaches this table: no queries,
+        # URLs, account identities, result bodies or upstream exception messages.
+        data = json.dumps(observation, ensure_ascii=False)
+        success = data if observation["status"] == "success" else None
+        failure = data if observation["status"] != "success" else None
+        with self.lock:
+            self.db.execute("""INSERT INTO platform_activity VALUES (?,?,?,?,?)
+                ON CONFLICT(platform,action) DO UPDATE SET
+                latest=excluded.latest,
+                last_success=COALESCE(excluded.last_success,platform_activity.last_success),
+                last_failure=COALESCE(excluded.last_failure,platform_activity.last_failure)
+                """, (site, action, data, success, failure))
+            if rate_limited:
+                from .health import RATE_LIMIT_SECONDS
+                self.db.execute("""INSERT INTO platform_cooldowns VALUES (?,?)
+                    ON CONFLICT(platform) DO UPDATE SET until=MAX(until,excluded.until)
+                    """, (site, time.time() + RATE_LIMIT_SECONDS))
+            self.db.commit()
+
+    def platform_health(self, site):
+        with self.lock:
+            rows = self.db.execute("SELECT * FROM platform_activity WHERE platform=?", (site,)).fetchall()
+            pause = self.db.execute("SELECT until FROM platform_cooldowns WHERE platform=?", (site,)).fetchone()
+        return {"actions": {row["action"]: {key: json.loads(row[key]) if row[key] else None
+                for key in ("latest", "last_success", "last_failure")} for row in rows},
+                "cooldown": {"until": pause["until"]} if pause else None}
