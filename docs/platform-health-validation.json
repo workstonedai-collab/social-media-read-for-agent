@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "timezone": "Asia/Shanghai",
+  "scope": "platform action observations and persistent cooldown; not new platform/media coverage",
+  "offline": {
+    "behavior_checks_passed": 207,
+    "new_health_checks_passed": 8,
+    "fictional_walkthrough_unchanged": true
+  },
+  "native_mcp": {
+    "loaded_revision": "06d53cad89a4c225",
+    "update_pending": false,
+    "search": {
+      "platform": "weixin",
+      "returned": 1,
+      "status": "success"
+    },
+    "read": {
+      "platform": "weixin",
+      "status": "success",
+      "body_chars": 1181,
+      "cache_used": false,
+      "errors": [],
+      "coverage": {
+        "visible_body": true,
+        "body_closed": true,
+        "body_stable": true,
+        "local_truncation": false,
+        "paid_or_collapsed": false,
+        "code_block_count": 0,
+        "image_text_read": false,
+        "all_article_content": false
+      }
+    },
+    "observations": {
+      "search": "success",
+      "read": "success"
+    }
+  },
+  "limitations": {
+    "live_rate_limit_triggered": false,
+    "cooldown_cross_instance_and_restart": "synthetic only; no real platform deliberately rate limited",
+    "other_platforms_live_this_change": false,
+    "hermes_live_this_change": false,
+    "seven_day_stability": false
+  },
+  "upstream_reuse": {
+    "project": "Panniantong/Agent-Reach",
+    "revision": "beabda7486e9a666360b18cdb5c0e759c2c4d20f",
+    "license": "MIT",
+    "adapted": "persisted per-platform cooldown; no Reach browser or account import"
+  }
+}

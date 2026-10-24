@@ -9,6 +9,7 @@ from pathlib import Path
 from .adapter import DemoAdapter, OpenCLIAdapter, Runner
 from .model import PLATFORMS, ReadError, bounded_int, digest, keyword, now, platform, scrub, validate_url
 from .storage import Store
+from .health import ACTION_HINTS, cooldown, outcome, require_available
 from . import __version__
 
 TERMINAL = {"success", "partial", "failed", "cancelled", "interrupted"}
@@ -30,9 +31,33 @@ class Engine:
         self.events_lock = threading.RLock()
         self.locks = {s: threading.Lock() for s in PLATFORMS}
         self.closed = False
+        from .gateway import revision
+        self.revision = revision(Path(__file__).resolve().parent.parent)
 
     def capabilities(self):
-        return {"version": __version__, "mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；回答评论走正常网页，仅取可见回复；文章评论仍用既有接口；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
+        return {"version": __version__, "mode": self.mode, "read_only": True, "platforms": [{"id": s, "label": d["label"], "search_source": d["source"], "search": "candidate", "read": "candidate", "comments": "candidate" if d["comments"] else "unsupported", "live_validation": "pending", "recent_activity": self._health(s), "limitations": {"xiaohongshu": "图片逐张本机 OCR，最多18张；识别错字、图表含义及视频仍需核对。", "weibo": "长文记录展开状态；评论与回复仅取指定范围，图片内容未识别。", "zhihu": "问题页最多三个回答；回答评论走正常网页，仅取可见回复；文章评论仍用既有接口；付费内容不扩展。", "weixin": "搜索来自搜狗索引，正常点击后读取原文；历史文章需核对日期，留言不支持。"}[s]} for s, d in PLATFORMS.items()]}
+
+    def _health(self, site):
+        saved = self.store.platform_health(site)
+        return {"actions": saved["actions"], "cooldown": cooldown(saved["cooldown"]),
+                "scope": "current_mode_and_browser_profile",
+                "notice": "历史动作记录，不代表当前登录、可用性或内容完整性；demo不是真实平台验收。"}
+
+    def _observe(self, site, action, status, error_code=None):
+        if action not in {"search", "read", "comments"} or error_code == "cancelled":
+            return
+        # Never persist raw messages/URLs, including from third-party adapters.
+        observation = {"status": status, "observed_at": now(), "version": __version__,
+                       "revision": self.revision, "mode": self.mode}
+        if error_code:
+            known = error_code if error_code in ACTION_HINTS or error_code in {
+                "partial_content", "confirmed_empty", "empty", "content_unavailable",
+                "comments_empty", "adapter_incompatible", "bridge_unavailable",
+                "profile_disconnected", "browser_binding_required"} else "other_error"
+            observation["error_code"] = known
+            observation["next_action"] = ACTION_HINTS.get(known, "按任务回执核对读取范围与失败原因。")
+        self.store.record_activity(site, action, observation,
+                                   rate_limited=error_code in {"rate_limited", "image_rate_limited"})
 
     def _validate(self, action, request):
         if action not in {"search", "read", "comments", "connection"} or not isinstance(request, dict):
@@ -88,7 +113,7 @@ class Engine:
         self.pool.submit(self._work, job_id, action, r, event)
         return {"task_id": job_id, "status": "queued", "mode": self.mode, "next": "使用 get_task 查询任务，完成后用 content_ref 阅读。"}
 
-    def _execute(self, site, event, fn):
+    def _execute(self, site, event, fn, action=None):
         lock = self.locks[site]
         while not lock.acquire(timeout=0.1):
             if event.is_set():
@@ -113,6 +138,7 @@ class Engine:
                 pass
             if event.is_set():
                 raise ReadError("cancelled", "任务已取消。")
+            require_available(self.store.platform_health(site)["cooldown"])
             if self.mode == "live":
                 try:
                     remaining = min(2.5, max(0, 2.5 - (time.time() - float(stamp_path.read_text()))))
@@ -121,9 +147,19 @@ class Engine:
                 if remaining and event.wait(remaining):
                     raise ReadError("cancelled", "任务已取消。")
             started = True
-            result = fn()
+            try:
+                result = fn()
+            except ReadError as exc:
+                self._observe(site, action, "confirmed_empty" if exc.code == "search_empty_confirmed" else "failed",
+                              "confirmed_empty" if exc.code == "search_empty_confirmed" else exc.code)
+                raise
+            except Exception:
+                self._observe(site, action, "failed", "internal_error")
+                raise
             if event.is_set():
                 raise ReadError("cancelled", "任务已取消，完成记录已保留。")
+            observed, error_code = outcome(result)
+            self._observe(site, action, observed, error_code)
             return result
         finally:
             try:
@@ -147,7 +183,7 @@ class Engine:
             if action == "search":
                 for site in r["platforms"]:
                     try:
-                        items = self._execute(site, event, lambda: self.adapter.search(site, r["query"], r["limit"], event))
+                        items = self._execute(site, event, lambda: self.adapter.search(site, r["query"], r["limit"], event), action="search")
                         seen = set()
                         for item in items:
                             saved = self.store.save_item(site, item, raw=item)
@@ -190,7 +226,7 @@ class Engine:
                         if hasattr(self.adapter, "read_with_context"):
                             return self.adapter.read_with_context(r["platform"], r["_target"], event, cached["data"] if cached else {})
                         return self.adapter.read(r["platform"], r["_target"], event)
-                    item = self._execute(r["platform"], event, fetch_content)
+                    item = self._execute(r["platform"], event, fetch_content, action="read")
                     from .model import publication_age
                     age_info = publication_age(item.get("published_at_raw"))
                     if age_info:item["publication_age"] = age_info
@@ -207,7 +243,7 @@ class Engine:
                     result["errors"].extend({"platform": r["platform"], **e} for e in answer_errors)
                     status = "partial"
             elif action == "comments":
-                result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event, replies_limit=r["replies_limit"], **({"cursor": r["_cursor"]} if "_cursor" in r else {}))))
+                result.update(self._execute(r["platform"], event, lambda: self.adapter.comments(r["platform"], r["_target"], r["limit"], event, replies_limit=r["replies_limit"], **({"cursor": r["_cursor"]} if "_cursor" in r else {})), action="comments"))
                 continuation = result.pop("_continuation", None)
                 result["next_cursor"] = self.store.save_comment_cursor(r["platform"], r["_target"], continuation) if continuation else None
                 result["coverage"]["continued"] = "_cursor" in r

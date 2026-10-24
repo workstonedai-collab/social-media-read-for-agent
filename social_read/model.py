@@ -48,6 +48,8 @@ class ReadError(Exception):
     def result(self):
         result = {"status": self.code, "message": self.message, "retryable": self.retryable}
         if getattr(self, "stage", None):result["stage"] = self.stage
+        if getattr(self, "retry_after_seconds", None):
+            result["retry_after_seconds"] = self.retry_after_seconds
         if self.diagnostics:result["diagnostics"] = dict(self.diagnostics)
         return result
 
